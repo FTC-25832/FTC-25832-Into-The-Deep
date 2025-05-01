@@ -99,11 +99,11 @@ public class LowerSlide {
     public void pos4(){ spinclaw.setPosition(0);}
 
     public void pos_grab() {
-        big(0.93);
-        small(0.1);
+        big(0.95);
+        small(0);
     }
     public void pos_up() {
-        big(0.6);
+        big(0.64);
         small(1);
     }
 

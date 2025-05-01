@@ -74,8 +74,8 @@ public class UpperSlide {
         distance = Math.round(COUNTS_PER_CM*50);
         //hang();
     }
-    public void pos2(){ distance = Math.round(COUNTS_PER_CM*70); }
-    public void pos3(){ distance = Math.round(COUNTS_PER_CM*60); }
+    public void pos2(){ distance = Math.round(COUNTS_PER_CM*75); }
+    public void pos3(){ distance = Math.round(COUNTS_PER_CM*80); }
 
     public void big(double x){
         arm1.setPosition(x);
@@ -100,12 +100,24 @@ public class UpperSlide {
         swing.setPosition(-val+1);
     }
 
-    public void behind(){
-        arm1.setPosition(0.3);
-        arm2.setPosition(0.3);
+    public void transfer(){
+        arm1.setPosition(0.23);
+        arm2.setPosition(0.23);
         swing.setPosition(0);
     }
     public void front(){
+        arm1.setPosition(0.60);
+        arm2.setPosition(0.60);
+        swing.setPosition(0.3);
+    }
+
+    public void offwall(){
+        arm1.setPosition(0.80);
+        arm2.setPosition(0.80);
+        swing.setPosition(0.2);
+    }
+
+    public void scorespec(){
         arm1.setPosition(0.60);
         arm2.setPosition(0.60);
         swing.setPosition(0.3);

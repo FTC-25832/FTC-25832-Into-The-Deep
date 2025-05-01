@@ -77,8 +77,12 @@ public class Swerve extends LinearOpMode {
             if (gamepad1.left_trigger>0){ lowslide.pos_up();  adjust = false; lowslide.spinclawSetPositionDeg(0);}
             if (gamepad1.x) { lowslide.setSlidePos1(); }
             if (gamepad1.y) { lowslide.setSlidePos2(); }
-            if(gamepad2.right_trigger > 0){ upslide.behind(); }
+            if(gamepad2.right_trigger > 0){ upslide.transfer(); }
             if(gamepad2.left_trigger > 0){ upslide.front(); }
+            if(gamepad2.dpad_down) {upslide.transfer();}
+            if(gamepad2.dpad_up) {upslide.front();}
+            if(gamepad2.dpad_left) {upslide.offwall();}
+            if(gamepad2.dpad_right) {upslide.scorespec();}
             if(gamepad1.dpad_down) { lowslide.spinclawSetPositionDeg(0); }
             if(gamepad1.dpad_right) { lowslide.spinclawSetPositionDeg(45); }
             if(gamepad1.dpad_up) { lowslide.spinclawSetPositionDeg(90); }
