@@ -78,4 +78,9 @@ lint/intermediates/
 lint/generated/
 lint/outputs/
 lint/tmp/
-# lint/reports/
+# lint/reports/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/henrytodo.md
+TeamCode/src/main/java/org/firstinspires/ftc/teamcode/util/AutoPP.java
+TeamCode/src/main/java/org/firstinspires/ftc/teamcode/util/MathUtils.java
+TeamCode/src/main/java/org/firstinspires/ftc/teamcode/vision/
+requirements.txt
+TeamCode/src/main/java/org/firstinspires/ftc/teamcode/henrytodo.md
