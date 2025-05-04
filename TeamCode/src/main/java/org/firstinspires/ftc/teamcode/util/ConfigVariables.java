@@ -2,19 +2,22 @@ package org.firstinspires.ftc.teamcode.util;
 
 import com.acmerobotics.dashboard.config.Config;
 
-@Config
+// @Config
+@Configurable
 public class ConfigVariables {
         // this just default/initial values prob newer adjusted ones in ftc dashboard
         // ftc dashboard at :8030/dash
 
-        @Config
+        // @Config
+        @Configurable
         public static class General {
                 public static int CAMERA_INTERVAL = 1000; // in milliseconds
                 public static int CLAW_ZERO_DEG = 55; // deg
         }
 
         // UpperSlide
-        @Config
+        // @Config
+        @Configurable
         public static class UpperSlideVars {
                 // Arm positions
                 public static double FRONT_ARM_POS = 0.60;
@@ -42,7 +45,8 @@ public class ConfigVariables {
         }
 
         // LowerSlide
-        @Config
+        // @Config
+        @Configurable
         public static class LowerSlideVars {
                 // Arm positions
                 public static double GRAB_BIG = 0.93;

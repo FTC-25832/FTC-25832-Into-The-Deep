@@ -18,11 +18,32 @@ apply from: '../build.dependencies.gradle'
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
+    // https://ftcontrol.bylazar.com/docs/prerequisites/
+    compileSdk 35
+    defaultConfig {
+        minSdk
+    }
+    // ---------
+
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
 }
 
+//these orders matter, dont change if not knowing what you are doing, for roadrunner
+repositories {
+   maven { url = 'https://maven.brott.dev/' }
+}
+
 dependencies {
     implementation project(':FtcRobotController')
+    //this needs to be first ^, this needs to be second v, for roadrunner
+    implementation "com.acmerobotics.roadrunner:ftc:0.1.15"
+    implementation "com.acmerobotics.roadrunner:core:1.0.1"
+    implementation "com.acmerobotics.roadrunner:actions:1.0.1"
+    implementation "com.acmerobotics.dashboard:dashboard:0.4.16"
+
+    //https://ftcontrol.bylazar.com/docs/prerequisites/ check this changelog before updating version might break
+    implementation "com.bylazar:ftcontrol:0.4.1"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 }
