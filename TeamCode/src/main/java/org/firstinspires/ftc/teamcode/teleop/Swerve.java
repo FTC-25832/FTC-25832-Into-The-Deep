@@ -7,8 +7,11 @@ import com.acmerobotics.dashboard.canvas.Canvas;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.IMU;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import org.firstinspires.ftc.teamcode.util.ConfigVariables;
 import org.firstinspires.ftc.teamcode.util.Drivetrain;
@@ -20,7 +23,7 @@ import org.firstinspires.ftc.teamcode.util.Interval;
 
 @TeleOp(group = "TeleOp")
 public class Swerve extends LinearOpMode {
-    Localizer odo = new Localizer();
+    // Localizer odo = new Localizer();
     Drivetrain drive = new Drivetrain();
     UpperSlide upslide = new UpperSlide();
     LowerSlide lowslide = new LowerSlide();
@@ -53,7 +56,20 @@ public class Swerve extends LinearOpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-        odo.initialize(hardwareMap);
+        // odo.initialize(hardwareMap);
+        /*
+         * 
+         * TEMP DISABLE, DONT NEED THIS ACCURATE ODO FOR HEADING?
+         * 
+         */
+
+        imu = hardwareMap.get(IMU.class, "imu");
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        imu.resetYaw();
+
         drive.initialize(hardwareMap);
         upslide.initialize(hardwareMap);
         lowslide.initialize(hardwareMap);
@@ -68,14 +84,14 @@ public class Swerve extends LinearOpMode {
         waitForStart();
 
         camera.cameraStart();
-        // dashboard.startCameraStream(camera.getCamera(), 0);
+        dashboard.startCameraStream(camera.getCamera(), 0);
 
         Interval interval = new Interval(() -> {
             if (adjust) {
                 double posAngle = angleAccum / angleNum;
                 posAngle = Math.min(Math.max(posAngle, 0), 270);
 
-                // Check if angle has changed significantly
+                // // Check if angle has changed significantly
                 if (Math.abs(posAngle - lastAngle) > ANGLE_DIFFERENCE_THRESHOLD) {
                     // Rumble to indicate significant angle change
                     gamepad1.rumble(100); // Short rumble for 100ms
@@ -93,6 +109,9 @@ public class Swerve extends LinearOpMode {
             angleNum = 0;
         }, ConfigVariables.General.CAMERA_INTERVAL);
         while (opModeIsActive()) {
+
+            lowslide.spinclawSetPositionDeg(ConfigVariables.General.CLAW_ZERO_DEG);
+
             double time = System.currentTimeMillis();
 
             /*
@@ -214,7 +233,8 @@ public class Swerve extends LinearOpMode {
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
 
-            double botHeading = odo.heading();
+            // double botHeading = odo.heading();
+            doulbe botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
