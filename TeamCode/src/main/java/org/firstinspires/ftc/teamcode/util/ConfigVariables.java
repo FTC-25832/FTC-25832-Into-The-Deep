@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
 
 // @Config
 @Configurable

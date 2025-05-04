@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.canvas.Canvas;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.bylazar.ftcontrol.panels.Panels;
 import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.util.ConfigVariables;
 import org.firstinspires.ftc.teamcode.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.util.Drivetrain;
@@ -32,6 +34,7 @@ public class Swerve extends LinearOpMode {
     UpperSlide upslide = new UpperSlide();
     LowerSlide lowslide = new LowerSlide();
     Limelight camera = new Limelight();
+    IMU imu;
 
     double angleAccum = 0;
     double angleNum = 1;
@@ -52,6 +55,8 @@ public class Swerve extends LinearOpMode {
     private TelemetryManager ftControlTelemetry;
     private long lastDashboardUpdateTime = 0;
     private static final long DASHBOARD_UPDATE_INTERVAL_MS = 250; // Update FTCdashboard 4 times per second
+
+    TelemetryPacket packet = new TelemetryPacket();
 
     // Original helper methods for FTC Dashboard
     private void addTelemetryAndPacket(String caption, Object value) {
@@ -86,10 +91,6 @@ public class Swerve extends LinearOpMode {
         dashboardTelemetry = dashboard.getTelemetry();
         ftControlTelemetry = Panels.getTelemetry();
 
-        // Initialize camera stream
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-
         // odo.initialize(hardwareMap);
         /*
          * 
@@ -118,7 +119,7 @@ public class Swerve extends LinearOpMode {
         waitForStart();
 
         camera.cameraStart();
-        dashboard.startCameraStream(camera.getCamera(), 0);
+        // dashboard.startCameraStream(camera.getCamera(), 0);
 
         Interval interval = new Interval(() -> {
             if (adjust) {
@@ -245,7 +246,7 @@ public class Swerve extends LinearOpMode {
             angleNum += 1;
 
             // Create dashboard packet
-            TelemetryPacket packet = new TelemetryPacket();
+            // TelemetryPacket packet = new TelemetryPacket();
             Canvas field = packet.fieldOverlay();
 
             // Draw robot position from odometry
@@ -253,7 +254,8 @@ public class Swerve extends LinearOpMode {
             DashboardUtil.drawRobot(field, "#3F51B5"); // Draw robot using localizer data
 
             // Visualize limelight detection (camera)
-            if (camera.isDetected()) {
+            // if (camera.isDetected()) {
+            if (camera != null) {
                 field.setStroke("#4CAF50"); // Material Green for detection
                 field.setFill("#4CAF50");
                 double radians = Math.toRadians(angle);
@@ -313,7 +315,7 @@ public class Swerve extends LinearOpMode {
             ftControlTelemetry.update(telemetry);
 
             // Additional robot data
-            addTelemetry("Detection", camera.isDetected());
+            // addTelemetry("Detection", camera.isDetected());
             addTelemetry("Upper Slide Position", upslide.arm1.getPosition());
             addTelemetry("Lower Slide Position", lowslide.slide.getCurrentPosition());
             addTelemetry("Robot Heading", botHeading);

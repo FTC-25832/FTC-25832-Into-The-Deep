@@ -21,11 +21,14 @@ android {
     // https://ftcontrol.bylazar.com/docs/prerequisites/
     compileSdk 35
     defaultConfig {
-        minSdk
+        minSdk 24
     }
     // ---------
 
     packagingOptions {
+        jniLibs {
+            pickFirsts += ['**/*.so']
+        }
         jniLibs.useLegacyPackaging true
     }
 }
@@ -38,7 +41,7 @@ repositories {
 dependencies {
     implementation project(':FtcRobotController')
     //this needs to be first ^, this needs to be second v, for roadrunner
-    implementation "com.acmerobotics.roadrunner:ftc:0.1.15"
+    implementation 'com.acmerobotics.roadrunner:ftc:0.1.21'
     implementation "com.acmerobotics.roadrunner:core:1.0.1"
     implementation "com.acmerobotics.roadrunner:actions:1.0.1"
     implementation "com.acmerobotics.dashboard:dashboard:0.4.16"
