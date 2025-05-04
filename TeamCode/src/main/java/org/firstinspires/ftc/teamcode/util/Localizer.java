@@ -64,7 +64,7 @@ public class Localizer {
                 return theta;
         }
 
-        public void positionArc() {
+        public static void positionArc() {
                 double dX, dY;
                 leftEncoderPos = -podL.getCurrentPosition(); // negative
                 rightEncoderPos = -podR.getCurrentPosition();
