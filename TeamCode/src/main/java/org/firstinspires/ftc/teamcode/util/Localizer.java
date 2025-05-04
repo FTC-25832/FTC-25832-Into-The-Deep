@@ -19,9 +19,9 @@ public class Localizer {
         // positive x should be the forward direction of the robot
         // positive y should be left
         // in milimeters
-        public static double Ly = 157.113; // distance between left L wheel and Y
-        public static double Ry = -180.86; // distance between right R wheel and Y
-        public static double Bx = 10.235; // distance between center C wheel and X, B as in 'back'
+        public static double Ly = 126.59; // distance between left L wheel and Y
+        public static double Ry = -135.73; // distance between right R wheel and Y
+        public static double Bx = 42.50; // distance between center C wheel and X, B as in 'back'
 
         public static double X = 0;
         public static double Y = 0;
