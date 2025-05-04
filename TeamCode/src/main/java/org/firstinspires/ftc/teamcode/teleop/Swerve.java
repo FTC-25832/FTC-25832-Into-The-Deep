@@ -17,6 +17,7 @@ import com.bylazar.ftcontrol.panels.Panels;
 import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
 
 import org.firstinspires.ftc.teamcode.util.ConfigVariables;
+import org.firstinspires.ftc.teamcode.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.util.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.Limelight;
 import org.firstinspires.ftc.teamcode.util.Localizer;
@@ -235,19 +236,23 @@ public class Swerve extends LinearOpMode {
             upslide.updatePID();
             lowslide.updatePID();
 
+            // Update odometry position
+            Localizer.positionArc();
+
             double angle = camera.getAngle(); // -90 ~ 90
             angle = angle + ANGLE_OFFSET; // 0 ~ 180
             angleAccum += angle;
             angleNum += 1;
+
             // Create dashboard packet
             TelemetryPacket packet = new TelemetryPacket();
             Canvas field = packet.fieldOverlay();
 
-            // Draw robot state
+            // Draw robot position from odometry
             field.setStroke("#3F51B5"); // Material Blue
-            field.strokeRect(-18, -18, 36, 36); // Robot base visualization
+            DashboardUtil.drawRobot(field, "#3F51B5"); // Draw robot using localizer data
 
-            // Visualize limelight detection
+            // Visualize limelight detection (camera)
             if (camera.isDetected()) {
                 field.setStroke("#4CAF50"); // Material Green for detection
                 field.setFill("#4CAF50");
