@@ -1,6 +1,10 @@
 ### wireless code upload setup
 connect to wifi then adb commands
 
+`adb tcpip 5555`
+
+`adb connect 192.168.43.1.5555`
+
 faq https://www.reddit.com/r/FTC/comments/181l7i6/connecting_to_control_hub_wirelessly_with_adb/
 
 detailed https://blog.jcole.us/2017/04/13/wireless-programming-for-ftc-robots/#appendix-usb-wifi-models
