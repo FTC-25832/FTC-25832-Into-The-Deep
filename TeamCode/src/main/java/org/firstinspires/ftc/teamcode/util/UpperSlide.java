@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -29,11 +30,17 @@ public class UpperSlide {
     public double distance = 0;
     public double ref = 0;
     DcMotor slide1, slide2;
+    DcMotor slide1Encoder, slide2Encoder;
 
     public void initialize(HardwareMap map) {
         hardwareMap = map;
+        // Initialize slide motors for power
         slide1 = hardwareMap.get(DcMotor.class, control.motor(0));
         slide2 = hardwareMap.get(DcMotor.class, control.motor(1));
+
+        // Initialize slide encoders
+        slide1Encoder = hardwareMap.get(DcMotor.class, expansion.motor(0));
+        slide2Encoder = hardwareMap.get(DcMotor.class, control.motor(1));
 
         arm1 = hardwareMap.get(ServoImplEx.class, control.servo(2));
         arm1.setDirection(ServoImplEx.Direction.FORWARD);
@@ -53,11 +60,9 @@ public class UpperSlide {
         slide2.setDirection(DcMotor.Direction.REVERSE);
         slide1.setDirection(DcMotor.Direction.FORWARD);
 
-        slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // Set motors to run without encoder since we're using separate encoder ports
         slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void pos0() {
@@ -161,7 +166,7 @@ public class UpperSlide {
     }
 
     public void updatePID() {
-        ref = (slide1.getCurrentPosition() + slide2.getCurrentPosition()) >> 1;
+        ref = (slide1Encoder.getCurrentPosition() + slide2Encoder.getCurrentPosition()) >> 1;
         double power = PID(distance, ref);
         slide1.setPower(power);
         slide2.setPower(power);

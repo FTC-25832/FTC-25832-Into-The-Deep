@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -29,7 +31,8 @@ public class LowerSlide {
     HardwareMap hardwareMap;
     public ServoImplEx part1, part2, part3, spinclaw, claw;
 
-    public DcMotor slide;
+    public DcMotor slideMotor;
+    public DcMotor slideEncoder;
 
     PwmControl.PwmRange v4range = new PwmControl.PwmRange(500, 2500);
     PwmControl.PwmRange downrange = new PwmControl.PwmRange(500, 900);
@@ -42,16 +45,19 @@ public class LowerSlide {
     public void initialize(HardwareMap map) {
         hardwareMap = map;
 
-        slide = hardwareMap.get(DcMotor.class, control.motor(2));
-        part2 = hardwareMap.get(ServoImplEx.class, control.servo(0));
+        // Initialize slide motor for power
+        slideMotor = hardwareMap.get(DcMotor.class, control.motor(2));
+        slideMotor.setDirection(DcMotor.Direction.REVERSE);
+        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        // Initialize slide encoder
+        slideEncoder = hardwareMap.get(DcMotor.class, expansion.motor(1));
+
+        // Initialize servos
+        part2 = hardwareMap.get(ServoImplEx.class, control.servo(0));
         claw = hardwareMap.get(ServoImplEx.class, expansion.servo(0));
         spinclaw = hardwareMap.get(ServoImplEx.class, expansion.servo(2));
         part1 = hardwareMap.get(ServoImplEx.class, expansion.servo(3));
-
-        slide.setDirection(DcMotor.Direction.REVERSE);
-        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         part1.setDirection(Servo.Direction.FORWARD);
         part1.setPwmRange(v4range);
@@ -63,8 +69,8 @@ public class LowerSlide {
     }
 
     public void low(double val) {
-        slide.setTargetPosition((int) val);
-        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideMotor.setTargetPosition((int) val);
+        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void keepPosExceptArms(double pos) {
@@ -107,6 +113,33 @@ public class LowerSlide {
         small(LowerSlideVars.HOVER_SMALL);
     }
 
+    // Adjusts slide extension based on camera angle to reach detected objects
+    public void autoAdjustExtension(double cameraAngle) {
+        // Convert angle to radians for trig calculations
+        double angleRadians = Math.toRadians(cameraAngle - ConfigVariables.General.CLAW_ZERO_DEG);
+
+        // Assuming the camera is mounted at a fixed height and angle:
+        // Using basic trigonometry to calculate required extension
+        // tan(θ) = opposite/adjacent
+        // where opposite is the height difference and adjacent is the horizontal
+        // distance
+
+        // Base height of the slide mechanism (adjust as needed)
+        final double BASE_HEIGHT_CM = 30.0;
+        // Target height where the camera is detecting the object
+        double targetDistance = BASE_HEIGHT_CM / Math.tan(angleRadians);
+
+        // Convert the calculated distance to motor counts
+        distance = Math.round(COUNTS_PER_CM * targetDistance);
+
+        // Ensure the distance is within safe limits
+        distance = Math.min(Math.max(distance, 0),
+                Math.round(COUNTS_PER_CM * LowerSlideVars.POS_2_CM));
+
+        // Use hover position for the servos
+        pos_hover();
+    }
+
     public void setSlidePos1() {
         distance = Math.round(COUNTS_PER_CM * LowerSlideVars.POS_1_CM);
     }
@@ -124,9 +157,9 @@ public class LowerSlide {
     }
 
     public void updatePID() {
-        ref = slide.getCurrentPosition();
+        ref = slideEncoder.getCurrentPosition();
         double power = PID(distance, ref);
-        slide.setPower(power);
+        slideMotor.setPower(power);
     }
 
     public double PID(double refrence, double state) {

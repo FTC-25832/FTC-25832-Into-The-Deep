@@ -10,8 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-import com.bylazar.ftcontrol.panels.Panels;
-import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
+
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.util.ConfigVariables;
 import org.firstinspires.ftc.teamcode.util.DashboardUtil;
@@ -42,7 +41,7 @@ public class TestClaw extends LinearOpMode {
 
     private FtcDashboard dashboard;
     private Telemetry dashboardTelemetry;
-    private TelemetryManager ftControlTelemetry;
+
     private long lastDashboardUpdateTime = 0;
     private static final long DASHBOARD_UPDATE_INTERVAL_MS = 250; // Update FTCdashboard 4 times per second
 
@@ -64,28 +63,19 @@ public class TestClaw extends LinearOpMode {
     }
 
     // helper for new function
-    private void addTelemetry(String caption, Object value) {
-        telemetry.addData(caption, value);
-        ftControlTelemetry.debug(caption + ": " + value);
-    }
-
-    private void addTelemetry(String caption, String format, Object... args) {
-        telemetry.addData(caption, format, args);
-        ftControlTelemetry.debug(caption + ": " + String.format(format, args));
-    }
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Initialize dashboard
         dashboard = FtcDashboard.getInstance();
         dashboardTelemetry = dashboard.getTelemetry();
-        ftControlTelemetry = Panels.getTelemetry();
+
 
         // odo.initialize(hardwareMap);
         /*
-         * 
+         *
          * TEMP DISABLE, DONT NEED THIS ACCURATE ODO FOR HEADING?
-         * 
+         *
          */
 
         upslide.initialize(hardwareMap);
@@ -193,19 +183,19 @@ public class TestClaw extends LinearOpMode {
             lowslide.updatePID();
 
             // Telemetry
-            addTelemetry("upslide arm1", upslide.arm1.getPosition());
-            addTelemetry("upslide swing", upslide.swing.getPosition());
-            addTelemetry("Status", "Running");
-
-            addTelemetry("right arm", upslide.arm1.getPosition());
-            addTelemetry("left arm", upslide.arm2.getPosition());
-
-            // Additional robot data
-            addTelemetry("Upper Slide Position", upslide.arm1.getPosition());
-            addTelemetry("Lower Slide Position", lowslide.slide.getCurrentPosition());
+//            addTelemetry("upslide arm1", upslide.arm1.getPosition());
+//            addTelemetry("upslide swing", upslide.swing.getPosition());
+//            addTelemetry("Status", "Running");
+//
+//            addTelemetry("right arm", upslide.arm1.getPosition());
+//            addTelemetry("left arm", upslide.arm2.getPosition());
+//
+//            // Additional robot data
+//            addTelemetry("Upper Slide Position", upslide.arm1.getPosition());
+//            addTelemetry("Lower Slide Position", lowslide.slideEncoder.getCurrentPosition());
 
             telemetry.update();
-            ftControlTelemetry.update(telemetry);
+
             dashboard.sendTelemetryPacket(packet);
         }
 

@@ -44,7 +44,7 @@ public class Localizer {
         }
 
         public void initialize(HardwareMap map) {
-                initialize(map, expansion.motor(1), expansion.motor(0), expansion.motor(2));
+                initialize(map, control.motor(0), control.motor(2), control.motor(3));
         }
 
         public void resetEncoder() {

@@ -16,6 +16,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import com.bylazar.ftcontrol.panels.Panels;
 import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
+import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
+import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.util.ConfigVariables;
@@ -51,8 +53,9 @@ public class Swerve extends LinearOpMode {
     final double buttonPressIntervalMS = 80;
 
     private FtcDashboard dashboard;
+//    private Panels ftControlDashboard;
     private Telemetry dashboardTelemetry;
-    private TelemetryManager ftControlTelemetry;
+//    private TelemetryManager ftControlTelemetry;
     private long lastDashboardUpdateTime = 0;
     private static final long DASHBOARD_UPDATE_INTERVAL_MS = 250; // Update FTCdashboard 4 times per second
 
@@ -77,12 +80,14 @@ public class Swerve extends LinearOpMode {
     // helper for new function
     private void addTelemetry(String caption, Object value) {
         telemetry.addData(caption, value);
-        ftControlTelemetry.debug(caption + ": " + value);
+        packet.put(caption, value);
+//        ftControlTelemetry.debug(caption + ": " + value);
     }
 
     private void addTelemetry(String caption, String format, Object... args) {
         telemetry.addData(caption, format, args);
-        ftControlTelemetry.debug(caption + ": " + String.format(format, args));
+        packet.put(caption, String.format(format, args));
+//        ftControlTelemetry.debug(caption + ": " + String.format(format, args));
     }
 
     @Override
@@ -90,7 +95,8 @@ public class Swerve extends LinearOpMode {
         // Initialize dashboard
         dashboard = FtcDashboard.getInstance();
         dashboardTelemetry = dashboard.getTelemetry();
-        ftControlTelemetry = Panels.getTelemetry();
+//        ftControlTelemetry = Panels.getTelemetry();
+//        ftControlDashboard = Panels.getInstance();
 
         // odo.initialize(hardwareMap);
         /*
@@ -187,7 +193,14 @@ public class Swerve extends LinearOpMode {
                 lowslide.closeClaw();
 
             if (gamepad1.right_bumper) {
-                lowslide.pos_hover();
+                // Use auto extension adjustment when camera detects something
+                if (camera.limelight.getLatestResult() != null && camera.limelight.getLatestResult().isValid()) {
+                    // lowslide.autoAdjustExtension(angle);
+                } else {
+                    // Default to hover position with minimum extension if no detection
+                    lowslide.pos_hover();
+                    lowslide.distance = 0;
+                }
                 adjust = true;
             }
 
@@ -239,7 +252,7 @@ public class Swerve extends LinearOpMode {
             lowslide.updatePID();
 
             // Update odometry position
-            Localizer.positionArc();
+            // Localizer.positionArc();
 
             double angle = camera.getAngle(); // -90 ~ 90
             angle = angle + ANGLE_OFFSET; // 0 ~ 180
@@ -315,7 +328,7 @@ public class Swerve extends LinearOpMode {
             // Additional robot data
             // addTelemetry("Detection", camera.isDetected());
             addTelemetry("Upper Slide Position", upslide.arm1.getPosition());
-            addTelemetry("Lower Slide Position", lowslide.slide.getCurrentPosition());
+            addTelemetry("Lower Slide Position", lowslide.slideEncoder.getCurrentPosition());
             addTelemetry("Robot Heading", botHeading);
 
             // limelight
@@ -350,7 +363,7 @@ public class Swerve extends LinearOpMode {
                     status.getPipelineIndex(), status.getPipelineType());
 
             telemetry.update();
-            ftControlTelemetry.update(telemetry);
+//            ftControlTelemetry.update(telemetry);
             dashboard.sendTelemetryPacket(packet);
         }
         interval.cancel();
