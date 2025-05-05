@@ -14,6 +14,7 @@ public class ConfigVariables {
         public static class General {
                 public static int CAMERA_INTERVAL = 1000; // in milliseconds
                 public static int CLAW_ZERO_DEG = 55; // deg
+                public static int CLAW_FORTESTING_DEG = 55; // deg
         }
 
         // UpperSlide

@@ -58,6 +58,7 @@ public class Swerve extends LinearOpMode {
 
     TelemetryPacket packet = new TelemetryPacket();
 
+    // dashboards need to be removed in official match, so.
     // Original helper methods for FTC Dashboard
     private void addTelemetryAndPacket(String caption, Object value) {
         telemetry.addData(caption, value);
@@ -145,7 +146,7 @@ public class Swerve extends LinearOpMode {
         }, ConfigVariables.General.CAMERA_INTERVAL);
         while (opModeIsActive()) {
 
-            lowslide.spinclawSetPositionDeg(ConfigVariables.General.CLAW_ZERO_DEG);
+            // lowslide.spinclawSetPositionDeg(ConfigVariables.General.CLAW_ZERO_DEG);
 
             double time = System.currentTimeMillis();
 
@@ -311,9 +312,6 @@ public class Swerve extends LinearOpMode {
             addTelemetry("right arm", upslide.arm1.getPosition());
             addTelemetry("left arm", upslide.arm2.getPosition());
 
-            telemetry.update();
-            ftControlTelemetry.update(telemetry);
-
             // Additional robot data
             // addTelemetry("Detection", camera.isDetected());
             addTelemetry("Upper Slide Position", upslide.arm1.getPosition());
@@ -351,6 +349,8 @@ public class Swerve extends LinearOpMode {
             addTelemetry("Pipeline", "Index: %d, Type: %s",
                     status.getPipelineIndex(), status.getPipelineType());
 
+            telemetry.update();
+            ftControlTelemetry.update(telemetry);
             dashboard.sendTelemetryPacket(packet);
         }
         interval.cancel();
