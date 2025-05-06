@@ -89,6 +89,12 @@ lint/intermediates/
 lint/generated/
 lint/outputs/
 lint/tmp/
+
 lint/reports/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/henrytodo.md
 
 TeamCode/src/main/java/org/firstinspires/ftc/teamcode/henrytodo.md
+
+# lint/reports/
+
+dataset/
+
