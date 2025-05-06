@@ -1,25 +1,38 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
 
- @Config
-//@Configurable
+@Config
+// @Configurable
 public class ConfigVariables {
         // this just default/initial values prob newer adjusted ones in ftc dashboard
         // ftc dashboard at :8030/dash
 
-         @Config
-//        @Configurable
+        @Config
+        // @Configurable
         public static class General {
-                public static int CAMERA_INTERVAL = 1000; // in milliseconds
+
                 public static int CLAW_ZERO_DEG = 55; // deg
                 public static int CLAW_FORTESTING_DEG = 55; // deg
         }
 
+        @Config
+        public static class Camera {
+                public static double CLOSE_DISTANCE = 5;
+                public static double CLOSE_REDUCE_FACTOR = 0.15;
+                public static int ANGLE_TIMEOUT = 500; // ms
+                public static int ADJUST_TIMEOUT = 5000;
+                public static int ADJUSTBACKTIME = 500;
+                public static int ANGLE_OFFSET = 55;
+                public static int DISTANCE_THRESHOLD = 1;
+                public static double PID_KP = 0.03;
+                public static double PID_KI = 0.002;
+                public static double PID_KD = 0.01;
+        }
+
         // UpperSlide
-         @Config
-//        @Configurable
+        @Config
+        // @Configurable
         public static class UpperSlideVars {
                 // Arm positions
                 public static double FRONT_ARM_POS = 0.50;
@@ -44,11 +57,15 @@ public class ConfigVariables {
                 // scorespec positions
                 public static double SCORESPEC_FRONT_ARM_POS = 0.30;
                 public static double SCORESPEC_FRONT_SWING_POS = 0.45;
+
+                public static double PID_KP = 0.01;
+                public static double PID_KI = 0.0;
+                public static double PID_KD = 0.0;
         }
 
         // LowerSlide
-         @Config
-//        @Configurable
+        @Config
+        // @Configurable
         public static class LowerSlideVars {
                 // Arm positions
                 public static double GRAB_BIG = 0.93;
@@ -70,5 +87,8 @@ public class ConfigVariables {
                 public static int ZERO = 0;
 
                 public static int SPINCLAW_DEG = 45;
+                public static double PID_KP = 0.01;
+                public static double PID_KI = 0.0;
+                public static double PID_KD = 0.0;
         }
 }

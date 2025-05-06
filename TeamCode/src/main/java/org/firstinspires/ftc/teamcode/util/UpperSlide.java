@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.util.Timeout;
 
 import static org.firstinspires.ftc.teamcode.util.ConfigVariables.UpperSlideVars;
 
@@ -15,25 +16,19 @@ public class UpperSlide {
     PwmControl.PwmRange swingRange = new PwmControl.PwmRange(500, 2500);
     PwmControl.PwmRange armRange = new PwmControl.PwmRange(500, 2500);
     PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1270);
-    double Kp = PIDConstant.Kp;
-    double Ki = PIDConstant.Ki;
-    double Kd = PIDConstant.Kd;
-    double lastError;
-    ElapsedTime timer = new ElapsedTime();
-    double integralSum = 0;
-    static final double PI = 3.14;
-    static final double COUNTS_PER_MOTOR_REV = 28.0;
-    static final double WHEEL_CIRCUMFERENCE_MM = 34 * PI;
-    static final double DRIVE_GEAR_REDUCTION = 5.23;
-    static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
-    static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
-    public double distance = 0;
-    public double ref = 0;
-    DcMotor slide1, slide2;
-    DcMotor slide1Encoder, slide2Encoder;
+    public PIDController pidController;
+    static final double     PI=3.14;
+    static final double     COUNTS_PER_MOTOR_REV    = 28.0;
+    static final double     WHEEL_CIRCUMFERENCE_MM  = 34 * PI;
+    static final double     DRIVE_GEAR_REDUCTION    = 5.23;
+    static final double     COUNTS_PER_WHEEL_REV    = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
+    static final double     COUNTS_PER_CM           = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM)*10;
+    public DcMotor slide1, slide2;
+    public DcMotor slide1Encoder, slide2Encoder;
 
     public void initialize(HardwareMap map) {
         hardwareMap = map;
+        pidController = new PIDController(UpperSlideVars.PID_KP, UpperSlideVars.PID_KI, UpperSlideVars.PID_KD);
         // Initialize slide motors for power
         slide1 = hardwareMap.get(DcMotor.class, control.motor(0));
         slide2 = hardwareMap.get(DcMotor.class, control.motor(1));
@@ -63,28 +58,23 @@ public class UpperSlide {
         // Set motors to run without encoder since we're using separate encoder ports
         slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slide1Encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slide2Encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
-
-    public void pos0() {
-        distance = Math.round(COUNTS_PER_CM * UpperSlideVars.POS_0_CM);
+    public void pos0(){
+        pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_1_CM));
         new Timeout(() -> {
-            distance = 0;
+            pidController.setDestination(COUNTS_PER_CM*UpperSlideVars.POS_0_CM);
         }, 500);
     }
-
-    public void pos1() {
-        // closeClaw();
-        distance = Math.round(COUNTS_PER_CM * UpperSlideVars.POS_1_CM);
-        // hang();
+    public void pos1(){
+        //closeClaw();
+        pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_1_CM));
+        //hang();
     }
-
-    public void pos2() {
-        distance = Math.round(COUNTS_PER_CM * UpperSlideVars.POS_2_CM);
-    }
-
-    public void pos3() {
-        distance = Math.round(COUNTS_PER_CM * UpperSlideVars.POS_3_CM);
-    }
+    public void pos2(){
+        pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_2_CM)); }
+    public void pos3(){ pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_3_CM)); }
 
     public void big(double x) {
         arm1.setPosition(x);
@@ -95,7 +85,7 @@ public class UpperSlide {
      * public void grab(){
      * arm.setPosition(0);
      * }
-     * 
+     *
      * public void pause(){
      * arm.setPosition(0.25);
      * }
@@ -165,19 +155,11 @@ public class UpperSlide {
         claw.setPosition(UpperSlideVars.CLAW_CLOSE);
     }
 
-    public void updatePID() {
-        ref = (slide1Encoder.getCurrentPosition() + slide2Encoder.getCurrentPosition()) >> 1;
-        double power = PID(distance, ref);
+    public double updatePID() {
+        double currentPosition = (slide1Encoder.getCurrentPosition() + slide2Encoder.getCurrentPosition())/2.0;
+        double power = pidController.calculate(currentPosition);
         slide1.setPower(power);
         slide2.setPower(power);
-    }
-
-    public double PID(double refrence, double state) {
-        double error = refrence - state;
-        integralSum += error * timer.seconds(); //
-        double derivative = (error - lastError) / (timer.seconds());
-        lastError = error;
-        timer.reset();
-        return (error * Kp) + (derivative * Kd) + (integralSum * Ki);
+        return power;
     }
 }

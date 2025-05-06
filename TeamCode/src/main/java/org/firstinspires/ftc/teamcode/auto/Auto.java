@@ -62,7 +62,7 @@ public class Auto extends LinearOpMode {
         upslide.pos2();
         do{
             upslide.updatePID();
-        }while(Math.abs(upslide.ref-upslide.distance)>200);
+        }while(Math.abs(upslide.pidController.lastError) > 200);
         upslide.openClaw();
     }
 

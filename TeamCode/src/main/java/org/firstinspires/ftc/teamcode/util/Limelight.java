@@ -1,29 +1,85 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import java.util.List;
+
 public class Limelight {
     HardwareMap hardwareMap;
+    LLResult result;
+    public List<LLResultTypes.DetectorResult> detectorResults;
+    public LLResultTypes.DetectorResult detectorResult;
+    public boolean available = true;
+    public boolean resultAvailable = false;
     public Limelight3A limelight;
     public void initialize(HardwareMap map){
         hardwareMap = map;
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        try {
+            limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        } catch (Exception e) {
+            available = false;
+            return;
+        }
         limelight.pipelineSwitch(0);
         limelight.setPollRateHz(100);
-        limelight.resetDeviceConfigurationForOpMode();
-
     }
-
     public void cameraStart(){
+        if (!available) return;
         limelight.start();
         limelight.reloadPipeline();
     }
-
-    public double getAngle(){
+    public boolean updateDetectorResult(){ // returns isSuccessful
+        result = limelight.getLatestResult();
+        if (result.isValid()){
+            detectorResults = result.getDetectorResults();
+            if (detectorResults.isEmpty()){
+                resultAvailable = false;
+                return false;
+            }
+            detectorResult = detectorResults.get(0);
+            resultAvailable = true;
+            return true;
+        }
+        resultAvailable = false;
+        return false;
+    }
+    public void switchtoPython(){
+        limelight.pipelineSwitch(1);
         limelight.reloadPipeline();
-        limelight.captureSnapshot("snapfinal");
+    }
+    public void switchtoNeural(){
+        limelight.pipelineSwitch(0);
+        limelight.reloadPipeline();
+    }
+//    public double getAngle(){
+//        if(!available ||!resultAvailable) return 0;
+//        List<List<Double>> corners = detectorResult.getTargetCorners();
+//        if (!corners.isEmpty()) {
+//            double width = Math.sqrt(Math.pow(corners.get(1).get(0) - corners.get(0).get(0), 2) +
+//                    Math.pow(corners.get(1).get(1) - corners.get(0).get(1), 2));
+//            double height = Math.sqrt(Math.pow(corners.get(3).get(0) - corners.get(0).get(0), 2) +
+//                    Math.pow(corners.get(3).get(1) - corners.get(0).get(1), 2));
+//            return Math.atan2(height, width);
+//        }
+//        return 0;
+//    }
+    public void reset(){
+        resultAvailable = false;
+    }
+    public double getAngle(){
+        if(!available) return 0;
         return limelight.getLatestResult().getPythonOutput()[1] * 5;
+    }
+    public double getX(){
+        if(!available ||!resultAvailable) return -2;
+        return result.getTx();
+    }
+    public double getY(){
+        if(!available ||!resultAvailable) return -2;
+        return result.getTy();
     }
 
 }

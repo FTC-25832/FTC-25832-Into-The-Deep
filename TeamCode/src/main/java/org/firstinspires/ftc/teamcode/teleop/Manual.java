@@ -27,21 +27,21 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.util.ConfigVariables;
 import org.firstinspires.ftc.teamcode.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.util.Drivetrain;
-import org.firstinspires.ftc.teamcode.util.Limelight;
+//import org.firstinspires.ftc.teamcode.util.Limelight;
 import org.firstinspires.ftc.teamcode.util.LowerSlide;
 import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.Timeout;
 import org.firstinspires.ftc.teamcode.util.UpperSlide;
 
 @TeleOp(group = "TeleOp")
-public class Swerve extends LinearOpMode {
+public class Manual extends LinearOpMode {
     // Localizer odo = new Localizer();
     final double BUTTONPRESSINTERVALMS = 80;
 
     Drivetrain drive = new Drivetrain();
     UpperSlide upslide = new UpperSlide();
     LowerSlide lowslide = new LowerSlide();
-    Limelight camera = new Limelight();
+//    Limelight camera = new Limelight();
     PIDController PIDY = new PIDController(
             ConfigVariables.Camera.PID_KP,
             ConfigVariables.Camera.PID_KI,
@@ -57,7 +57,7 @@ public class Swerve extends LinearOpMode {
     Canvas field;
 
     // private TelemetryManager ftControlTelemetry;
-    private long lastDashboardUpdateTime = 0;
+    private final long lastDashboardUpdateTime = 0;
     private static final long DASHBOARD_UPDATE_INTERVAL_MS = 250; // Update FTCdashboard 4 times per second
 
     TelemetryPacket packet = new TelemetryPacket();
@@ -103,9 +103,9 @@ public class Swerve extends LinearOpMode {
 
         // odo.initialize(hardwareMap);
         /*
-         * 
+         *
          * TEMP DISABLE, DONT NEED THIS ACCURATE ODO FOR HEADING?
-         * 
+         *
          */
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -118,8 +118,7 @@ public class Swerve extends LinearOpMode {
         drive.initialize(hardwareMap);
         upslide.initialize(hardwareMap);
         lowslide.initialize(hardwareMap);
-        camera.initialize(hardwareMap);
-        camera.cameraStart();
+//        camera.initialize(hardwareMap);
 
         upslide.keepPosExceptArms(0);
         lowslide.keepPosExceptArms(0);
@@ -129,13 +128,9 @@ public class Swerve extends LinearOpMode {
         lowslide.pos_up();
         waitForStart();
 
-        camera.cameraStart();
+//        camera.cameraStart();
 
         while (opModeIsActive()) {
-            if (adjust) {
-                adjustIntake();
-                adjust = false;
-            }
 
             controlDrivetrain();
             controlUpslide();
@@ -194,79 +189,6 @@ public class Swerve extends LinearOpMode {
             // panels.debug("Loop ${System.currentTimeMillis()} ran!");
             // panels.update();
         }
-    }
-
-    double angleAccum = 0;
-    double angleNum = 1;
-    boolean isAdjustTimeout = false;
-    boolean isAngleTimeout = false;
-    boolean isAdjusted = false;
-    Timeout adjustBackTimeout;
-    boolean adjustBackTimeoutSet = false;
-    private void adjustIntake() {
-        isAdjustTimeout = false;
-        isAdjusted = false;
-        isAngleTimeout = false;
-        adjustBackTimeoutSet = false;
-        angleAccum = 0;
-        angleNum = 1;
-        PIDY.reset();
-
-        new Timeout(() -> isAdjustTimeout = true, ConfigVariables.Camera.ADJUST_TIMEOUT);
-
-        while (!isAdjustTimeout && !isAdjusted) {
-            camera.updateDetectorResult();
-            // processing position
-            double dy = camera.getY();
-            double ypower = PIDY.calculate(-dy); // input is the position now
-            lowslide.setSlidePower(ypower);
-            controlDrivetrain();
-            if(dy<ConfigVariables.Camera.CLOSE_DISTANCE){
-                ypower = ypower * ConfigVariables.Camera.CLOSE_REDUCE_FACTOR;
-            }
-
-            if (Math.abs(dy) < ConfigVariables.Camera.DISTANCE_THRESHOLD){
-                if(!adjustBackTimeoutSet){
-                    adjustBackTimeout = new Timeout(()->isAdjusted=true, ConfigVariables.Camera.ADJUSTBACKTIME);
-                    adjustBackTimeoutSet = true;
-                }
-            }
-            telemetry.addData("adjusting", "true");
-            telemetry.addData("Y difference", dy);
-            telemetry.addData("ypower", ypower);
-            telemetry.update();
-        }
-        Timeout timeout = new Timeout(() -> isAngleTimeout = true, ConfigVariables.Camera.ANGLE_TIMEOUT);
-        camera.switchtoPython();
-        while(!isAngleTimeout){
-            controlDrivetrain();
-            controlLowslide();
-            camera.updateDetectorResult();
-            // processing angle for spinclaw
-            double angle = camera.getAngle(); // -90 ~ 90
-            angle = angle + ConfigVariables.Camera.ANGLE_OFFSET;
-            angleAccum += angle;
-            angleNum += 1;
-
-            // Visualize limelight detection (camera)
-            // if (camera.isDetected()) {
-            if (camera != null) {
-                field.setStroke("#4CAF50"); // Material Green for detection
-                field.setFill("#4CAF50");
-                double radians = Math.toRadians(angle);
-                field.strokeLine(0, 0, 20 * Math.cos(radians), 20 * Math.sin(radians));
-                field.fillCircle(20 * Math.cos(radians), 20 * Math.sin(radians), 3);
-            }
-            telemetry.update();
-        }
-        double averageAngle = angleAccum / angleNum;
-        if (averageAngle>45 && 135>averageAngle) {
-            lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.ZERO + 90);
-        } else {
-            lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.ZERO);
-        }
-        camera.switchtoNeural();
-        camera.reset();
     }
 
     private void controlDrivetrain() {
