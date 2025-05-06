@@ -58,6 +58,7 @@ public class Swerve extends LinearOpMode {
     final double buttonPressIntervalMS = 80;
 
     private FtcDashboard dashboard;
+//    private Panels panels;
     // private Panels ftControlDashboard;
     private Telemetry dashboardTelemetry;
     // private TelemetryManager ftControlTelemetry;
@@ -100,7 +101,7 @@ public class Swerve extends LinearOpMode {
         // Initialize dashboard
         dashboard = FtcDashboard.getInstance();
         dashboardTelemetry = dashboard.getTelemetry();
-        panels = Panels.getTelemetry();
+//        panelsT = panels.getTelemetry();
         // ftControlDashboard = Panels.getInstance();
 
         // odo.initialize(hardwareMap);
@@ -370,8 +371,8 @@ public class Swerve extends LinearOpMode {
             telemetry.update();
             // ftControlTelemetry.update(telemetry);
             dashboard.sendTelemetryPacket(packet);
-            panels.debug("Loop ${System.currentTimeMillis()} ran!");
-            panels.update();
+//            panels.debug("Loop ${System.currentTimeMillis()} ran!");
+//            panels.update();
         }
         interval.cancel();
     }

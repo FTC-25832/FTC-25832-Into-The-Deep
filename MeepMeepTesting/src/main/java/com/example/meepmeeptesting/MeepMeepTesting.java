@@ -4,7 +4,6 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueDark;
-//import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeGreenDark;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
@@ -21,6 +20,7 @@ public class MeepMeepTesting {
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
+        AutoPaths.resetPose(originalPathBot.getDrive());
         originalPathBot.runAction(AutoPaths.getOriginalTestPath(originalPathBot.getDrive()));
 
         // Square path bot (Red)
@@ -29,6 +29,7 @@ public class MeepMeepTesting {
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
+        AutoPaths.resetPose(squarePathBot.getDrive());
         squarePathBot.runAction(AutoPaths.getSquarePath(squarePathBot.getDrive()));
 
         // Chicane path bot (Green)
@@ -37,6 +38,7 @@ public class MeepMeepTesting {
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
+        AutoPaths.resetPose(chicanePathBot.getDrive());
         chicanePathBot.runAction(AutoPaths.getChicanePath(chicanePathBot.getDrive()));
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)

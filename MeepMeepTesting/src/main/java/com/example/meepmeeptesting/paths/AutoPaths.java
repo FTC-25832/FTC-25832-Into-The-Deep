@@ -9,6 +9,11 @@ public class AutoPaths {
     // Store the starting poses for different paths
     public static final Pose2d START_POSE = new Pose2d(0, 0, 0);
 
+    // Helper method to reset robot pose
+    public static void resetPose(DriveShim drive) {
+        drive.setPoseEstimate(START_POSE);
+    }
+
     // Method to get the original test path
     public static Action getOriginalTestPath(DriveShim drive) {
         return drive.actionBuilder(START_POSE)
