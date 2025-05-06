@@ -1,22 +1,13 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class LowerSlide {
 
-    //double Kp = PIDConstant.Kp;
-    double Kp = 0.02;
-    double Ki = PIDConstant.Ki;
-    double Kd = PIDConstant.Kd;
-    double lastError;
-    ElapsedTime timer = new ElapsedTime();
-    double integralSum = 0;
     static final double     PI=3.14;
     static final double     COUNTS_PER_MOTOR_REV    = 28.0;
 //    static final double     WHEEL_CIRCUMFERENCE_MM  = 40.0 * PI;
@@ -36,11 +27,12 @@ public class LowerSlide {
 
     PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1150);
 
-    public double distance = 0;
-    public double ref = 0;
-
+    private PIDController pidController;
     public void initialize(HardwareMap map) {
         hardwareMap = map;
+        
+        // 初始化PID控制器
+        pidController = new PIDController(0.02, PIDConstant.Ki, PIDConstant.Kd);
 
         part1 = hardwareMap.get(ServoImplEx.class, expansion.servo(3));
         part2 = hardwareMap.get(ServoImplEx.class, control.servo(0));
@@ -74,6 +66,9 @@ public class LowerSlide {
     public void low(double val){
         slide.setTargetPosition((int)val);
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+    public void setSlidePower(double power){
+        slide.setPower(power);
     }
 
     public void keepPosExceptArms(double pos) {
@@ -113,11 +108,16 @@ public class LowerSlide {
     }
 
     public void setSlidePos1(){
-        distance = Math.round(COUNTS_PER_CM * 50);
+        pidController.setDestination(Math.round(COUNTS_PER_CM * 50));
     }
 
     public void setSlidePos2(){
-        distance = 0;
+        pidController.setDestination(0);
+    }
+
+    public void updatePID() {
+        double power = pidController.calculate(slide.getCurrentPosition());
+        slide.setPower(power);
     }
 
     public void closeClaw(){
@@ -127,18 +127,4 @@ public class LowerSlide {
         claw.setPosition(0);
     }
 
-    public void updatePID(){
-        ref = slide.getCurrentPosition();
-        double power = PID(distance,ref);
-        slide.setPower(power);
-    }
-
-    public double PID(double refrence, double state) {
-        double error = refrence - state;
-        integralSum += error * timer.seconds(); //
-        double derivative = (error - lastError) / (timer.seconds());
-        lastError = error;
-        timer.reset();
-        return (error * Kp) + (derivative * Kd) + (integralSum * Ki);
-    }
 }
