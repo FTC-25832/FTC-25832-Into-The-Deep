@@ -50,7 +50,7 @@ public class Swerve extends LinearOpMode {
     Limelight camera = new Limelight();
     PIDController PIDX = new PIDController(0.01, 0.0, 0.0);
     IMU imu;
-    
+
     boolean adjust = false;
     boolean wasAdjusting = false;
     static final double ANGLE_OFFSET = 145;
@@ -104,14 +104,14 @@ public class Swerve extends LinearOpMode {
         // Initialize dashboard
         dashboard = FtcDashboard.getInstance();
         dashboardTelemetry = dashboard.getTelemetry();
-        panels = Panels.getTelemetry();
+//        panels = Panels.getTelemetry();
         // ftControlDashboard = Panels.getInstance();
 
         // odo.initialize(hardwareMap);
         /*
-         * 
+         *
          * TEMP DISABLE, DONT NEED THIS ACCURATE ODO FOR HEADING?
-         * 
+         *
          */
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -190,8 +190,8 @@ public class Swerve extends LinearOpMode {
             DashboardUtil.drawRobot(field, "#3F51B5"); // Draw robot using localizer data
             telemetry.update();
             dashboard.sendTelemetryPacket(packet);
-            panels.debug("Loop ${System.currentTimeMillis()} ran!");
-            panels.update();
+//            panels.debug("Loop ${System.currentTimeMillis()} ran!");
+//            panels.update();
         }
     }
     double angleAccum = 0;
@@ -202,7 +202,6 @@ public class Swerve extends LinearOpMode {
         isAdjustTimeout = false;
         isAdjusted = false;
         PIDX.reset();
-        PIDY.reset();
         Interval interval = new Interval(() -> {
             double posAngle = angleAccum / angleNum;
             posAngle = Math.min(Math.max(posAngle, 0), 270);
@@ -211,15 +210,15 @@ public class Swerve extends LinearOpMode {
             angleNum = 1;
         }, 300);
 
-            // Visualize limelight detection (camera)
-            // if (camera.isDetected()) {
-            if (camera != null) {
-                field.setStroke("#4CAF50"); // Material Green for detection
-                field.setFill("#4CAF50");
-                double radians = Math.toRadians(angle);
-                field.strokeLine(0, 0, 20 * Math.cos(radians), 20 * Math.sin(radians));
-                field.fillCircle(20 * Math.cos(radians), 20 * Math.sin(radians), 3);
-            }
+        // Visualize limelight detection (camera)
+        // if (camera.isDetected()) {
+        if (camera != null) {
+            field.setStroke("#4CAF50"); // Material Green for detection
+            field.setFill("#4CAF50");
+            double radians = Math.toRadians(angle);
+            field.strokeLine(0, 0, 20 * Math.cos(radians), 20 * Math.sin(radians));
+            field.fillCircle(20 * Math.cos(radians), 20 * Math.sin(radians), 3);
+        }
         new Timeout(() -> {
             isAdjustTimeout = true;
         }, 5000);
