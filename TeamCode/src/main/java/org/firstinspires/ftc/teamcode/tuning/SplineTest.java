@@ -18,13 +18,13 @@ public final class SplineTest extends LinearOpMode {
                 Actions.runBlocking(AutoPaths.getOriginalTestPath(drive));
 
                 // Reset pose for square path test
-                drive.pose = AutoPaths.START_POSE;
+                AutoPaths.resetPose(drive);
 
                 // Run square path test
                 Actions.runBlocking(AutoPaths.getSquarePath(drive));
 
                 // Reset pose for chicane path test
-                drive.pose = AutoPaths.START_POSE;
+                AutoPaths.resetPose(drive);
 
                 // Run chicane path test
                 Actions.runBlocking(AutoPaths.getChicanePath(drive));
