@@ -7,12 +7,37 @@ import com.noahbres.meepmeep.roadrunner.DriveShim;
 
 public class AutoPaths {
     // Store the starting poses for different paths
-    public static final Pose2d START_POSE = new Pose2d(0, 0, 0);
+    public static final Pose2d START_POSE = new Pose2d(0, 70, Math.PI / 2);
 
     // Helper method to reset robot pose
     public static void resetPose(DriveShim drive) {
         drive.setPoseEstimate(START_POSE);
     }
+
+
+    public static Action getPrePlaced(DriveShim drive) {
+        return drive.actionBuilder(START_POSE)
+                .splineTo(new Vector2d(-51, 30), Math.PI / 2)
+                .splineTo(new Vector2d(-51, 56), Math.PI / 2)
+                .splineTo(new Vector2d(-60, 30), Math.PI / 2)
+                .splineTo(new Vector2d(-60, 56), Math.PI / 2)
+                .splineTo(new Vector2d(-65, 30), Math.PI / 2)
+                .splineTo(new Vector2d(-65, 56), Math.PI / 2)
+
+                .splineTo(new Vector2d(0, 30), Math.PI / 2)
+                .splineTo(new Vector2d(-49, 56), Math.PI / 2)
+
+                .splineTo(new Vector2d(0, 30), Math.PI / 2)
+                .splineTo(new Vector2d(-49, 56), Math.PI / 2)
+                .splineTo(new Vector2d(0, 30), Math.PI / 2)
+                .splineTo(new Vector2d(-49, 56), Math.PI / 2)
+                .splineTo(new Vector2d(0, 30), Math.PI / 2)
+                .splineTo(new Vector2d(-49, 56), Math.PI / 2)
+
+                .build();
+    }
+
+
 
     // Method to get the original test path
     public static Action getOriginalTestPath(DriveShim drive) {
