@@ -44,24 +44,25 @@ public class Swerve extends LinearOpMode {
     static final int CROSSHAIR_X = 300;
     static final int CROSSHAIR_Y = 300;
     final double BUTTONPRESSINTERVALMS=80;
+
     Drivetrain drive = new Drivetrain();
     UpperSlide upslide = new UpperSlide();
     LowerSlide lowslide = new LowerSlide();
     Limelight camera = new Limelight();
-    PIDController PIDX = new PIDController(0.01, 0.0, 0.0);
+    PIDController PIDY = new PIDController(0.01, 0.0, 0.0);
     IMU imu;
 
     boolean adjust = false;
     boolean wasAdjusting = false;
-    static final double ANGLE_OFFSET = 145;
     double lastTimeGP1LeftBumperCalled = 0;
     double lastTimeGP2LeftBumperCalled = 0;
     boolean upClawIsOpen = false;
     boolean lowClawIsOpen = false;
 
-    final double buttonPressIntervalMS = 80;
+    Canvas field;
 
     private FtcDashboard dashboard;
+    //    private Panels panels;
     // private Panels ftControlDashboard;
     private Telemetry dashboardTelemetry;
     // private TelemetryManager ftControlTelemetry;
@@ -104,14 +105,14 @@ public class Swerve extends LinearOpMode {
         // Initialize dashboard
         dashboard = FtcDashboard.getInstance();
         dashboardTelemetry = dashboard.getTelemetry();
-//        panels = Panels.getTelemetry();
+//        panelsT = panels.getTelemetry();
         // ftControlDashboard = Panels.getInstance();
 
         // odo.initialize(hardwareMap);
         /*
-         *
+         * 
          * TEMP DISABLE, DONT NEED THIS ACCURATE ODO FOR HEADING?
-         *
+         * 
          */
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -129,7 +130,7 @@ public class Swerve extends LinearOpMode {
 
         upslide.keepPosExceptArms(0);
         lowslide.keepPosExceptArms(0);
-        PIDX.setDestination(CROSSHAIR_X);
+        PIDY.setDestination(CROSSHAIR_Y);
 
         upslide.front();
         lowslide.pos_up();
@@ -161,13 +162,13 @@ public class Swerve extends LinearOpMode {
 
             double time=System.currentTimeMillis();
             if (gamepad1.left_bumper) {
-                if (time - lastTimeGP1LeftBumperCalled > buttonPressIntervalMS) {
+                if (time - lastTimeGP1LeftBumperCalled > BUTTONPRESSINTERVALMS) {
                     lowClawIsOpen = !lowClawIsOpen;
                 }
                 lastTimeGP1LeftBumperCalled = time;
             }
             if (gamepad2.left_bumper) {
-                if (time - lastTimeGP2LeftBumperCalled > buttonPressIntervalMS) {
+                if (time - lastTimeGP2LeftBumperCalled > BUTTONPRESSINTERVALMS) {
                     upClawIsOpen = !upClawIsOpen;
                 }
                 lastTimeGP2LeftBumperCalled = time;
@@ -183,7 +184,7 @@ public class Swerve extends LinearOpMode {
 
             // Create dashboard packet
             // TelemetryPacket packet = new TelemetryPacket();
-            Canvas field = packet.fieldOverlay();
+            field = packet.fieldOverlay();
 
             // Draw robot position from odometry
             field.setStroke("#3F51B5"); // Material Blue
@@ -201,24 +202,15 @@ public class Swerve extends LinearOpMode {
     private void adjustIntake(){
         isAdjustTimeout = false;
         isAdjusted = false;
-        PIDX.reset();
+        PIDY.reset();
         Interval interval = new Interval(() -> {
             double posAngle = angleAccum / angleNum;
             posAngle = Math.min(Math.max(posAngle, 0), 270);
             lowslide.spinclawSetPositionDeg(posAngle);
             angleAccum = 0;
             angleNum = 1;
-        }, 300);
+        }, ConfigVariables.General.CAMERA_INTERVAL);
 
-        // Visualize limelight detection (camera)
-        // if (camera.isDetected()) {
-        if (camera != null) {
-            field.setStroke("#4CAF50"); // Material Green for detection
-            field.setFill("#4CAF50");
-            double radians = Math.toRadians(angle);
-            field.strokeLine(0, 0, 20 * Math.cos(radians), 20 * Math.sin(radians));
-            field.fillCircle(20 * Math.cos(radians), 20 * Math.sin(radians), 3);
-        }
         new Timeout(() -> {
             isAdjustTimeout = true;
         }, 5000);
@@ -230,6 +222,17 @@ public class Swerve extends LinearOpMode {
             angle = angle + ANGLE_OFFSET;
             angleAccum += angle;
             angleNum += 1;
+
+            // Visualize limelight detection (camera)
+            // if (camera.isDetected()) {
+            if (camera != null) {
+                field.setStroke("#4CAF50"); // Material Green for detection
+                field.setFill("#4CAF50");
+                double radians = Math.toRadians(angle);
+                field.strokeLine(0, 0, 20 * Math.cos(radians), 20 * Math.sin(radians));
+                field.fillCircle(20 * Math.cos(radians), 20 * Math.sin(radians), 3);
+            }
+
             // processing position
             double y = camera.getY();
             double ypower = PIDY.calculate(y);
@@ -312,8 +315,8 @@ public class Swerve extends LinearOpMode {
         if (gamepad1.left_trigger>0){ lowslide.pos_up();  adjust = false; lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.SPINCLAW_DEG);}
         if (gamepad1.x) { lowslide.setSlidePos1(); }
         if (gamepad1.y) { lowslide.setSlidePos2(); }
-        if(gamepad1.dpad_down) { lowslide.spinclawSetPositionDeg(0); }
-        if(gamepad1.dpad_right) { lowslide.spinclawSetPositionDeg(45); }
-        if(gamepad1.dpad_up) { lowslide.spinclawSetPositionDeg(90); }
+        if(gamepad1.dpad_down) { lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.ZERO); }
+        if(gamepad1.dpad_right) { lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.ZERO + 45); }
+        if(gamepad1.dpad_up) { lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.ZERO + 90); }
     }
 }
