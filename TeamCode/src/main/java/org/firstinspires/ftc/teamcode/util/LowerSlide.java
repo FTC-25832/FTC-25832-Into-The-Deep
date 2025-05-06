@@ -8,16 +8,17 @@ import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import static org.firstinspires.ftc.teamcode.util.ConfigVariables.LowerSlideVars;
+
 public class LowerSlide {
 
-    static final double     PI=3.14;
-    static final double     COUNTS_PER_MOTOR_REV    = 28.0;
-//    static final double     WHEEL_CIRCUMFERENCE_MM  = 40.0 * PI;
-//    static final double     DRIVE_GEAR_REDUCTION    = 18.88;
-    static final double     WHEEL_CIRCUMFERENCE_MM  = 37.0 * PI;
-    static final double     DRIVE_GEAR_REDUCTION    = 4.0;
-    static final double     COUNTS_PER_WHEEL_REV    = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
-    static final double     COUNTS_PER_CM           = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM)*10;
+    static final double PI = 3.14;
+    static final double COUNTS_PER_MOTOR_REV = 28.0;
+    // static final double WHEEL_CIRCUMFERENCE_MM = 40.0 * PI;
+    // static final double DRIVE_GEAR_REDUCTION = 18.88;
+    static final double WHEEL_CIRCUMFERENCE_MM = 37.0 * PI;
+    static final double DRIVE_GEAR_REDUCTION = 4.0;
+    static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
+    static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
 
     HardwareMap hardwareMap;
     public ServoImplEx part1, part2, part3, spinclaw, claw;
@@ -30,12 +31,17 @@ public class LowerSlide {
 
     PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1150);
 
-    private PIDController pidController;
+    public PIDController pidController;
+
     public void initialize(HardwareMap map) {
         hardwareMap = map;
-        
+
         // 初始化PID控制器
-        pidController = new PIDController(0.02, PIDConstant.Ki, PIDConstant.Kd);
+        pidController = new PIDController(
+                LowerSlideVars.PID_KP,
+                LowerSlideVars.PID_KI,
+                LowerSlideVars.PID_KD
+        );
 
         // Initialize slide motor for power
         slideMotor = hardwareMap.get(DcMotor.class, control.motor(2));
@@ -43,8 +49,8 @@ public class LowerSlide {
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Initialize slide encoder
-        slideEncoder = hardwareMap.get(DcMotor.class, expansion.motor(1));
-
+        slideEncoder = hardwareMap.get(DcMotor.class, expansion.motor(2));
+        slideEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // Initialize servos
         part2 = hardwareMap.get(ServoImplEx.class, control.servo(0));
         claw = hardwareMap.get(ServoImplEx.class, expansion.servo(0));
@@ -64,7 +70,8 @@ public class LowerSlide {
         slideMotor.setTargetPosition((int) val);
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
-    public void setSlidePower(double power){
+
+    public void setSlidePower(double power) {
         slideMotor.setPower(power);
     }
 
@@ -108,17 +115,18 @@ public class LowerSlide {
         small(LowerSlideVars.HOVER_SMALL);
     }
 
-    public void setSlidePos1(){
+    public void setSlidePos1() {
         pidController.setDestination(Math.round(COUNTS_PER_CM * 50));
     }
 
-    public void setSlidePos2(){
+    public void setSlidePos2() {
         pidController.setDestination(0);
     }
 
-    public void updatePID() {
+    public double updatePID() {
         double power = pidController.calculate(slideEncoder.getCurrentPosition());
         slideMotor.setPower(power);
+        return power;
     }
 
     public void closeClaw() {

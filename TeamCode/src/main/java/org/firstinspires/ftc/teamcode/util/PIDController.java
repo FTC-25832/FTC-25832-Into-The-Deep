@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.util;
 /**
  * A Proportional-Integral-Derivative (PID) controller implementation.
  * Example usage:
- * private PIDController pidController;
+ * public PIDController pidController;
  * initialize() {
  *      pidController = new PIDController(PIDConstant.Kp, PIDConstant.Ki, PIDConstant.Kd);
  * }
@@ -14,16 +14,16 @@ package org.firstinspires.ftc.teamcode.util;
  */
 public class PIDController {
     // Controller gains
-    private double kp; // Proportional gain
-    private double ki; // Integral gain
-    private double kd; // Derivative gain
+    public double kp; // Proportional gain
+    public double ki; // Integral gain
+    public double kd; // Derivative gain
 
     // Controller state
-    private double destination; // Desired value
-    private double integralSum; // Sum of error over time
-    private double lastError; // Previous error
-    private long lastTime; // Last execution time in milliseconds
-    private boolean isInitialized; // Flag to check if controller has been initialized
+    public double destination; // Desired value
+    public double integralSum; // Sum of error over time
+    public double lastError; // Previous error
+    public long lastTime; // Last execution time in milliseconds
+    public boolean isInitialized; // Flag to check if controller has been initialized
 
     public PIDController(double kp, double ki, double kd) {
         this.kp = kp;
@@ -41,6 +41,7 @@ public class PIDController {
      */
     public void setDestination(double destination) {
         this.destination = destination;
+        reset();
     }
 
     public void setKp(double kp) {
