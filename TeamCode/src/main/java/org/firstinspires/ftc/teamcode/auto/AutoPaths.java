@@ -41,4 +41,26 @@ public class AutoPaths {
                                 .splineTo(new Vector2d(60, 20), Math.PI / 4)
                                 .build();
         }
+
+        // Method to get the auto paths for the preplaced 3 blocks in auto
+        public static Action getPrePlaced(MecanumDrive drive) {
+                return drive.actionBuilder(START_POSE)
+                                .splineTo(new Vector2d(-51, 30), Math.PI / 2)
+                                .splineTo(new Vector2d(-51, 56), Math.PI / 2)
+                                .splineTo(new Vector2d(-60, 30), Math.PI / 2)
+                                .splineTo(new Vector2d(-60, 56), Math.PI / 2)
+                                .splineTo(new Vector2d(-65, 30), Math.PI / 2)
+                                .splineTo(new Vector2d(-65, 56), Math.PI / 2)
+
+                                .splineTo(new Vector2d(0, 30), Math.PI / 2)
+                                .splineTo(new Vector2d(-49, 56), Math.PI / 2)
+
+                                .splineTo(new Vector2d(0, 30), Math.PI / 2)
+                                .splineTo(new Vector2d(-49, 56), Math.PI / 2)
+                                .splineTo(new Vector2d(0, 30), Math.PI / 2)
+                                .splineTo(new Vector2d(-49, 56), Math.PI / 2)
+                                .splineTo(new Vector2d(0, 30), Math.PI / 2)
+                                .splineTo(new Vector2d(-49, 56), Math.PI / 2)
+                                .build();
+        }
 }
