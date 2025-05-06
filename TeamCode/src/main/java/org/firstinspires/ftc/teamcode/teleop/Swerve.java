@@ -1,8 +1,32 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.dashboard.canvas.Canvas;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.IMU;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
+import com.bylazar.ftcontrol.panels.Panels;
+import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
+import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
+import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
+import com.bylazar.ftcontrol.panels.json.Circle;
+import com.bylazar.ftcontrol.panels.json.Line;
+import com.bylazar.ftcontrol.panels.json.Look;
+import com.bylazar.ftcontrol.panels.json.Point;
+import com.bylazar.ftcontrol.panels.json.Rectangle;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.util.ConfigVariables;
+import org.firstinspires.ftc.teamcode.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.util.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.Limelight;
 import org.firstinspires.ftc.teamcode.util.Localizer;
@@ -12,29 +36,91 @@ import org.firstinspires.ftc.teamcode.util.Timeout;
 import org.firstinspires.ftc.teamcode.util.UpperSlide;
 import org.firstinspires.ftc.teamcode.util.Interval;
 
-@TeleOp(group="TeleOp")
+@TeleOp(group = "TeleOp")
 public class Swerve extends LinearOpMode {
+    // Localizer odo = new Localizer();
     static final double ANGLE_OFFSET = 55;
     static final double DISTANCE_THRESHOLD = 10;
     static final int CROSSHAIR_X = 300;
     static final int CROSSHAIR_Y = 300;
     final double BUTTONPRESSINTERVALMS=80;
-    Localizer odo = new Localizer();
     Drivetrain drive = new Drivetrain();
     UpperSlide upslide = new UpperSlide();
     LowerSlide lowslide = new LowerSlide();
     Limelight camera = new Limelight();
     PIDController PIDX = new PIDController(0.01, 0.0, 0.0);
-    PIDController PIDY = new PIDController(0.01, 0.0, 0.0);
+    IMU imu;
+    
     boolean adjust = false;
-    double lastTimeGP1LeftBumperCalled=0;
-    double lastTimeGP2LeftBumperCalled=0;
-    boolean upClawIsOpen=false;
-    boolean lowClawIsOpen=false;
+    boolean wasAdjusting = false;
+    static final double ANGLE_OFFSET = 145;
+    double lastTimeGP1LeftBumperCalled = 0;
+    double lastTimeGP2LeftBumperCalled = 0;
+    boolean upClawIsOpen = false;
+    boolean lowClawIsOpen = false;
+
+    final double buttonPressIntervalMS = 80;
+
+    private FtcDashboard dashboard;
+    // private Panels ftControlDashboard;
+    private Telemetry dashboardTelemetry;
+    // private TelemetryManager ftControlTelemetry;
+    private long lastDashboardUpdateTime = 0;
+    private static final long DASHBOARD_UPDATE_INTERVAL_MS = 250; // Update FTCdashboard 4 times per second
+
+    TelemetryPacket packet = new TelemetryPacket();
+
+    // dashboards need to be removed in official match, so.
+    // Original helper methods for FTC Dashboard
+    private void addTelemetryAndPacket(String caption, Object value) {
+        telemetry.addData(caption, value);
+        if (System.currentTimeMillis() - lastDashboardUpdateTime >= DASHBOARD_UPDATE_INTERVAL_MS) {
+            packet.put(caption, value);
+        }
+    }
+
+    private void addTelemetryAndPacket(String caption, String format, Object... args) {
+        telemetry.addData(caption, format, args);
+        if (System.currentTimeMillis() - lastDashboardUpdateTime >= DASHBOARD_UPDATE_INTERVAL_MS) {
+            packet.put(caption, String.format(format, args));
+        }
+    }
+
+    // helper for new function
+    private void addTelemetry(String caption, Object value) {
+        telemetry.addData(caption, value);
+        packet.put(caption, value);
+        // ftControlTelemetry.debug(caption + ": " + value);
+    }
+
+    private void addTelemetry(String caption, String format, Object... args) {
+        telemetry.addData(caption, format, args);
+        packet.put(caption, String.format(format, args));
+        // ftControlTelemetry.debug(caption + ": " + String.format(format, args));
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
-        odo.initialize(hardwareMap);
+        // Initialize dashboard
+        dashboard = FtcDashboard.getInstance();
+        dashboardTelemetry = dashboard.getTelemetry();
+        panels = Panels.getTelemetry();
+        // ftControlDashboard = Panels.getInstance();
+
+        // odo.initialize(hardwareMap);
+        /*
+         * 
+         * TEMP DISABLE, DONT NEED THIS ACCURATE ODO FOR HEADING?
+         * 
+         */
+
+        imu = hardwareMap.get(IMU.class, "imu");
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        imu.resetYaw();
+
         drive.initialize(hardwareMap);
         upslide.initialize(hardwareMap);
         lowslide.initialize(hardwareMap);
@@ -44,7 +130,6 @@ public class Swerve extends LinearOpMode {
         upslide.keepPosExceptArms(0);
         lowslide.keepPosExceptArms(0);
         PIDX.setDestination(CROSSHAIR_X);
-        PIDY.setDestination(CROSSHAIR_Y);
 
         upslide.front();
         lowslide.pos_up();
@@ -76,13 +161,13 @@ public class Swerve extends LinearOpMode {
 
             double time=System.currentTimeMillis();
             if (gamepad1.left_bumper) {
-                if (time-lastTimeGP1LeftBumperCalled>BUTTONPRESSINTERVALMS) {
+                if (time - lastTimeGP1LeftBumperCalled > buttonPressIntervalMS) {
                     lowClawIsOpen = !lowClawIsOpen;
                 }
                 lastTimeGP1LeftBumperCalled = time;
             }
             if (gamepad2.left_bumper) {
-                if (time-lastTimeGP2LeftBumperCalled>BUTTONPRESSINTERVALMS) {
+                if (time - lastTimeGP2LeftBumperCalled > buttonPressIntervalMS) {
                     upClawIsOpen = !upClawIsOpen;
                 }
                 lastTimeGP2LeftBumperCalled = time;
@@ -95,16 +180,18 @@ public class Swerve extends LinearOpMode {
             upslide.updatePID();
             lowslide.updatePID();
 
-            //Telemetry
-            //telemetry.addData("claw", upslide.claw.getPosition());
 
-            telemetry.addData("Status", "Running");
+            // Create dashboard packet
+            // TelemetryPacket packet = new TelemetryPacket();
+            Canvas field = packet.fieldOverlay();
 
-//            telemetry.addData("Distance", lowslide.distance);
-//            telemetry.addData("State", lowslide.slide.getCurrentPosition());
-//            telemetry.addData("Power", lowslide.PID(lowslide.distance, lowslide.slide.getCurrentPosition()));
-
+            // Draw robot position from odometry
+            field.setStroke("#3F51B5"); // Material Blue
+            DashboardUtil.drawRobot(field, "#3F51B5"); // Draw robot using localizer data
             telemetry.update();
+            dashboard.sendTelemetryPacket(packet);
+            panels.debug("Loop ${System.currentTimeMillis()} ran!");
+            panels.update();
         }
     }
     double angleAccum = 0;
@@ -124,6 +211,15 @@ public class Swerve extends LinearOpMode {
             angleNum = 1;
         }, 300);
 
+            // Visualize limelight detection (camera)
+            // if (camera.isDetected()) {
+            if (camera != null) {
+                field.setStroke("#4CAF50"); // Material Green for detection
+                field.setFill("#4CAF50");
+                double radians = Math.toRadians(angle);
+                field.strokeLine(0, 0, 20 * Math.cos(radians), 20 * Math.sin(radians));
+                field.fillCircle(20 * Math.cos(radians), 20 * Math.sin(radians), 3);
+            }
         new Timeout(() -> {
             isAdjustTimeout = true;
         }, 5000);
@@ -158,7 +254,8 @@ public class Swerve extends LinearOpMode {
         double x = gamepad1.left_stick_x;
         double rx = gamepad1.right_stick_x;
 
-        double botHeading = odo.heading();
+        // double botHeading = odo.heading();
+        double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
         // Rotate the movement direction counter to the bot's rotation
         double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
@@ -185,16 +282,26 @@ public class Swerve extends LinearOpMode {
         if(gamepad2.x){ upslide.pos1(); }
         if(gamepad2.y){ upslide.pos2(); }
         if(gamepad2.b){ upslide.pos3(); }
-        if(gamepad2.right_trigger > 0){ upslide.behind(); }
+        if(gamepad2.right_trigger > 0){ upslide.transfer(); }
         if(gamepad2.left_trigger > 0){ upslide.front(); }
-//        if(gamepad2.left_bumper){
-//            upslide.closeClaw();
-//        }
+        if (gamepad2.dpad_down) {
+            upslide.transfer();
+        }
+
+        if (gamepad2.dpad_up) {
+            upslide.front();
+        }
+        if (gamepad2.dpad_left) {
+            upslide.offwall();
+        }
+        if (gamepad2.dpad_right) {
+            upslide.scorespec();
+        }
 
         telemetry.addData("right", gamepad2.right_trigger);
         telemetry.addData("left", gamepad2.left_trigger);
-        telemetry.addData("big arm", upslide.arm1.getPosition());
-        telemetry.addData("small arm", upslide.swing.getPosition());
+        telemetry.addData("upslide arm", upslide.arm1.getPosition());
+        telemetry.addData("upslide swing", upslide.swing.getPosition());
     }
 
     private void controlLowslide(){
@@ -203,7 +310,7 @@ public class Swerve extends LinearOpMode {
             adjust = true;
         }
         if(gamepad1.right_trigger>0) { lowslide.pos_grab(); adjust = false; }
-        if (gamepad1.left_trigger>0){ lowslide.pos_up();  adjust = false; lowslide.spinclawSetPositionDeg(0);}
+        if (gamepad1.left_trigger>0){ lowslide.pos_up();  adjust = false; lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.SPINCLAW_DEG);}
         if (gamepad1.x) { lowslide.setSlidePos1(); }
         if (gamepad1.y) { lowslide.setSlidePos2(); }
         if(gamepad1.dpad_down) { lowslide.spinclawSetPositionDeg(0); }
