@@ -6,6 +6,7 @@ import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueDark;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
+import com.noahbres.meepmeep.roadrunner.DriveTrainType;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
 import com.example.meepmeeptesting.paths.AutoPaths;
@@ -31,6 +32,8 @@ public class MeepMeepTesting {
         RoadRunnerBotEntity ourBot =  new DefaultBotBuilder(meepMeep)
                 .setColorScheme(new ColorSchemeBlueDark())
                 .setConstraints(maxWheelVel, maxProfileAccel, maxAngVel, maxAngAccel, TRACK_WIDTH)
+                .setDimensions(botWidth, botLength)
+                .setDriveTrainType(DriveTrainType.MECANUM)
                 .build();
 
 
