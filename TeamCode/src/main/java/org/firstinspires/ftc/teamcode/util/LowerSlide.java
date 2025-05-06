@@ -1,22 +1,15 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
+import static org.firstinspires.ftc.teamcode.util.ConfigVariables.LowerSlideVars;
 public class LowerSlide {
 
-    //double Kp = PIDConstant.Kp;
-    double Kp = 0.02;
-    double Ki = PIDConstant.Ki;
-    double Kd = PIDConstant.Kd;
-    double lastError;
-    ElapsedTime timer = new ElapsedTime();
-    double integralSum = 0;
     static final double     PI=3.14;
     static final double     COUNTS_PER_MOTOR_REV    = 28.0;
 //    static final double     WHEEL_CIRCUMFERENCE_MM  = 40.0 * PI;
@@ -29,51 +22,50 @@ public class LowerSlide {
     HardwareMap hardwareMap;
     public ServoImplEx part1, part2, part3, spinclaw, claw;
 
-    public DcMotor slide;
+    public DcMotor slideMotor;
+    public DcMotor slideEncoder;
 
     PwmControl.PwmRange v4range = new PwmControl.PwmRange(500, 2500);
     PwmControl.PwmRange downrange = new PwmControl.PwmRange(500, 900);
 
     PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1150);
 
-    public double distance = 0;
-    public double ref = 0;
-
+    private PIDController pidController;
     public void initialize(HardwareMap map) {
         hardwareMap = map;
+        
+        // 初始化PID控制器
+        pidController = new PIDController(0.02, PIDConstant.Ki, PIDConstant.Kd);
 
-        part1 = hardwareMap.get(ServoImplEx.class, expansion.servo(3));
+        // Initialize slide motor for power
+        slideMotor = hardwareMap.get(DcMotor.class, control.motor(2));
+        slideMotor.setDirection(DcMotor.Direction.REVERSE);
+        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // Initialize slide encoder
+        slideEncoder = hardwareMap.get(DcMotor.class, expansion.motor(1));
+
+        // Initialize servos
         part2 = hardwareMap.get(ServoImplEx.class, control.servo(0));
-        //part3 = hardwareMap.get(ServoImplEx.class, "cyliis");
-
-        //slide = hardwareMap.get(DcMotor.class, "down1");
-        //slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        slide = hardwareMap.get(DcMotor.class, control.motor(2));
-        slide.setDirection(DcMotor.Direction.REVERSE);
-        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        spinclaw = hardwareMap.get(ServoImplEx.class, expansion.servo(2));
         claw = hardwareMap.get(ServoImplEx.class, expansion.servo(0));
+        spinclaw = hardwareMap.get(ServoImplEx.class, expansion.servo(2));
+        part1 = hardwareMap.get(ServoImplEx.class, expansion.servo(3));
 
-        //part2.setDirection(ServoImplEx.Direction.REVERSE);
         part1.setDirection(Servo.Direction.FORWARD);
-        part2.setDirection(Servo.Direction.FORWARD);
         part1.setPwmRange(v4range);
+        part2.setDirection(Servo.Direction.FORWARD);
         part2.setPwmRange(v4range);
-        //part3.setPwmRange(v4range);
+
         spinclaw.setPwmRange(v4range);
         claw.setPwmRange(clawRange);
-
-
-
     }
 
-    public void low(double val){
-        slide.setTargetPosition((int)val);
-        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    public void low(double val) {
+        slideMotor.setTargetPosition((int) val);
+        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+    public void setSlidePower(double power){
+        slideMotor.setPower(power);
     }
 
     public void keepPosExceptArms(double pos) {
@@ -81,64 +73,60 @@ public class LowerSlide {
         part2.setPosition(0);
     }
 
-    public void big(double val){ part1.setPosition(val); }
-    public void small(double val){ part2.setPosition(val); }
-
-    public void smallclaw(double val){ part3.setPosition(val); }
-
-    // abandoned
-//    public void pos0(){ spinclaw.setPosition(1);}
-//    public void pos1(){ spinclaw.setPosition(0.25);}
-//    public void pos2(){ spinclaw.setPosition(0.5);}
-//    public void pos3(){ spinclaw.setPosition(0.75);}
-
-    public void spinclawSetPositionDeg( double degree ){
-        spinclaw.setPosition(degree/270);
+    public void big(double val) {
+        part1.setPosition(val);
     }
 
-    public void pos4(){ spinclaw.setPosition(0);}
+    public void small(double val) {
+        part2.setPosition(val);
+    }
+
+    public void smallclaw(double val) {
+        part3.setPosition(val);
+    }
+
+    public void spinclawSetPositionDeg(double degree) {
+        spinclaw.setPosition(degree / 270);
+    }
+
+    public void pos4() {
+        spinclaw.setPosition(0);
+    }
 
     public void pos_grab() {
-        big(0.93);
-        small(0.1);
+        big(LowerSlideVars.GRAB_BIG);
+        small(LowerSlideVars.GRAB_SMALL);
     }
+
     public void pos_up() {
-        big(0.6);
-        small(1);
+        big(LowerSlideVars.UP_BIG);
+        small(LowerSlideVars.UP_SMALL);
     }
 
     public void pos_hover() {
-        big(0.7);
-        small(0.1);
+        big(LowerSlideVars.HOVER_BIG);
+        small(LowerSlideVars.HOVER_SMALL);
     }
 
     public void setSlidePos1(){
-        distance = Math.round(COUNTS_PER_CM * 50);
+        pidController.setDestination(Math.round(COUNTS_PER_CM * 50));
     }
 
     public void setSlidePos2(){
-        distance = 0;
+        pidController.setDestination(0);
     }
 
-    public void closeClaw(){
-        claw.setPosition(1);
-    }
-    public void openClaw(){
-        claw.setPosition(0);
+    public void updatePID() {
+        double power = pidController.calculate(slideEncoder.getCurrentPosition());
+        slideMotor.setPower(power);
     }
 
-    public void updatePID(){
-        ref = slide.getCurrentPosition();
-        double power = PID(distance,ref);
-        slide.setPower(power);
+    public void closeClaw() {
+        claw.setPosition(LowerSlideVars.CLAW_CLOSE);
     }
 
-    public double PID(double refrence, double state) {
-        double error = refrence - state;
-        integralSum += error * timer.seconds(); //
-        double derivative = (error - lastError) / (timer.seconds());
-        lastError = error;
-        timer.reset();
-        return (error * Kp) + (derivative * Kd) + (integralSum * Ki);
+    public void openClaw() {
+        claw.setPosition(LowerSlideVars.CLAW_OPEN);
     }
+
 }
