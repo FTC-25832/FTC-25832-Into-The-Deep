@@ -18,6 +18,11 @@ import com.bylazar.ftcontrol.panels.Panels;
 import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
 import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
 import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
+import com.bylazar.ftcontrol.panels.json.Circle;
+import com.bylazar.ftcontrol.panels.json.Line;
+import com.bylazar.ftcontrol.panels.json.Look;
+import com.bylazar.ftcontrol.panels.json.Point;
+import com.bylazar.ftcontrol.panels.json.Rectangle;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.util.ConfigVariables;
@@ -53,9 +58,9 @@ public class Swerve extends LinearOpMode {
     final double buttonPressIntervalMS = 80;
 
     private FtcDashboard dashboard;
-//    private Panels ftControlDashboard;
+    // private Panels ftControlDashboard;
     private Telemetry dashboardTelemetry;
-//    private TelemetryManager ftControlTelemetry;
+    // private TelemetryManager ftControlTelemetry;
     private long lastDashboardUpdateTime = 0;
     private static final long DASHBOARD_UPDATE_INTERVAL_MS = 250; // Update FTCdashboard 4 times per second
 
@@ -81,13 +86,13 @@ public class Swerve extends LinearOpMode {
     private void addTelemetry(String caption, Object value) {
         telemetry.addData(caption, value);
         packet.put(caption, value);
-//        ftControlTelemetry.debug(caption + ": " + value);
+        // ftControlTelemetry.debug(caption + ": " + value);
     }
 
     private void addTelemetry(String caption, String format, Object... args) {
         telemetry.addData(caption, format, args);
         packet.put(caption, String.format(format, args));
-//        ftControlTelemetry.debug(caption + ": " + String.format(format, args));
+        // ftControlTelemetry.debug(caption + ": " + String.format(format, args));
     }
 
     @Override
@@ -95,8 +100,8 @@ public class Swerve extends LinearOpMode {
         // Initialize dashboard
         dashboard = FtcDashboard.getInstance();
         dashboardTelemetry = dashboard.getTelemetry();
-//        ftControlTelemetry = Panels.getTelemetry();
-//        ftControlDashboard = Panels.getInstance();
+        panels = Panels.getTelemetry();
+        // ftControlDashboard = Panels.getInstance();
 
         // odo.initialize(hardwareMap);
         /*
@@ -363,8 +368,10 @@ public class Swerve extends LinearOpMode {
                     status.getPipelineIndex(), status.getPipelineType());
 
             telemetry.update();
-//            ftControlTelemetry.update(telemetry);
+            // ftControlTelemetry.update(telemetry);
             dashboard.sendTelemetryPacket(packet);
+            panels.debug("Loop ${System.currentTimeMillis()} ran!");
+            panels.update();
         }
         interval.cancel();
     }
