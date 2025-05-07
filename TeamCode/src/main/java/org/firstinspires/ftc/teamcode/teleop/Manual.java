@@ -115,9 +115,10 @@ public class Manual extends LinearOpMode {
         imu.initialize(new IMU.Parameters(orientationOnRobot));
         imu.resetYaw();
 
-        drive.initialize(hardwareMap);
+
         upslide.initialize(hardwareMap);
         lowslide.initialize(hardwareMap);
+        drive.initialize(hardwareMap);
 //        camera.initialize(hardwareMap);
 
         upslide.keepPosExceptArms(0);

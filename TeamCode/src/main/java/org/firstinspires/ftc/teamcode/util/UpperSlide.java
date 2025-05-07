@@ -31,11 +31,11 @@ public class UpperSlide {
         pidController = new PIDController(UpperSlideVars.PID_KP, UpperSlideVars.PID_KI, UpperSlideVars.PID_KD);
         // Initialize slide motors for power
         slide1 = hardwareMap.get(DcMotor.class, control.motor(0));
-        slide2 = hardwareMap.get(DcMotor.class, control.motor(1));
+        slide2 = hardwareMap.get(DcMotor.class, control.motor(3));
 
         // Initialize slide encoders
         slide1Encoder = hardwareMap.get(DcMotor.class, expansion.motor(0));
-        slide2Encoder = hardwareMap.get(DcMotor.class, control.motor(1));
+        slide2Encoder = hardwareMap.get(DcMotor.class, control.motor(3));
 
         arm1 = hardwareMap.get(ServoImplEx.class, control.servo(2));
         arm1.setDirection(ServoImplEx.Direction.FORWARD);
