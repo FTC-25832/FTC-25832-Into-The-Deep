@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.util.Localizer;
 import org.firstinspires.ftc.teamcode.util.control;
+import org.firstinspires.ftc.teamcode.util.expansion;
 
 import java.util.List;
 
@@ -26,10 +27,10 @@ public class TestOdometryTeleop extends LinearOpMode {
 
             // Declare our motors
             // Make sure your ID's match your configuration
-            DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor");
-            DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
-            DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
-            DcMotor backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
+            DcMotor frontLeftMotor = hardwareMap.get(DcMotor.class, expansion.motor(2));
+            DcMotor backLeftMotor = hardwareMap.get(DcMotor.class, expansion.motor(3));
+            DcMotor frontRightMotor = hardwareMap.get(DcMotor.class, expansion.motor(1));
+            DcMotor backRightMotor = hardwareMap.get(DcMotor.class, expansion.motor(0));
 
             // Reverse the right side motors. This may be wrong for your setup.
             backLeftMotor.setDirection(DcMotor.Direction.REVERSE);

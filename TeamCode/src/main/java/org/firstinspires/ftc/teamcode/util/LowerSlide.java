@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.PwmControl;
@@ -50,6 +51,7 @@ public class LowerSlide {
 
         // Initialize slide encoder
         slideEncoder = hardwareMap.get(DcMotor.class, expansion.motor(2));
+        slideEncoder.setDirection(DcMotorSimple.Direction.REVERSE);
         slideEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // Initialize servos
         part2 = hardwareMap.get(ServoImplEx.class, control.servo(0));
@@ -98,6 +100,9 @@ public class LowerSlide {
 
     public void pos4() {
         spinclaw.setPosition(0);
+    }
+    public void posNow() {
+        pidController.setDestination(slideEncoder.getCurrentPosition());
     }
 
     public void pos_grab() {

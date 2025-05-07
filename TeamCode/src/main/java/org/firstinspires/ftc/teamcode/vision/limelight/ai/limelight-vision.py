@@ -7,48 +7,64 @@ import math
 last_valid_angle = 0
 smoothed_angle = 0
 alpha = 0.2
-AREA_RANGE = [100, 200]
+AREA_RANGE = [7000, 20000]
 # ROI is left bottom corner of the image
-ROI = [10, 10, 200, 200]  # x, y, w, h
+ROI = [0, 240, 320, 240]  # x, y, w, h
+
+
+def separate_touching_contours(contour, min_area_ratio=0.15):
+    x, y, w, h = cv2.boundingRect(contour)
+    mask = np.zeros((h, w), dtype=np.uint8)
+    shifted_contour = contour - [x, y]
+    cv2.drawContours(mask, [shifted_contour], -1, 255, -1)
+
+    original_area = cv2.contourArea(contour)
+    max_contours = []
+    max_count = 1
+
+    dist_transform = cv2.distanceTransform(mask, cv2.DIST_L2, 3)
+
+    for threshold in np.linspace(0.1, 0.9, 9):
+        _, thresh = cv2.threshold(
+            dist_transform, threshold * dist_transform.max(), 255, 0
+        )
+        thresh = np.uint8(thresh)
+
+        contours, _ = cv2.findContours(
+            thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        valid_contours = [
+            c for c in contours if cv2.contourArea(c) > original_area * min_area_ratio
+        ]
+
+        if len(valid_contours) > max_count:
+            max_count = len(valid_contours)
+            max_contours = valid_contours
+
+    if max_contours:
+        return [c + [x, y] for c in max_contours]
+    return [contour]
 
 
 # 0 for blue, 1 for red, 2 for yellow
 def runPipeline(image, llrobot):
+    llrobot[0] = 1
     global last_valid_angle, smoothed_angle, alpha
 
+    # let cutted be the ROI of the image, but with the same size as the original image
     cutted = image[ROI[1] : ROI[1] + ROI[3], ROI[0] : ROI[0] + ROI[2]]
-    cutted = cv2.resize(cutted, (0, 0), fx=0.5, fy=0.5)
+    cutted = cv2.resize(cutted, (320, 240))
+    cutted = cv2.GaussianBlur(cutted, (5, 5), 0)
 
     hsv = cv2.cvtColor(cutted, cv2.COLOR_BGR2HSV)
 
-    # decrease lightness of the image out of the ROI
-    image[0 : ROI[1], 0 : image.shape[1]] = cv2.addWeighted(
-        image[0 : ROI[1], 0 : image.shape[1]],
-        0.5,
-        image[0 : ROI[1], 0 : image.shape[1]],
-        0.5,
-        0,
-    )
-    image[ROI[1] + ROI[3] : image.shape[0], 0 : image.shape[1]] = cv2.addWeighted(
-        image[ROI[1] + ROI[3] : image.shape[0], 0 : image.shape[1]],
-        0.5,
-        image[ROI[1] + ROI[3] : image.shape[0], 0 : image.shape[1]],
-        0.5,
-        0,
-    )
-    image[0 : image.shape[0], 0 : ROI[0]] = cv2.addWeighted(
-        image[0 : image.shape[0], 0 : ROI[0]],
-        0.5,
-        image[0 : image.shape[0], 0 : ROI[0]],
-        0.5,
-        0,
-    )
-    image[0 : image.shape[0], ROI[0] + ROI[2] : image.shape[1]] = cv2.addWeighted(
-        image[0 : image.shape[0], ROI[0] + ROI[2] : image.shape[1]],
-        0.5,
-        image[0 : image.shape[0], ROI[0] + ROI[2] : image.shape[1]],
-        0.5,
-        0,
+    # draw ROI
+    cv2.rectangle(
+        image,
+        (ROI[0], ROI[1]),
+        (ROI[0] + ROI[2], ROI[1] + ROI[3]),
+        (255, 0, 0),
+        2,
     )
 
     if llrobot[0] == 0:  # blue
@@ -68,9 +84,7 @@ def runPipeline(image, llrobot):
         upper = np.array([30, 255, 255])
         mask = cv2.inRange(hsv, lower, upper)
     else:
-        return image, [0, 0, 0, 0, 0, 0, 0, 0]
-
-    mask = cv2.inRange(hsv, lower, upper)
+        return [], image, [0] * 8
 
     kernel = np.ones((5, 5), np.uint8)
     mask = cv2.erode(mask, kernel, iterations=1)
@@ -95,6 +109,9 @@ def runPipeline(image, llrobot):
 
         if largest_contour is not None and len(largest_contour) >= 4:
             try:
+                # adjust for ROI
+                largest_contour[:, :, 0] += ROI[0]
+                largest_contour[:, :, 1] += ROI[1]
                 rect = cv2.minAreaRect(np.array(largest_contour))
                 box = cv2.boxPoints(rect)
                 box = np.int0(box)
