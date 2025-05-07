@@ -22,7 +22,7 @@ public class ConfigVariables {
                 public static double CLOSE_REDUCE_FACTOR = 0.15;
                 public static int ANGLE_TIMEOUT = 500; // ms
                 public static int ADJUST_TIMEOUT = 5000;
-                public static int ADJUSTBACKTIME = 500;
+                public static int ADJUST_EXTRA_TIME = 500;
                 public static int ANGLE_OFFSET = 55;
                 public static int DISTANCE_THRESHOLD = 1;
                 public static double PID_KP = 0.03;

@@ -7,25 +7,76 @@ import math
 last_valid_angle = 0
 smoothed_angle = 0
 alpha = 0.2
+AREA_RANGE = [100, 200]
+# ROI is left bottom corner of the image
+ROI = [10, 10, 200, 200]  # x, y, w, h
 
 
+# 0 for blue, 1 for red, 2 for yellow
 def runPipeline(image, llrobot):
     global last_valid_angle, smoothed_angle, alpha
 
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    cutted = image[ROI[1] : ROI[1] + ROI[3], ROI[0] : ROI[0] + ROI[2]]
+    cutted = cv2.resize(cutted, (0, 0), fx=0.5, fy=0.5)
 
-    lower_blue = np.array([100, 150, 50])
-    upper_blue = np.array([130, 255, 255])
+    hsv = cv2.cvtColor(cutted, cv2.COLOR_BGR2HSV)
 
-    blue_mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    # decrease lightness of the image out of the ROI
+    image[0 : ROI[1], 0 : image.shape[1]] = cv2.addWeighted(
+        image[0 : ROI[1], 0 : image.shape[1]],
+        0.5,
+        image[0 : ROI[1], 0 : image.shape[1]],
+        0.5,
+        0,
+    )
+    image[ROI[1] + ROI[3] : image.shape[0], 0 : image.shape[1]] = cv2.addWeighted(
+        image[ROI[1] + ROI[3] : image.shape[0], 0 : image.shape[1]],
+        0.5,
+        image[ROI[1] + ROI[3] : image.shape[0], 0 : image.shape[1]],
+        0.5,
+        0,
+    )
+    image[0 : image.shape[0], 0 : ROI[0]] = cv2.addWeighted(
+        image[0 : image.shape[0], 0 : ROI[0]],
+        0.5,
+        image[0 : image.shape[0], 0 : ROI[0]],
+        0.5,
+        0,
+    )
+    image[0 : image.shape[0], ROI[0] + ROI[2] : image.shape[1]] = cv2.addWeighted(
+        image[0 : image.shape[0], ROI[0] + ROI[2] : image.shape[1]],
+        0.5,
+        image[0 : image.shape[0], ROI[0] + ROI[2] : image.shape[1]],
+        0.5,
+        0,
+    )
+
+    if llrobot[0] == 0:  # blue
+        lower = np.array([100, 150, 0])
+        upper = np.array([140, 255, 255])
+        mask = cv2.inRange(hsv, lower, upper)
+    elif llrobot[0] == 1:  # red
+        lower = np.array([0, 150, 0])
+        upper = np.array([10, 255, 255])
+        lower2 = np.array([170, 150, 0])
+        upper2 = np.array([180, 255, 255])
+        mask = cv2.inRange(hsv, lower, upper)
+        mask2 = cv2.inRange(hsv, lower2, upper2)
+        mask = cv2.bitwise_or(mask, mask2)
+    elif llrobot[0] == 2:  # yellow
+        lower = np.array([20, 150, 50])
+        upper = np.array([30, 255, 255])
+        mask = cv2.inRange(hsv, lower, upper)
+    else:
+        return image, [0, 0, 0, 0, 0, 0, 0, 0]
+
+    mask = cv2.inRange(hsv, lower, upper)
 
     kernel = np.ones((5, 5), np.uint8)
-    blue_mask = cv2.erode(blue_mask, kernel, iterations=1)
-    blue_mask = cv2.dilate(blue_mask, kernel, iterations=2)
+    mask = cv2.erode(mask, kernel, iterations=1)
+    mask = cv2.dilate(mask, kernel, iterations=2)
 
-    contours, _ = cv2.findContours(
-        blue_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-    )
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     largest_contour = []
     largest_area = 0
@@ -33,22 +84,17 @@ def runPipeline(image, llrobot):
     detection_flag = 0
 
     if len(contours) > 0:
-
         for contour in contours:
             area = cv2.contourArea(contour)
-
-            if area > largest_area and area > 100:
-
+            if area > largest_area and AREA_RANGE[0] < area < AREA_RANGE[1]:
                 epsilon = 0.04 * cv2.arcLength(contour, True)
                 approx = cv2.approxPolyDP(contour, epsilon, True)
-
                 if len(approx) >= 4 and len(approx) <= 6:
                     largest_contour = contour
                     largest_area = area
 
         if largest_contour is not None and len(largest_contour) >= 4:
             try:
-
                 rect = cv2.minAreaRect(np.array(largest_contour))
                 box = cv2.boxPoints(rect)
                 box = np.int0(box)
