@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 public class AutoPaths {
         // Store the starting poses for different paths
-        public static final Pose2d START_POSE = new Pose2d(0, 0, 0);
+        public static final Pose2d START_POSE = new Pose2d(0, 70, -Math.PI / 2);
 
         // Helper method to reset robot pose
         public static void resetPose(MecanumDrive drive) {

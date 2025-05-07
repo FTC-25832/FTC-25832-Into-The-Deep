@@ -14,19 +14,23 @@ public final class SplineTest extends LinearOpMode {
 
                 waitForStart();
 
-                // Run original test path (semicircle)
-                Actions.runBlocking(AutoPaths.getOriginalTestPath(drive));
+                Actions.runBlocking(AutoPaths.getPrePlaced(drive));
 
-                // Reset pose for square path test
-                AutoPaths.resetPose(drive);
+                // Actions.runBlocking(AutoPaths.getPrePlaced(drive));
 
-                // Run square path test
-                Actions.runBlocking(AutoPaths.getSquarePath(drive));
+                // // Run original test path (semicircle)
+                // Actions.runBlocking(AutoPaths.getOriginalTestPath(drive));
 
-                // Reset pose for chicane path test
-                AutoPaths.resetPose(drive);
+                // // Reset pose for square path test
+                // AutoPaths.resetPose(drive);
 
-                // Run chicane path test
-                Actions.runBlocking(AutoPaths.getChicanePath(drive));
+                // // Run square path test
+                // Actions.runBlocking(AutoPaths.getSquarePath(drive));
+
+                // // Reset pose for chicane path test
+                // AutoPaths.resetPose(drive);
+
+                // // Run chicane path test
+                // Actions.runBlocking(AutoPaths.getChicanePath(drive));
         }
 }
