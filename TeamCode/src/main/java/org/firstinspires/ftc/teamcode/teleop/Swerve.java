@@ -27,6 +27,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.util.ConfigVariables;
 import org.firstinspires.ftc.teamcode.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.util.Drivetrain;
+import org.firstinspires.ftc.teamcode.util.Hanging;
 import org.firstinspires.ftc.teamcode.util.Limelight;
 import org.firstinspires.ftc.teamcode.util.LowerSlide;
 import org.firstinspires.ftc.teamcode.util.PIDController;
@@ -42,6 +43,7 @@ public class Swerve extends LinearOpMode {
     UpperSlide upslide = new UpperSlide();
     LowerSlide lowslide = new LowerSlide();
     Limelight camera = new Limelight();
+    Hanging hangingServos = new Hanging();
     PIDController PIDY = new PIDController(
             ConfigVariables.Camera.PID_KP,
             ConfigVariables.Camera.PID_KI,
@@ -115,9 +117,11 @@ public class Swerve extends LinearOpMode {
         imu.initialize(new IMU.Parameters(orientationOnRobot));
         imu.resetYaw();
 
-        drive.initialize(hardwareMap);
+
         upslide.initialize(hardwareMap);
         lowslide.initialize(hardwareMap);
+        drive.initialize(hardwareMap);
+        hangingServos.initialize(hardwareMap);
         camera.initialize(hardwareMap);
         camera.cameraStart();
 
@@ -135,11 +139,21 @@ public class Swerve extends LinearOpMode {
             if (adjust) {
                 adjustIntake();
                 adjust = false;
+                sleep(1000);
+                lowslide.openClaw();
+                sleep(200);
+                lowslide.pos_grab();
+                sleep(400);
+                lowslide.closeClaw();
+                sleep(400);
+                lowslide.pos_up();
+                sleep(400);
             }
 
             controlDrivetrain();
             controlUpslide();
             controlLowslide();
+            controlHanging();
             // upslide.big(gamepad1.right_trigger);
             // upslide.swing.setPosition(gamepad1.left_trigger);
 
@@ -222,10 +236,9 @@ public class Swerve extends LinearOpMode {
             double ypower = PIDY.calculate(-dy); // input is the position now
             lowslide.setSlidePower(ypower);
             controlDrivetrain();
-            if(dy<ConfigVariables.Camera.CLOSE_DISTANCE){
-                ypower = ypower * ConfigVariables.Camera.CLOSE_REDUCE_FACTOR;
+            if(gamepad1.b){
+                isAdjusted = true;
             }
-
             if (Math.abs(dy) < ConfigVariables.Camera.DISTANCE_THRESHOLD){
                 if(!adjustBackTimeoutSet){
                     new Timeout(()->isAdjusted=true, ConfigVariables.Camera.ADJUST_EXTRA_TIME);
@@ -237,11 +250,12 @@ public class Swerve extends LinearOpMode {
             telemetry.addData("ypower", ypower);
             telemetry.update();
         }
+        lowslide.posNow();
         new Timeout(() -> isAngleTimeout = true, ConfigVariables.Camera.ANGLE_TIMEOUT);
         camera.switchtoPython();
+        camera.setColor(camera.getClassname());
         while(!isAngleTimeout){
             controlDrivetrain();
-            controlLowslide();
 //            camera.updateDetectorResult(); // used when using neural detector
             // processing angle for spinclaw
             double angle = camera.getAngle(); // -90 ~ 90
@@ -259,15 +273,19 @@ public class Swerve extends LinearOpMode {
             telemetry.update();
         }
         double averageAngle = angleAccum / angleNum;
-        if (averageAngle>45 && 135>averageAngle) {
-            lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.ZERO + 90);
-        } else {
-            lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.ZERO);
-        }
+        lowslide.spinclawSetPositionDeg(averageAngle);
         camera.switchtoNeural();
         camera.reset();
     }
-
+    public void controlHanging(){
+        if (gamepad2.right_trigger>0){
+            hangingServos.addPos(ConfigVariables.General.HANGING_SERVOS_SPEED);
+        }
+        if (gamepad2.left_trigger>0){
+            hangingServos.addPos(-ConfigVariables.General.HANGING_SERVOS_SPEED);
+        }
+        telemetry.addData("hanging pos", hangingServos.currentPos);
+    }
     private void controlDrivetrain() {
         double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
         double x = gamepad1.left_stick_x;

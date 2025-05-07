@@ -69,12 +69,29 @@ public class Limelight {
     public void reset(){
         resultAvailable = false;
     }
+    public void setColor(String classname){
+        if(!available) return;
+        switch(classname){
+            case "blue":
+                limelight.updatePythonInputs(0, 0, 0, 0, 0, 0, 0, 0);
+                break;
+            case "red":
+                limelight.updatePythonInputs(1, 0, 0, 0, 0, 0, 0, 0);
+                break;
+            case "yellow":
+                limelight.updatePythonInputs(2, 0, 0, 0, 0, 0, 0, 0);
+        }
+    }
     public double getAngle(){
         if(!available) return 0;
         return limelight.getLatestResult().getPythonOutput()[1] * 5;
     }
+    public String getClassname(){
+        if(!available ||!resultAvailable) return "blue";
+        return detectorResult.getClassName();
+    }
     public double getX(){
-        if(!available ||!resultAvailable) return -2;
+        if(!available ||!resultAvailable) return 0;
         return result.getTx();
     }
     public double getY(){

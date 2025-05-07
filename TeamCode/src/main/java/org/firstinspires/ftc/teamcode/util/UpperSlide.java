@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -35,7 +36,7 @@ public class UpperSlide {
 
         // Initialize slide encoders
         slide1Encoder = hardwareMap.get(DcMotor.class, expansion.motor(0));
-        slide2Encoder = hardwareMap.get(DcMotor.class, control.motor(3));
+        slide2Encoder = hardwareMap.get(DcMotor.class, expansion.motor(3));
 
         arm1 = hardwareMap.get(ServoImplEx.class, control.servo(2));
         arm1.setDirection(ServoImplEx.Direction.FORWARD);
@@ -53,6 +54,7 @@ public class UpperSlide {
         claw.setPwmRange(clawRange);
 
         slide2.setDirection(DcMotor.Direction.REVERSE);
+        slide2Encoder.setDirection(DcMotorSimple.Direction.REVERSE);
         slide1.setDirection(DcMotor.Direction.FORWARD);
 
         // Set motors to run without encoder since we're using separate encoder ports
@@ -62,10 +64,7 @@ public class UpperSlide {
         slide2Encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public void pos0(){
-        pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_1_CM));
-        new Timeout(() -> {
-            pidController.setDestination(COUNTS_PER_CM*UpperSlideVars.POS_0_CM);
-        }, 500);
+        pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_0_CM));
     }
     public void pos1(){
         //closeClaw();
