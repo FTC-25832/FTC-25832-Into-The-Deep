@@ -7,13 +7,14 @@ import math
 last_valid_angle = 0
 smoothed_angle = 0
 alpha = 0.2
-AREA_RANGE = [100, 200]
+AREA_RANGE = [0, 100000]
 # ROI is left bottom corner of the image
-ROI = [10, 10, 200, 200]  # x, y, w, h
+ROI = [0, 0, 640, 480]  # x, y, w, h
 
 
 # 0 for blue, 1 for red, 2 for yellow
 def runPipeline(image, llrobot):
+    llrobot[0] = 1
     global last_valid_angle, smoothed_angle, alpha
 
     cutted = image[ROI[1] : ROI[1] + ROI[3], ROI[0] : ROI[0] + ROI[2]]
@@ -21,34 +22,13 @@ def runPipeline(image, llrobot):
 
     hsv = cv2.cvtColor(cutted, cv2.COLOR_BGR2HSV)
 
-    # decrease lightness of the image out of the ROI
-    image[0 : ROI[1], 0 : image.shape[1]] = cv2.addWeighted(
-        image[0 : ROI[1], 0 : image.shape[1]],
-        0.5,
-        image[0 : ROI[1], 0 : image.shape[1]],
-        0.5,
-        0,
-    )
-    image[ROI[1] + ROI[3] : image.shape[0], 0 : image.shape[1]] = cv2.addWeighted(
-        image[ROI[1] + ROI[3] : image.shape[0], 0 : image.shape[1]],
-        0.5,
-        image[ROI[1] + ROI[3] : image.shape[0], 0 : image.shape[1]],
-        0.5,
-        0,
-    )
-    image[0 : image.shape[0], 0 : ROI[0]] = cv2.addWeighted(
-        image[0 : image.shape[0], 0 : ROI[0]],
-        0.5,
-        image[0 : image.shape[0], 0 : ROI[0]],
-        0.5,
-        0,
-    )
-    image[0 : image.shape[0], ROI[0] + ROI[2] : image.shape[1]] = cv2.addWeighted(
-        image[0 : image.shape[0], ROI[0] + ROI[2] : image.shape[1]],
-        0.5,
-        image[0 : image.shape[0], ROI[0] + ROI[2] : image.shape[1]],
-        0.5,
-        0,
+    # draw ROI
+    cv2.rectangle(
+        image,
+        (ROI[0], ROI[1]),
+        (ROI[0] + ROI[2], ROI[1] + ROI[3]),
+        (255, 0, 0),
+        2,
     )
 
     if llrobot[0] == 0:  # blue
@@ -68,9 +48,7 @@ def runPipeline(image, llrobot):
         upper = np.array([30, 255, 255])
         mask = cv2.inRange(hsv, lower, upper)
     else:
-        return image, [0, 0, 0, 0, 0, 0, 0, 0]
-
-    mask = cv2.inRange(hsv, lower, upper)
+        return [], image, [0] * 8
 
     kernel = np.ones((5, 5), np.uint8)
     mask = cv2.erode(mask, kernel, iterations=1)
