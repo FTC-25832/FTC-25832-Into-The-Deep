@@ -201,7 +201,6 @@ public class Swerve extends LinearOpMode {
     boolean isAdjustTimeout = false;
     boolean isAngleTimeout = false;
     boolean isAdjusted = false;
-    Timeout adjustBackTimeout;
     boolean adjustBackTimeoutSet = false;
     private void adjustIntake() {
         isAdjustTimeout = false;
@@ -211,9 +210,11 @@ public class Swerve extends LinearOpMode {
         angleAccum = 0;
         angleNum = 1;
         PIDY.reset();
-
+        if (!camera.updateDetectorResult()){
+            gamepad1.rumble(100);
+            return;
+        }
         new Timeout(() -> isAdjustTimeout = true, ConfigVariables.Camera.ADJUST_TIMEOUT);
-
         while (!isAdjustTimeout && !isAdjusted) {
             camera.updateDetectorResult();
             // processing position
@@ -227,7 +228,7 @@ public class Swerve extends LinearOpMode {
 
             if (Math.abs(dy) < ConfigVariables.Camera.DISTANCE_THRESHOLD){
                 if(!adjustBackTimeoutSet){
-                    adjustBackTimeout = new Timeout(()->isAdjusted=true, ConfigVariables.Camera.ADJUSTBACKTIME);
+                    new Timeout(()->isAdjusted=true, ConfigVariables.Camera.ADJUST_EXTRA_TIME);
                     adjustBackTimeoutSet = true;
                 }
             }
@@ -236,27 +237,25 @@ public class Swerve extends LinearOpMode {
             telemetry.addData("ypower", ypower);
             telemetry.update();
         }
-        Timeout timeout = new Timeout(() -> isAngleTimeout = true, ConfigVariables.Camera.ANGLE_TIMEOUT);
+        new Timeout(() -> isAngleTimeout = true, ConfigVariables.Camera.ANGLE_TIMEOUT);
         camera.switchtoPython();
         while(!isAngleTimeout){
             controlDrivetrain();
             controlLowslide();
-            camera.updateDetectorResult();
+//            camera.updateDetectorResult(); // used when using neural detector
             // processing angle for spinclaw
             double angle = camera.getAngle(); // -90 ~ 90
             angle = angle + ConfigVariables.Camera.ANGLE_OFFSET;
             angleAccum += angle;
             angleNum += 1;
-
             // Visualize limelight detection (camera)
             // if (camera.isDetected()) {
-            if (camera != null) {
-                field.setStroke("#4CAF50"); // Material Green for detection
-                field.setFill("#4CAF50");
-                double radians = Math.toRadians(angle);
-                field.strokeLine(0, 0, 20 * Math.cos(radians), 20 * Math.sin(radians));
-                field.fillCircle(20 * Math.cos(radians), 20 * Math.sin(radians), 3);
-            }
+            field.setStroke("#4CAF50"); // Material Green for detection
+            field.setFill("#4CAF50");
+            double radians = Math.toRadians(angle);
+            field.strokeLine(0, 0, 20 * Math.cos(radians), 20 * Math.sin(radians));
+            field.fillCircle(20 * Math.cos(radians), 20 * Math.sin(radians), 3);
+
             telemetry.update();
         }
         double averageAngle = angleAccum / angleNum;
