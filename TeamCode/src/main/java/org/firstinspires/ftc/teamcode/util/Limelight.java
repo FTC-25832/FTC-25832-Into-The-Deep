@@ -17,9 +17,8 @@ public class Limelight {
     public Limelight3A limelight;
     public void initialize(HardwareMap map){
         hardwareMap = map;
-        try {
-            limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        } catch (Exception e) {
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        if (limelight == null){
             available = false;
             return;
         }
@@ -27,7 +26,6 @@ public class Limelight {
         limelight.setPollRateHz(100);
     }
     public void cameraStart(){
-        if (!available) return;
         limelight.start();
         limelight.reloadPipeline();
     }
@@ -48,11 +46,9 @@ public class Limelight {
     }
     public void switchtoPython(){
         limelight.pipelineSwitch(1);
-        limelight.reloadPipeline();
     }
     public void switchtoNeural(){
         limelight.pipelineSwitch(0);
-        limelight.reloadPipeline();
     }
 //    public double getAngle(){
 //        if(!available ||!resultAvailable) return 0;

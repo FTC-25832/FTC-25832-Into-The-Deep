@@ -28,6 +28,7 @@ import org.firstinspires.ftc.teamcode.util.ConfigVariables;
 import org.firstinspires.ftc.teamcode.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.util.Drivetrain;
 //import org.firstinspires.ftc.teamcode.util.Limelight;
+import org.firstinspires.ftc.teamcode.util.Hanging;
 import org.firstinspires.ftc.teamcode.util.LowerSlide;
 import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.Timeout;
@@ -41,6 +42,7 @@ public class Manual extends LinearOpMode {
     Drivetrain drive = new Drivetrain();
     UpperSlide upslide = new UpperSlide();
     LowerSlide lowslide = new LowerSlide();
+    Hanging hangingServos = new Hanging();
 //    Limelight camera = new Limelight();
     PIDController PIDY = new PIDController(
             ConfigVariables.Camera.PID_KP,
@@ -119,6 +121,7 @@ public class Manual extends LinearOpMode {
         upslide.initialize(hardwareMap);
         lowslide.initialize(hardwareMap);
         drive.initialize(hardwareMap);
+        hangingServos.initialize(hardwareMap);
 //        camera.initialize(hardwareMap);
 
         upslide.keepPosExceptArms(0);
@@ -136,6 +139,7 @@ public class Manual extends LinearOpMode {
             controlDrivetrain();
             controlUpslide();
             controlLowslide();
+            controlHanging();
             // upslide.big(gamepad1.right_trigger);
             // upslide.swing.setPosition(gamepad1.left_trigger);
 
@@ -191,7 +195,17 @@ public class Manual extends LinearOpMode {
             // panels.update();
         }
     }
-
+    public void controlHanging(){
+        if (gamepad2.right_trigger>0){
+            hangingServos.turnForward();
+        }
+        if (gamepad2.left_trigger>0){
+            hangingServos.turnBackward();
+        }
+        if(gamepad2.right_bumper){
+            hangingServos.stop();
+        }
+    }
     private void controlDrivetrain() {
         double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
         double x = gamepad1.left_stick_x;
@@ -234,12 +248,6 @@ public class Manual extends LinearOpMode {
         }
         if (gamepad2.b) {
             upslide.pos3();
-        }
-        if (gamepad2.right_trigger > 0) {
-            upslide.transfer();
-        }
-        if (gamepad2.left_trigger > 0) {
-            upslide.front();
         }
         if (gamepad2.dpad_down) {
             upslide.transfer();

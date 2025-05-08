@@ -11,6 +11,8 @@ import org.firstinspires.ftc.teamcode.util.Timeout;
 
 import static org.firstinspires.ftc.teamcode.util.ConfigVariables.UpperSlideVars;
 
+import java.sql.Time;
+
 public class UpperSlide {
     HardwareMap hardwareMap;
     public ServoImplEx arm1, arm2, swing, claw;
@@ -64,7 +66,8 @@ public class UpperSlide {
         slide2Encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public void pos0(){
-        pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_0_CM));
+        pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_PRE_0_CM));
+        new Timeout(()->pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_0_CM)), 500);
     }
     public void pos1(){
         //closeClaw();
