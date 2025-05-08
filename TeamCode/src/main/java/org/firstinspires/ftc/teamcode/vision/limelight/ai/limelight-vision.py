@@ -7,43 +7,9 @@ import math
 last_valid_angle = 0
 smoothed_angle = 0
 alpha = 0.2
-AREA_RANGE = [7000, 20000]
+AREA_RANGE = [7000, 24000]
 # ROI is left bottom corner of the image
 ROI = [0, 240, 320, 240]  # x, y, w, h
-
-
-def separate_touching_contours(contour, min_area_ratio=0.15):
-    x, y, w, h = cv2.boundingRect(contour)
-    mask = np.zeros((h, w), dtype=np.uint8)
-    shifted_contour = contour - [x, y]
-    cv2.drawContours(mask, [shifted_contour], -1, 255, -1)
-
-    original_area = cv2.contourArea(contour)
-    max_contours = []
-    max_count = 1
-
-    dist_transform = cv2.distanceTransform(mask, cv2.DIST_L2, 3)
-
-    for threshold in np.linspace(0.1, 0.9, 9):
-        _, thresh = cv2.threshold(
-            dist_transform, threshold * dist_transform.max(), 255, 0
-        )
-        thresh = np.uint8(thresh)
-
-        contours, _ = cv2.findContours(
-            thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-        )
-        valid_contours = [
-            c for c in contours if cv2.contourArea(c) > original_area * min_area_ratio
-        ]
-
-        if len(valid_contours) > max_count:
-            max_count = len(valid_contours)
-            max_contours = valid_contours
-
-    if max_contours:
-        return [c + [x, y] for c in max_contours]
-    return [contour]
 
 
 # 0 for blue, 1 for red, 2 for yellow

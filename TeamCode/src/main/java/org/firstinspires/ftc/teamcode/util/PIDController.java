@@ -19,6 +19,7 @@ public class PIDController {
     public double kd; // Derivative gain
 
     // Controller state
+    public double pos;
     public double destination; // Desired value
     public double integralSum; // Sum of error over time
     public double lastError; // Previous error
@@ -70,6 +71,7 @@ public class PIDController {
      */
     public double calculate(double processValue) {
         long currentTime = System.currentTimeMillis();
+        pos = processValue;
 
         // Initialize controller on first call
         if (!isInitialized) {

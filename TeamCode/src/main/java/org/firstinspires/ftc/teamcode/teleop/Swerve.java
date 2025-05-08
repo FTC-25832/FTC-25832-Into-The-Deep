@@ -139,15 +139,15 @@ public class Swerve extends LinearOpMode {
             if (adjust) {
                 adjustIntake();
                 adjust = false;
-                sleep(1000);
-                lowslide.openClaw();
-                sleep(200);
-                lowslide.pos_grab();
-                sleep(400);
-                lowslide.closeClaw();
-                sleep(400);
-                lowslide.pos_up();
-                sleep(400);
+//                sleep(1000);
+//                lowslide.openClaw();
+//                sleep(200);
+//                lowslide.pos_grab();
+//                sleep(400);
+//                lowslide.closeClaw();
+//                sleep(400);
+//                lowslide.pos_up();
+//                sleep(400);
             }
 
             controlDrivetrain();
@@ -209,67 +209,87 @@ public class Swerve extends LinearOpMode {
             // panels.update();
         }
     }
-
-    double angleAccum = 0;
-    double angleNum = 1;
     boolean isAdjustTimeout = false;
     boolean isAngleTimeout = false;
-    boolean isAdjusted = false;
-    boolean adjustBackTimeoutSet = false;
+    boolean pidUpdated = false;
     private void adjustIntake() {
-        isAdjustTimeout = false;
-        isAdjusted = false;
-        isAngleTimeout = false;
-        adjustBackTimeoutSet = false;
-        angleAccum = 0;
-        angleNum = 1;
+//        boolean adjustBackTimeoutSet = false;
         PIDY.reset();
         if (!camera.updateDetectorResult()){
             gamepad1.rumble(100);
             return;
         }
+        // one-time adjustment
         new Timeout(() -> isAdjustTimeout = true, ConfigVariables.Camera.ADJUST_TIMEOUT);
-        while (!isAdjustTimeout && !isAdjusted) {
+        double dyAccum = 0;
+        int dyNum = 1;
+        while (!isAdjustTimeout) {
             camera.updateDetectorResult();
             // processing position
             double dy = camera.getY();
+            if(dy==0){
+                continue;
+            }
+            dyAccum += dy;
+            dyNum += 1;
+        }
+        double averageY = dyAccum / dyNum;
+        averageY = Math.max(0, Math.min(averageY, ConfigVariables.Camera.DISTANCE_MAP.length - 1));
+        double position = ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY)] + (averageY - Math.floor(averageY)) *
+                (ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY) + 1] - ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY)]);
+        lowslide.setPositionCM(position - ConfigVariables.Camera.CLAW_DISTANCE);
+
+        while(!pidUpdated){
+            lowslide.updatePID();
+            if(lowslide.pidController.destination - lowslide.pidController.pos > Math.abs(ConfigVariables.Camera.DISTANCE_THRESHOLD)){
+                new Timeout(()->pidUpdated=true, ConfigVariables.Camera.PID_UPDATE_TIMEOUT);
+            }
+        }
+
+
+        // keep adjusting
+        boolean isAdjusted = false;
+        while (!isAdjusted) {
+            camera.updateDetectorResult();
+            // processing position
+            double dy = camera.getY();
+            dy = Math.max(0, dy);
             double ypower = PIDY.calculate(-dy); // input is the position now
             lowslide.setSlidePower(ypower);
             controlDrivetrain();
-            if(gamepad1.b){
+            if(gamepad1.right_trigger>0.5){
                 isAdjusted = true;
             }
-            if (Math.abs(dy) < ConfigVariables.Camera.DISTANCE_THRESHOLD){
-                if(!adjustBackTimeoutSet){
-                    new Timeout(()->isAdjusted=true, ConfigVariables.Camera.ADJUST_EXTRA_TIME);
-                    adjustBackTimeoutSet = true;
-                }
-            }
+//            if (Math.abs(dy) < ConfigVariables.Camera.DISTANCE_THRESHOLD){
+//                if(!adjustBackTimeoutSet){
+//                    new Timeout(()->isAdjusted=true, ConfigVariables.Camera.ADJUST_EXTRA_TIME);
+//                    adjustBackTimeoutSet = true;
+//                }
+//            }
             telemetry.addData("adjusting", "true");
+            telemetry.addData("Moveto", position);
             telemetry.addData("Y difference", dy);
             telemetry.addData("ypower", ypower);
             telemetry.update();
         }
         lowslide.posNow();
+        lowslide.pos_hover();
+        // spinclaw adjustment
         new Timeout(() -> isAngleTimeout = true, ConfigVariables.Camera.ANGLE_TIMEOUT);
         camera.switchtoPython();
         camera.setColor(camera.getClassname());
+        double angleAccum = 0;
+        double angleNum = 1;
         while(!isAngleTimeout){
-            controlDrivetrain();
+            controlUpslide();
 //            camera.updateDetectorResult(); // used when using neural detector
             // processing angle for spinclaw
             double angle = camera.getAngle(); // -90 ~ 90
             angle = angle + ConfigVariables.Camera.ANGLE_OFFSET;
             angleAccum += angle;
             angleNum += 1;
-            // Visualize limelight detection (camera)
-            // if (camera.isDetected()) {
-            field.setStroke("#4CAF50"); // Material Green for detection
-            field.setFill("#4CAF50");
-            double radians = Math.toRadians(angle);
-            field.strokeLine(0, 0, 20 * Math.cos(radians), 20 * Math.sin(radians));
-            field.fillCircle(20 * Math.cos(radians), 20 * Math.sin(radians), 3);
-
+            drawAngle(angle);
+            telemetry.addData("angle", angle);
             telemetry.update();
         }
         double averageAngle = angleAccum / angleNum;
@@ -279,12 +299,14 @@ public class Swerve extends LinearOpMode {
     }
     public void controlHanging(){
         if (gamepad2.right_trigger>0){
-            hangingServos.addPos(ConfigVariables.General.HANGING_SERVOS_SPEED);
+            hangingServos.turnForward();
         }
         if (gamepad2.left_trigger>0){
-            hangingServos.addPos(-ConfigVariables.General.HANGING_SERVOS_SPEED);
+            hangingServos.turnBackward();
         }
-        telemetry.addData("hanging pos", hangingServos.currentPos);
+        if(gamepad2.right_bumper){
+            hangingServos.stop();
+        }
     }
     private void controlDrivetrain() {
         double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
@@ -329,12 +351,6 @@ public class Swerve extends LinearOpMode {
         if (gamepad2.b) {
             upslide.pos3();
         }
-        if (gamepad2.right_trigger > 0) {
-            upslide.transfer();
-        }
-        if (gamepad2.left_trigger > 0) {
-            upslide.front();
-        }
         if (gamepad2.dpad_down) {
             upslide.transfer();
         }
@@ -349,15 +365,12 @@ public class Swerve extends LinearOpMode {
             upslide.scorespec();
         }
 
-        telemetry.addData("right", gamepad2.right_trigger);
-        telemetry.addData("left", gamepad2.left_trigger);
         telemetry.addData("upslide arm", upslide.arm1.getPosition());
         telemetry.addData("upslide swing", upslide.swing.getPosition());
     }
 
     private void controlLowslide() {
         if (gamepad1.right_bumper) {
-            lowslide.pos_hover();
             adjust = true;
         }
         if (gamepad1.right_trigger > 0) {
@@ -384,5 +397,13 @@ public class Swerve extends LinearOpMode {
         if (gamepad1.dpad_up) {
             lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.ZERO + 90);
         }
+    }
+    private void drawAngle(double angle) {
+        // Visualize limelight detection (camera)
+        field.setStroke("#4CAF50"); // Material Green for detection
+        field.setFill("#4CAF50");
+        double radians = Math.toRadians(angle);
+        field.strokeLine(0, 0, 20 * Math.cos(radians), 20 * Math.sin(radians));
+        field.fillCircle(20 * Math.cos(radians), 20 * Math.sin(radians), 3);
     }
 }

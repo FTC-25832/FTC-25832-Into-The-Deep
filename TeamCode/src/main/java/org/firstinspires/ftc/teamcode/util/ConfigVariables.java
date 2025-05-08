@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.acmerobotics.dashboard.config.Config;
+//import com.bylazar.ftcontrol.panels.configurables.Configurables;
 
 @Config
 // @Configurable
@@ -12,21 +13,23 @@ public class ConfigVariables {
     // @Configurable
     public static class General {
 
-        public static int CLAW_ZERO_DEG = 55; // deg
         public static int CLAW_FORTESTING_DEG = 55; // deg
         public static double HANGING_SERVOS_SPEED = 10; // pwm unit
     }
 
     @Config
     public static class Camera {
+        public static double CLAW_DISTANCE = 20; //cm
+        public static double[] DISTANCE_MAP = { CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, 20, 21, 22.5, 23.5, 24.3, 25.5, 26.5, 27.5, 28.5, 30, 31.5, 32.7, 34, 35.5, 37, 38, 40, 41.5, 43, 44, 45.5, 0, 0, 0 };
         public static int ANGLE_TIMEOUT = 500; // ms
-        public static int ADJUST_TIMEOUT = 5000;
-        public static int ADJUST_EXTRA_TIME = 500;
+        public static int ADJUST_TIMEOUT = 1000;
+        public static int PID_UPDATE_TIMEOUT = 500;
         public static int ANGLE_OFFSET = 55;
-        public static int DISTANCE_THRESHOLD = 1;
         public static double PID_KP = 0.01;
         public static double PID_KI = 0.002;
         public static double PID_KD = 0.0;
+        public static double DISTANCE_THRESHOLD = 50;
+
     }
 
     // UpperSlide
@@ -44,9 +47,10 @@ public class ConfigVariables {
         public static double CLAW_CLOSE = 0.0;
 
         // Slide positions (in cm)
-        public static double POS_0_CM = 0.0;
+        public static double POS_0_CM = 2.5;
+        public  static double POS_PRE_0_CM = 3.0;
         public static double POS_1_CM = 35.0;
-        public static double POS_2_CM = 70.0;
+        public static double POS_2_CM = 65.0;
         public static double POS_3_CM = 60.0;
 
         // offwall positions
@@ -58,7 +62,7 @@ public class ConfigVariables {
         public static double SCORESPEC_FRONT_SWING_POS = 0.45;
 
         public static double PID_KP = 0.01;
-        public static double PID_KI = 0.02;
+        public static double PID_KI = 0.008;
         public static double PID_KD = 0.0;
     }
 

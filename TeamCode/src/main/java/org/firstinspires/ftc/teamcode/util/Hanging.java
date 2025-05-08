@@ -14,7 +14,6 @@ public class Hanging {
     HardwareMap hardwareMap;
     public ServoImplEx left, right;
 
-    public double currentPos = 0;
     PwmControl.PwmRange v4range = new PwmControl.PwmRange(500, 2500);
 
 
@@ -29,10 +28,17 @@ public class Hanging {
         left.setDirection(Servo.Direction.FORWARD);
         left.setPwmRange(v4range);
     }
-  public void addPos(double pos){
-        currentPos += pos;
-        left.setPosition(currentPos);
-        right.setPosition(currentPos);
+  public void turnForward(){
+    left.setPosition(ConfigVariables.General.HANGING_SERVOS_SPEED);
+    right.setPosition(ConfigVariables.General.HANGING_SERVOS_SPEED);
+  }
+  public void stop(){
+      left.setPosition(0);
+      right.setPosition(0);
+  }
+  public void turnBackward(){
+      left.setPosition(-ConfigVariables.General.HANGING_SERVOS_SPEED);
+      right.setPosition(-ConfigVariables.General.HANGING_SERVOS_SPEED);
   }
 
 }

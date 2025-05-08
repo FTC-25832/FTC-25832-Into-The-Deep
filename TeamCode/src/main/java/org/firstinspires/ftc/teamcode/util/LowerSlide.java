@@ -82,6 +82,10 @@ public class LowerSlide {
         part2.setPosition(0);
     }
 
+    public void setPositionCM(double cm) {
+        pidController.setDestination(COUNTS_PER_CM * cm);
+    }
+
     public void big(double val) {
         part1.setPosition(val);
     }
