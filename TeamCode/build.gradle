@@ -33,11 +33,11 @@ android {
     }
 }
 
-//these orders matter, dont change if not knowing what you are doing, for roadrunner
 repositories {
    maven { url = 'https://maven.brott.dev/' }
 }
 
+//these orders matter, dont change if not knowing what you are doing, for roadrunner
 dependencies {
     implementation project(':FtcRobotController')
     //this needs to be first ^, this needs to be second v, for roadrunner
@@ -48,5 +48,5 @@ dependencies {
 
     //https://ftcontrol.bylazar.com/docs/prerequisites/ check this changelog before updating version might break
     implementation "com.bylazar:ftcontrol:0.4.4"
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs') // libs folder, not lib
 }

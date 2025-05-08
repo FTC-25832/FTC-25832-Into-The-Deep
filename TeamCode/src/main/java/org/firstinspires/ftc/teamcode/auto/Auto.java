@@ -1,95 +1,81 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.classes;
 
-import org.firstinspires.ftc.teamcode.util.*;
-import org.opencv.core.Point;
-
-import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.commands.outtake.CloseClaw;
+import org.firstinspires.ftc.teamcode.commands.outtake.OpenClaw;
+import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.OuttakeSubsystem;
+import org.firstinspires.ftc.teamcode.utils.RobotHardware;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.firstinspires.ftc.teamcode.util.expansion;
-import org.firstinspires.ftc.teamcode.util.control;
+import java.util.function.BooleanSupplier;
 
+@Autonomous(preselectTeleOp = "SoloKota")
+public class Auto extends OpMode {
+    private AutoSelection autoSelection;
+    private BaseAuto auto;
 
-@Autonomous(group="Auto")
-public class Auto extends LinearOpMode {
-
-    static Drivetrain drive = new Drivetrain();
-    //Camera camera = new Camera();
-    Localizer odo = new Localizer();
-    UpperSlide upslide = new UpperSlide();
+    private MultipleTelemetry telemetryA;
 
     @Override
-    public void runOpMode() {
-        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
-        for (LynxModule hub : allHubs) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+    public void init() {
+        RobotHardware.reset(hardwareMap);
+        RobotHardware.getInstance().servoInit();
+        RobotHardware.getInstance().setLightColor(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+        autoSelection = new AutoSelection(gamepad1);
+
+        telemetryA = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+    }
+
+    @Override
+    public void init_loop() {
+        autoSelection.updateTelemetry(telemetryA);
+        telemetryA.update();
+
+        if (gamepad1.a) {
+            CommandScheduler.getInstance().schedule(new CloseClaw());
         }
+        if (gamepad1.left_bumper && gamepad1.right_bumper && gamepad1.b) {
+            CommandScheduler.getInstance().schedule(new OpenClaw());
+        }
+        CommandScheduler.getInstance().run();
+    }
 
-        //camera.cameraStart(hardwareMap);
-        upslide.initialize(hardwareMap);
-        odo.initialize(hardwareMap);
-        drive.initialize(hardwareMap);
-        odo.resetEncoder();
+    @Override
+    public void start() {
+        RobotHardware.getInstance().startPids();
+        autoSelection.interrupt();
 
-
-        waitForStart();
-        upslide.closeClaw();
-        sleep(2000);
-        //upslide.hang();
-
-        while(opModeIsActive()){
-            //startHang();
-            park();
+        switch (autoSelection.getAuto()) {
+            case fullSample:
+                auto = new Sample(autoSelection.getColor());
+                break;
+            case specimen:
+                auto = new Specimen(autoSelection.getColor());
+                break;
         }
     }
 
-    public void startHang(){
-        ArrayList<curvePoint> path = new ArrayList<>();
-        path.add(new curvePoint(0, 0, 0.5, 1, 200, Math.toRadians(50), 1, 0));
-        path.add(new curvePoint(0, 820, 0.5, 1, 200, Math.toRadians(50), 1, 0));
-        upslide.pos1();
-        curvePoint target;
-        do{
-            target = drive.followCurve(path);
-            position();
-        }while(target.moveSpeed!=0);
-
-        upslide.pos2();
-        do{
-            upslide.updatePID();
-        }while(Math.abs(upslide.pidController.lastError) > 200);
-        upslide.openClaw();
+    @Override
+    public void loop() {
+        OuttakeSubsystem.getInstance().updatePID();
+        IntakeSubsystem.getInstance().updatePID();
+        auto.updateTelemetry(telemetryA);
+        OuttakeSubsystem.getInstance().updateTelemetry(telemetryA);
+        telemetryA.update();
     }
 
-    public void push(){
-
+    @Override
+    public void stop() {
+        RobotHardware.getInstance().interrupt();
+        if (auto != null) {
+            auto.interrupt();
+        }
     }
-
-    public void park(){
-        ArrayList<curvePoint> path = new ArrayList<>();
-        path.add(new curvePoint(0, 0, 0.5, 0, 200, Math.toRadians(50), 1, 0));
-        path.add(new curvePoint(800, 0, 0.5, 0, 200, Math.toRadians(50), 1, 0));
-        curvePoint target;
-        do{
-            target = drive.followCurve(path);
-            position();
-        }while(target.moveSpeed!=0);
-
-    }
-
-    public void position(){
-        Localizer.positionArc();
-        telemetry.addData("X",Drivetrain.currX);
-        telemetry.addData("Y",Drivetrain.currY);
-        telemetry.addData("Heading",Drivetrain.currTheta);
-        telemetry.update();
-    }
-
-
 }
-
