@@ -29,7 +29,10 @@ public class Limelight {
         limelight.start();
         limelight.reloadPipeline();
     }
-    public boolean updateDetectorResult(){ // returns isSuccessful
+    /*
+     * return true if the result is valid (detected)
+     */
+    public boolean updateDetectorResult(){
         result = limelight.getLatestResult();
         if (result.isValid()){
             detectorResults = result.getDetectorResults();

@@ -19,16 +19,16 @@ public class ConfigVariables {
 
     @Config
     public static class Camera {
-        public static double CLAW_DISTANCE = 20; //cm
-        public static double[] DISTANCE_MAP = { CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, 20, 21, 22.5, 23.5, 24.3, 25.5, 26.5, 27.5, 28.5, 30, 31.5, 32.7, 34, 35.5, 37, 38, 40, 41.5, 43, 44, 45.5, 0, 0, 0 };
+//        public static double CLAW_DISTANCE = 20; //cm
+//        public static double[] DISTANCE_MAP = { CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, 20, 21, 22.5, 23.5, 24.3, 25.5, 26.5, 27.5, 28.5, 30, 31.5, 32.7, 34, 35.5, 37, 38, 40, 41.5, 43, 44, 45.5, 0, 0, 0 };
         public static int ANGLE_TIMEOUT = 500; // ms
         public static int ADJUST_TIMEOUT = 1000;
-        public static int PID_UPDATE_TIMEOUT = 500;
+//        public static int PID_UPDATE_TIMEOUT = 500;
         public static int ANGLE_OFFSET = 55;
         public static double PID_KP = 0.01;
         public static double PID_KI = 0.002;
         public static double PID_KD = 0.0;
-        public static double DISTANCE_THRESHOLD = 50;
+        public static double DISTANCE_THRESHOLD = 1;
 
     }
 
@@ -82,9 +82,9 @@ public class ConfigVariables {
         public static double CLAW_OPEN = 0.0;
         public static double CLAW_CLOSE = 1.0;
 
-        // Slide positions (in cm)
-        public static double POS_1_CM = 50.0;
-        public static double POS_2_CM = 0.0;
+        public static int POS_GRAB_TIMEOUT = 300;
+        public static int CLAW_CLOSE_TIMEOUT = POS_GRAB_TIMEOUT + 500;
+        public static int POS_HOVER_TIMEOUT = CLAW_CLOSE_TIMEOUT + 300;
 
         // spin claw positions angle degrees
         public static int ZERO = 0;

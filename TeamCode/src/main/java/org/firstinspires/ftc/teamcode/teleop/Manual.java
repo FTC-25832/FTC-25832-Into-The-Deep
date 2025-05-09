@@ -43,14 +43,9 @@ public class Manual extends LinearOpMode {
     UpperSlide upslide = new UpperSlide();
     LowerSlide lowslide = new LowerSlide();
     Hanging hangingServos = new Hanging();
-//    Limelight camera = new Limelight();
-    PIDController PIDY = new PIDController(
-            ConfigVariables.Camera.PID_KP,
-            ConfigVariables.Camera.PID_KI,
-            ConfigVariables.Camera.PID_KD);
+
     IMU imu;
 
-    boolean adjust = false;
     double lastTimeGP1LeftBumperCalled = 0;
     double lastTimeGP2LeftBumperCalled = 0;
     boolean upClawIsOpen = false;
@@ -126,7 +121,6 @@ public class Manual extends LinearOpMode {
 
         upslide.keepPosExceptArms(0);
         lowslide.keepPosExceptArms(0);
-        PIDY.setDestination(0);
 
         upslide.front();
         lowslide.pos_up();
@@ -177,10 +171,10 @@ public class Manual extends LinearOpMode {
             double upslidePower = upslide.updatePID();
             double lowslidePower = lowslide.updatePID();
             telemetry.addData("upslide power", upslidePower);
-            telemetry.addData("lowslide power", lowslidePower);
             telemetry.addData("upslide destination", upslide.pidController.destination);
-            telemetry.addData("lowslide destination", lowslide.pidController.destination);
             telemetry.addData("upslide position", upslide.slide1Encoder.getCurrentPosition());
+            telemetry.addData("lowslide power", lowslidePower);
+            telemetry.addData("lowslide destination", lowslide.pidController.destination);
             telemetry.addData("lowslide position", lowslide.slideEncoder.getCurrentPosition());
             // Create dashboard packet
             // TelemetryPacket packet = new TelemetryPacket();
@@ -195,6 +189,16 @@ public class Manual extends LinearOpMode {
             // panels.update();
         }
     }
+    boolean grabTimeoutset = false;
+    private void setGrabSequence(){
+        if(grabTimeoutset) return;
+        lowslide.openClaw();
+        new Timeout(()->lowslide.pos_grab(), ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT);
+        new Timeout(()->lowslide.closeClaw(), ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT);
+        new Timeout(()->{lowslide.pos_hover(); grabTimeoutset=false;}, ConfigVariables.LowerSlideVars.POS_HOVER_TIMEOUT);
+        grabTimeoutset = true;
+    }
+
     public void controlHanging(){
         if (gamepad2.right_trigger>0){
             hangingServos.turnForward();
@@ -272,15 +276,12 @@ public class Manual extends LinearOpMode {
     private void controlLowslide() {
         if (gamepad1.right_bumper) {
             lowslide.pos_hover();
-            adjust = true;
         }
         if (gamepad1.right_trigger > 0) {
-            lowslide.pos_grab();
-            adjust = false;
+            setGrabSequence();
         }
         if (gamepad1.left_trigger > 0) {
             lowslide.pos_up();
-            adjust = false;
             lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.SPINCLAW_DEG);
         }
         if (gamepad1.x) {

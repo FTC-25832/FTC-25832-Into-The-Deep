@@ -20,12 +20,12 @@ public class UpperSlide {
     PwmControl.PwmRange armRange = new PwmControl.PwmRange(500, 2500);
     PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1270);
     public PIDController pidController;
-    static final double     PI=3.14;
-    static final double     COUNTS_PER_MOTOR_REV    = 28.0;
-    static final double     WHEEL_CIRCUMFERENCE_MM  = 34 * PI;
-    static final double     DRIVE_GEAR_REDUCTION    = 5.23;
-    static final double     COUNTS_PER_WHEEL_REV    = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
-    static final double     COUNTS_PER_CM           = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM)*10;
+    static final double PI = 3.14;
+    static final double COUNTS_PER_MOTOR_REV = 28.0;
+    static final double WHEEL_CIRCUMFERENCE_MM = 34 * PI;
+    static final double DRIVE_GEAR_REDUCTION = 5.23;
+    static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
+    static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
     public DcMotor slide1, slide2;
     public DcMotor slide1Encoder, slide2Encoder;
 
@@ -65,18 +65,25 @@ public class UpperSlide {
         slide1Encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slide2Encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
-    public void pos0(){
-        pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_PRE_0_CM));
-        new Timeout(()->pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_0_CM)), 500);
+
+    public void pos0() {
+        pidController.setDestination(Math.round(COUNTS_PER_CM * UpperSlideVars.POS_PRE_0_CM));
+        new Timeout(() -> pidController.setDestination(Math.round(COUNTS_PER_CM * UpperSlideVars.POS_0_CM)), 500);
     }
-    public void pos1(){
-        //closeClaw();
-        pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_1_CM));
-        //hang();
+
+    public void pos1() {
+        // closeClaw();
+        pidController.setDestination(Math.round(COUNTS_PER_CM * UpperSlideVars.POS_1_CM));
+        // hang();
     }
-    public void pos2(){
-        pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_2_CM)); }
-    public void pos3(){ pidController.setDestination(Math.round(COUNTS_PER_CM*UpperSlideVars.POS_3_CM)); }
+
+    public void pos2() {
+        pidController.setDestination(Math.round(COUNTS_PER_CM * UpperSlideVars.POS_2_CM));
+    }
+
+    public void pos3() {
+        pidController.setDestination(Math.round(COUNTS_PER_CM * UpperSlideVars.POS_3_CM));
+    }
 
     public void big(double x) {
         arm1.setPosition(x);
@@ -158,7 +165,7 @@ public class UpperSlide {
     }
 
     public double updatePID() {
-        double currentPosition = (slide1Encoder.getCurrentPosition() + slide2Encoder.getCurrentPosition())/2.0;
+        double currentPosition = (slide1Encoder.getCurrentPosition() + slide2Encoder.getCurrentPosition()) / 2.0;
         double power = pidController.calculate(currentPosition);
         slide1.setPower(power);
         slide2.setPower(power);
