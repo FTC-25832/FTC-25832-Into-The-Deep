@@ -170,9 +170,8 @@ public class UpperSlide {
 
     public double updatePID() {
         double currentPosition = (slide1Encoder.getCurrentPosition() + slide2Encoder.getCurrentPosition()) / 2.0;
-        double power = pidController.calculate(currentPosition) * 0.8 ; // Power includes feedforward from PIDF
+        double power = pidController.calculate(currentPosition) * 0.8; // Power includes feedforward from PIDF
 
-        // Apply power to both motors
         slide1.setPower(power);
         slide2.setPower(power);
         return power;
