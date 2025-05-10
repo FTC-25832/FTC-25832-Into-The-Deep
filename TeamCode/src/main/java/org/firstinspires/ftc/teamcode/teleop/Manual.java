@@ -47,7 +47,9 @@ public class Manual extends LinearOpMode {
     PIDController PIDY = new PIDController(
             ConfigVariables.Camera.PID_KP,
             ConfigVariables.Camera.PID_KI,
-            ConfigVariables.Camera.PID_KD);
+            ConfigVariables.Camera.PID_KD,
+            ConfigVariables.Camera.PID_KF
+);
     IMU imu;
 
     boolean adjust = false;

@@ -1,14 +1,17 @@
 package org.firstinspires.ftc.teamcode.util;
+
 /**
- * A Proportional-Integral-Derivative (PID) controller implementation.
+ * A Proportional-Integral-Derivative-Feedforward (PIDF) controller
+ * implementation.
  * Example usage:
  * public PIDController pidController;
  * initialize() {
- *      pidController = new PIDController(PIDConstant.Kp, PIDConstant.Ki, PIDConstant.Kd);
+ * pidController = new PIDController(PIDConstant.Kp, PIDConstant.Ki,
+ * PIDConstant.Kd, PIDConstant.Kf);
  * }
  * pidController.setDestination(dest);
  * loop{
- *      double power = pidController.calculate(currentPosition);
+ * double power = pidController.calculate(currentPosition);
  * }
  * 
  */
@@ -17,6 +20,7 @@ public class PIDController {
     public double kp; // Proportional gain
     public double ki; // Integral gain
     public double kd; // Derivative gain
+    public double kf; // Feedforward gain
 
     // Controller state
     public double pos;
@@ -26,10 +30,11 @@ public class PIDController {
     public long lastTime; // Last execution time in milliseconds
     public boolean isInitialized; // Flag to check if controller has been initialized
 
-    public PIDController(double kp, double ki, double kd) {
+    public PIDController(double kp, double ki, double kd, double kf) {
         this.kp = kp;
         this.ki = ki;
         this.kd = kd;
+        this.kf = kf;
         this.destination = 0;
         this.integralSum = 0;
         this.lastError = 0;
@@ -57,6 +62,10 @@ public class PIDController {
         this.kd = kd;
     }
 
+    public void setKf(double kf) {
+        this.kf = kf;
+    }
+
     /**
      * Reset the controller state.
      */
@@ -78,7 +87,8 @@ public class PIDController {
             isInitialized = true;
             lastTime = currentTime;
             lastError = destination - processValue;
-            return kp * lastError;
+            // Initial output includes feedforward
+            return kp * lastError + kf * destination;
         }
 
         double deltaTime = (currentTime - lastTime) / 1000.0; // Convert to seconds
@@ -102,8 +112,10 @@ public class PIDController {
         }
         lastError = error;
 
-        // Calculate output without limits
-        double result = proportional + integralSum + derivative;
+        // Feedforward term
+        double feedforward = kf * destination;
+
+        double result = proportional + integralSum + derivative + feedforward;
         return Math.min(Math.max(result, -1), 1); // Limit output to [-1, 1]
     }
 }

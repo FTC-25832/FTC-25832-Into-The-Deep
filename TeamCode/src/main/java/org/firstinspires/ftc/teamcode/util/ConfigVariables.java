@@ -19,8 +19,10 @@ public class ConfigVariables {
 
     @Config
     public static class Camera {
-        public static double CLAW_DISTANCE = 20; //cm
-        public static double[] DISTANCE_MAP = { CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, 20, 21, 22.5, 23.5, 24.3, 25.5, 26.5, 27.5, 28.5, 30, 31.5, 32.7, 34, 35.5, 37, 38, 40, 41.5, 43, 44, 45.5, 0, 0, 0 };
+        public static double CLAW_DISTANCE = 20; // cm
+        public static double[] DISTANCE_MAP = { CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE,
+                CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, 20, 21, 22.5, 23.5, 24.3, 25.5, 26.5, 27.5, 28.5, 30, 31.5,
+                32.7, 34, 35.5, 37, 38, 40, 41.5, 43, 44, 45.5, 0, 0, 0 };
         public static int ANGLE_TIMEOUT = 500; // ms
         public static int ADJUST_TIMEOUT = 1000;
         public static int PID_UPDATE_TIMEOUT = 500;
@@ -28,6 +30,7 @@ public class ConfigVariables {
         public static double PID_KP = 0.01;
         public static double PID_KI = 0.002;
         public static double PID_KD = 0.0;
+        public static double PID_KF = 0.0;
         public static double DISTANCE_THRESHOLD = 50;
 
     }
@@ -48,9 +51,9 @@ public class ConfigVariables {
 
         // Slide positions (in cm)
         public static double POS_0_CM = 2.5;
-        public  static double POS_PRE_0_CM = 3.0;
+        public static double POS_PRE_0_CM = 10.0;
         public static double POS_1_CM = 35.0;
-        public static double POS_2_CM = 65.0;
+        public static double POS_2_CM = 70.0;
         public static double POS_3_CM = 60.0;
 
         // offwall positions
@@ -64,6 +67,7 @@ public class ConfigVariables {
         public static double PID_KP = 0.01;
         public static double PID_KI = 0.008;
         public static double PID_KD = 0.0;
+        public static double PID_KF = 0.1; // Feedforward gain for gravity compensation
     }
 
     // LowerSlide
@@ -93,5 +97,6 @@ public class ConfigVariables {
         public static double PID_KP = 0.01;
         public static double PID_KI = 0.0;
         public static double PID_KD = 0.0;
+        public static double PID_KF = 0.0;
     }
 }

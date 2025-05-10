@@ -41,7 +41,8 @@ public class LowerSlide {
         pidController = new PIDController(
                 LowerSlideVars.PID_KP,
                 LowerSlideVars.PID_KI,
-                LowerSlideVars.PID_KD
+                LowerSlideVars.PID_KD,
+                LowerSlideVars.PID_KF
         );
 
         // Initialize slide motor for power
@@ -83,7 +84,7 @@ public class LowerSlide {
     }
 
     public void setPositionCM(double cm) {
-        pidController.setDestination(COUNTS_PER_CM * cm);
+        pidController.setDestination(Math.round(COUNTS_PER_CM * cm));
     }
 
     public void big(double val) {
