@@ -1,3 +1,15 @@
 {
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "java.project.sourcePaths": [
+    "TeamCode/src/main/java",
+    "FtcRobotController/src/main/java"
+  ],
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.gradle.enabled": true,
+  "java.import.gradle.wrapper.enabled": true,
+  "java.project.referencedLibraries": [
+    "libs/*.jar",
+    "FtcRobotController/libs/*.jar"
+  ],
+  "java.project.importOnFirstTimeStartup": "automatic",
+  "java.errors.incompleteClasspath.severity": "ignore"
 }

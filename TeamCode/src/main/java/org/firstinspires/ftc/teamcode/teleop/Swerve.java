@@ -139,32 +139,12 @@ public class Swerve extends LinearOpMode {
             if (adjust) {
                 adjustIntake();
                 adjust = false;
-                // sleep(1000);
-                // lowslide.openClaw();
-                // sleep(200);
-                // lowslide.pos_grab();
-                // sleep(400);
-                // lowslide.closeClaw();
-                // sleep(400);
-                // lowslide.pos_up();
-                // sleep(400);
             }
 
             controlDrivetrain();
             controlUpslide();
             controlLowslide();
             controlHanging();
-            // upslide.big(gamepad1.right_trigger);
-            // upslide.swing.setPosition(gamepad1.left_trigger);
-
-            // lowslide.big(-gamepad2.left_stick_y);
-            // lowslide.small(-gamepad2.right_stick_y);
-            // lowslide.spinclaw.setPosition(gamepad2.right_trigger);
-
-            // if(gamepad2.left_bumper){ upslide.closeClaw(); }
-            // if(gamepad2.right_bumper){ upslide.openClaw(); }
-            // if(gamepad1.left_bumper){ lowslide.closeClaw(); }
-            // if(gamepad1.right_bumper){ lowslide.openClaw(); }
 
             double time = System.currentTimeMillis();
             if (gamepad1.left_bumper) {
@@ -179,16 +159,16 @@ public class Swerve extends LinearOpMode {
                 }
                 lastTimeGP2LeftBumperCalled = time;
             }
-//            bool adjustBackTimeoutSet = true;
+            // bool adjustBackTimeoutSet = true;
             if (lowClawIsOpen) {
                 lowslide.openClaw();
                 lowClawIsOpen = false;
                 lowslide.pos_grab();
-//                adjustBackTimeoutSet = false;
-//                if (!adjustBackTimeoutSet) {
-//
-//                    adjustBackTimeoutSet = true;
-//                }
+                // adjustBackTimeoutSet = false;
+                // if (!adjustBackTimeoutSet) {
+                //
+                // adjustBackTimeoutSet = true;
+                // }
                 new Timeout(() -> lowslide.closeClaw(), 500);
                 lowslide.pos_hover();
             } else
@@ -239,77 +219,53 @@ public class Swerve extends LinearOpMode {
         }
     }
 
-    boolean isAdjustTimeout = false;
-    boolean isAngleTimeout = false;
-    boolean pidUpdated = false;
+    boolean grabTimeoutset = false;
 
-    private void adjustIntake() {
-        boolean adjustBackTimeoutSet = false;
-        PIDY.reset();
-        if (!camera.updateDetectorResult()) {
-            gamepad1.rumble(100);
+    private void setGrabSequence() {
+        if (grabTimeoutset)
             return;
-        }
-        // one-time adjustment
-        new Timeout(() -> isAdjustTimeout = true, ConfigVariables.Camera.ADJUST_TIMEOUT);
-        double dyAccum = 0;
-        int dyNum = 1;
-        while (!isAdjustTimeout) {
-            camera.updateDetectorResult();
-            // processing position
-            double dy = camera.getY();
-            if (dy == 0) {
-                continue;
-            }
-            dyAccum += dy;
-            dyNum += 1;
-        }
-        double averageY = dyAccum / dyNum;
-        averageY = Math.max(0, Math.min(averageY, ConfigVariables.Camera.DISTANCE_MAP.length - 1));
-        double position = ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY)]
-                + (averageY - Math.floor(averageY)) *
-                        (ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY) + 1]
-                                - ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY)]);
-        lowslide.setPositionCM(position - ConfigVariables.Camera.CLAW_DISTANCE);
+        lowslide.openClaw();
+        new Timeout(() -> lowslide.pos_grab(), ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT);
+        new Timeout(() -> lowslide.closeClaw(), ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT);
+        new Timeout(() -> {
+            lowslide.pos_hover();
+            grabTimeoutset = false;
+        }, ConfigVariables.LowerSlideVars.POS_HOVER_TIMEOUT);
+        grabTimeoutset = true;
+    }
 
-        while (!pidUpdated) {
-            lowslide.updatePID();
-            if (lowslide.pidController.destination - lowslide.pidController.pos > Math
-                    .abs(ConfigVariables.Camera.DISTANCE_THRESHOLD)) {
-                new Timeout(() -> pidUpdated = true, ConfigVariables.Camera.PID_UPDATE_TIMEOUT);
-            }
-        }
-
-        // keep adjusting
+    private void adjustLowslide() {
+        // new Timeout(() -> isAdjustTimeout = true,
+        // ConfigVariables.Camera.ADJUST_TIMEOUT); // for auto
+        // keep adjusting until right trigger pressed
         boolean isAdjusted = false;
         while (!isAdjusted) {
             camera.updateDetectorResult();
-            // processing position
+            // PID by distance in Y (px)
             double dy = camera.getY();
-            dy = Math.max(0, dy);
-            double ypower = PIDY.calculate(-dy); // input is the position now
+            double ypower = PIDY.calculate(-dy); // input is the position nowx
             lowslide.setSlidePower(ypower);
+
             controlDrivetrain();
-            if (gamepad1.right_trigger > 0.5) {
+            if (gamepad1.right_trigger > 0.5) { // press right trigger to terminate
                 isAdjusted = true;
             }
+            // for teleop
             // if (Math.abs(dy) < ConfigVariables.Camera.DISTANCE_THRESHOLD){
             // if(!adjustBackTimeoutSet){
             // new Timeout(()->isAdjusted=true, ConfigVariables.Camera.ADJUST_EXTRA_TIME);
             // adjustBackTimeoutSet = true;
             // }
-            // }
-
-
-
-            telemetry.addData("adjusting", "true");
-            telemetry.addData("Moveto", position);
+            // } // for auto
+            telemetry.addData("adjusting", "press right trigger to stop");
             telemetry.addData("Y difference", dy);
             telemetry.addData("ypower", ypower);
             telemetry.update();
         }
         lowslide.posNow();
-        lowslide.pos_hover();
+    }
+
+    private void adjustSpinClawAngle() {
         // spinclaw adjustment
         new Timeout(() -> isAngleTimeout = true, ConfigVariables.Camera.ANGLE_TIMEOUT);
         camera.switchtoPython();
@@ -318,19 +274,32 @@ public class Swerve extends LinearOpMode {
         double angleNum = 1;
         while (!isAngleTimeout) {
             controlUpslide();
-            // camera.updateDetectorResult(); // used when using neural detector
             // processing angle for spinclaw
             double angle = camera.getAngle(); // -90 ~ 90
             angle = angle + ConfigVariables.Camera.ANGLE_OFFSET;
             angleAccum += angle;
             angleNum += 1;
-            drawAngle(angle);
             telemetry.addData("angle", angle);
             telemetry.update();
         }
         double averageAngle = angleAccum / angleNum;
         lowslide.spinclawSetPositionDeg(averageAngle);
         camera.switchtoNeural();
+    }
+
+    boolean isAdjustTimeout = false;
+    boolean isAngleTimeout = false;
+
+    private void adjustIntake() {
+        // boolean adjustBackTimeoutSet = false;
+        PIDY.reset();
+        if (!camera.updateDetectorResult()) { // if not detected, then rumble and terminate
+            gamepad1.rumble(100);
+            return;
+        }
+        adjustLowslide();
+        lowslide.pos_hover();
+        adjustSpinClawAngle();
         camera.reset();
     }
 
@@ -392,7 +361,6 @@ public class Swerve extends LinearOpMode {
         if (gamepad2.dpad_down) {
             upslide.transfer();
         }
-
         if (gamepad2.dpad_up) {
             upslide.front();
         }
@@ -412,8 +380,10 @@ public class Swerve extends LinearOpMode {
             adjust = true;
         }
         if (gamepad1.right_trigger > 0) {
+            setGrabSequence();
+        }
+        if (gamepad1.left_trigger > 0) {
             lowslide.pos_up();
-            adjust = false;
             lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.SPINCLAW_DEG);
         }
         if (gamepad1.left_trigger > 0) {
