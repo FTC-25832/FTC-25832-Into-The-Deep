@@ -160,18 +160,9 @@ public class Swerve extends LinearOpMode {
                 lastTimeGP2LeftBumperCalled = time;
             }
             // bool adjustBackTimeoutSet = true;
-            if (lowClawIsOpen) {
+            if (lowClawIsOpen)
                 lowslide.openClaw();
-                lowClawIsOpen = false;
-                lowslide.pos_grab();
-                // adjustBackTimeoutSet = false;
-                // if (!adjustBackTimeoutSet) {
-                //
-                // adjustBackTimeoutSet = true;
-                // }
-                new Timeout(() -> lowslide.closeClaw(), 500);
-                lowslide.pos_hover();
-            } else
+            else
                 lowslide.closeClaw();
             if (upClawIsOpen)
                 upslide.openClaw();
@@ -224,9 +215,9 @@ public class Swerve extends LinearOpMode {
     private void setGrabSequence() {
         if (grabTimeoutset)
             return;
-        lowslide.openClaw();
+        lowClawIsOpen = true;
         new Timeout(() -> lowslide.pos_grab(), ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT);
-        new Timeout(() -> lowslide.closeClaw(), ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT);
+        new Timeout(() -> lowClawIsOpen = false, ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT);
         new Timeout(() -> {
             lowslide.pos_hover();
             grabTimeoutset = false;
@@ -386,10 +377,10 @@ public class Swerve extends LinearOpMode {
             lowslide.pos_up();
             lowslide.spinclawSetPositionDeg(ConfigVariables.LowerSlideVars.SPINCLAW_DEG);
         }
-        if (gamepad1.left_trigger > 0) {
-            lowslide.pos_grab();
-            adjust = false;
-        }
+        // if (gamepad1.left_trigger > 0) {
+        // lowslide.pos_grab();
+        // adjust = false;
+        // }
         if (gamepad1.x) {
             lowslide.setSlidePos1();
         }
