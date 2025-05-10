@@ -26,12 +26,6 @@ public class UpperSlide {
     static final double DRIVE_GEAR_REDUCTION = 5.23;
     static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
     static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
-    static final double PI = 3.14;
-    static final double COUNTS_PER_MOTOR_REV = 28.0;
-    static final double WHEEL_CIRCUMFERENCE_MM = 34 * PI;
-    static final double DRIVE_GEAR_REDUCTION = 5.23;
-    static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
-    static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
     public DcMotor slide1, slide2;
     public DcMotor slide1Encoder, slide2Encoder;
 
