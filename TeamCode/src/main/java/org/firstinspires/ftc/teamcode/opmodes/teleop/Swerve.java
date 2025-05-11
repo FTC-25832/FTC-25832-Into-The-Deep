@@ -127,10 +127,10 @@ public class Swerve extends LinearOpMode {
         scheduler.registerSubsystem(lowSlide);
         scheduler.registerSubsystem(hangingServos);
 
-        // Initialize all subsystems
-        drive.initialize(hardwareMap);
+        // Initialize all subsystems, remember order for same ports so avoid conflicts
         upSlide.initialize(hardwareMap);
         lowSlide.initialize(hardwareMap);
+        drive.initialize(hardwareMap);
         hangingServos.initialize(hardwareMap);
         camera.initialize(hardwareMap);
         camera.cameraStart();

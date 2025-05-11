@@ -98,6 +98,6 @@ public class ConfigVariables {
         public static double PID_KP = 0.01;
         public static double PID_KI = 0.0;
         public static double PID_KD = 0.0;
-        public static double PID_KF = 0.0;
+        // public static double PID_KF = 0.0;
     }
 }
