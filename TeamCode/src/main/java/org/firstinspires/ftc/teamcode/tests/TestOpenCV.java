@@ -89,9 +89,9 @@ public class TestOpenCV extends OpMode{
     }
     public class BluePixelPipeline extends OpenCvPipeline {
 
-        private Mat yCbCr = new Mat();
-        private Mat mask = new Mat();
-        private Mat output = new Mat();
+        private final Mat yCbCr = new Mat();
+        private final Mat mask = new Mat();
+        private final Mat output = new Mat();
 
         @Override
         public Mat processFrame(Mat input) {

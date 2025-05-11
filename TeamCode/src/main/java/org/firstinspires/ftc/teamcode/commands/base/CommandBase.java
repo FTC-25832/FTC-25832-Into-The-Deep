@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,9 +26,7 @@ public abstract class CommandBase implements Command {
          * Adds subsystem requirements
          */
         protected void addRequirement(SubsystemBase... requirements) {
-                for (SubsystemBase requirement : requirements) {
-                        this.requirements.add(requirement);
-                }
+            Collections.addAll(this.requirements, requirements);
         }
 
         @Override

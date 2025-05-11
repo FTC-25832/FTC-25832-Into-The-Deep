@@ -27,7 +27,7 @@ public class TestSpeed extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-            odo.positionArc();
+            Localizer.positionArc();
             telemetry.addData("X",Localizer.X);
             telemetry.addData("Y",Localizer.Y);
             telemetry.addData("Heading",Localizer.angleWrap(Localizer.theta));

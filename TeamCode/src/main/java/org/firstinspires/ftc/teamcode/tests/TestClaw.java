@@ -37,7 +37,7 @@ public class TestClaw extends LinearOpMode {
     private FtcDashboard dashboard;
     private Telemetry dashboardTelemetry;
 
-    private long lastDashboardUpdateTime = 0;
+    private final long lastDashboardUpdateTime = 0;
     private static final long DASHBOARD_UPDATE_INTERVAL_MS = 250; // Update FTCdashboard 4 times per second
 
     TelemetryPacket packet = new TelemetryPacket();

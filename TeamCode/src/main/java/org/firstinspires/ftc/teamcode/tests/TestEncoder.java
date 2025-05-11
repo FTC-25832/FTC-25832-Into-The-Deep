@@ -58,7 +58,7 @@ public class TestEncoder extends LinearOpMode {
             drive.setFrontRight(frontRightPower);
             drive.setBackRight(backRightPower);
 
-            odo.positionArc();
+            Localizer.positionArc();
 
 
             telemetry.addData("Status", "Running");

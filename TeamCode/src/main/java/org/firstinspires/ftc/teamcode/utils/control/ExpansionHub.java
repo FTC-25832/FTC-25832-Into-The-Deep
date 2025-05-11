@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.utils.control;
 
 public class ExpansionHub {
-        private static String motorport[] = {
+        private static final String[] motorport = {
                         "rightBack", // slide1 encoder
                         "rightFront", // lowerslide encoder
                         "leftFront",
                         "leftBack"
         };
 
-        private static String servoport[] = {
+        private static final String[] servoport = {
                         "spinclaw",
                         "a",
                         "b",
