@@ -5,17 +5,22 @@ import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
+import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
 
-public class Hanging {
+public class Hanging extends SubsystemBase {
     HardwareMap hardwareMap;
     public ServoImplEx left, right;
 
     PwmControl.PwmRange v4range = new PwmControl.PwmRange(500, 2500);
 
+    public Hanging() {
+        super("hanging");
+    }
 
+    @Override
     public void initialize(HardwareMap map) {
         hardwareMap = map;
 

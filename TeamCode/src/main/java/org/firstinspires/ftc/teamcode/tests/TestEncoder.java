@@ -53,10 +53,10 @@ public class TestEncoder extends LinearOpMode {
             double backRightPower = (rotY + rotX - rx) / denominator;
 
 
-            drive.fl(frontLeftPower);
-            drive.bl(backLeftPower);
-            drive.fr(frontRightPower);
-            drive.br(backRightPower);
+            drive.setFrontLeft(frontLeftPower);
+            drive.setBackLeft(backLeftPower);
+            drive.setFrontRight(frontRightPower);
+            drive.setBackRight(backRightPower);
 
             odo.positionArc();
 
