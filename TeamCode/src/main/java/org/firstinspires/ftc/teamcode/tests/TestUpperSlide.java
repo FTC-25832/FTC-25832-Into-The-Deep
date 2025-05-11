@@ -80,9 +80,9 @@ public class TestUpperSlide extends LinearOpMode {
 
             double currentPos = (slide.slide1Encoder.getCurrentPosition() + slide.slide2Encoder.getCurrentPosition())
                     / 2.0;
-            double targetPos = slide.pidController.destination;
+            double targetPos = slide.pidfController.destination;
             double error = targetPos - currentPos;
-            double feedforward = slide.pidController.kf * targetPos;
+            double feedforward = slide.pidfController.kf * targetPos;
 
             telemetry.addData("Current Position", currentPos);
             telemetry.addData("Target Position", targetPos);
@@ -90,10 +90,10 @@ public class TestUpperSlide extends LinearOpMode {
             telemetry.addData("Feedforward", feedforward);
             telemetry.addData("Total Power", power);
             telemetry.addData("PID Constants", "kP=%.3f, kI=%.3f, kD=%.3f, kF=%.3f",
-                    slide.pidController.kp,
-                    slide.pidController.ki,
-                    slide.pidController.kd,
-                    slide.pidController.kf);
+                    slide.pidfController.kp,
+                    slide.pidfController.ki,
+                    slide.pidfController.kd,
+                    slide.pidfController.kf);
             telemetry.addData("arm1", slide.arm1.getPosition());
             telemetry.addData("arm2", slide.arm2.getPosition());
             telemetry.addData("claw", slide.claw.getPosition());
