@@ -62,12 +62,12 @@ public interface Command extends ActionConvertable {
 
                                 execute(packet);
 
-                                if (isFinished()) {
-                                        end(false);
-                                        return false;
+                                if (!isFinished()) {
+                                        return true;
                                 }
 
-                                return true;
+                                end(false);
+                                return false;
                         }
                 };
         }

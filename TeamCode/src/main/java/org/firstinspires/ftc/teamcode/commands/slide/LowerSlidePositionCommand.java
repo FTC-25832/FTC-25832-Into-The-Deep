@@ -41,9 +41,14 @@ public class LowerSlidePositionCommand extends CommandBase {
 
         @Override
         public void execute(TelemetryPacket packet) {
+                // Run PID update to move motor
+                double power = lowSlide.updatePID();
+
+                // Add telemetry
                 double error = Math.abs(lowSlide.pidController.destination - lowSlide.getCurrentPosition());
                 packet.put("lowerSlidePosition/error", error);
                 packet.put("lowerSlidePosition/target", targetPositionCm);
+                packet.put("lowerSlidePosition/power", power);
         }
 
         @Override

@@ -1,21 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto.sample;
 
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
-import org.firstinspires.ftc.teamcode.commands.base.CommandScheduler;
 
 @Autonomous
 public final class AutoSample extends LinearOpMode {
@@ -52,8 +49,10 @@ public final class AutoSample extends LinearOpMode {
                 MecanumDrive drive = new MecanumDrive(hardwareMap, START.pose);
 
                 // Start in a safe position
-                Actions.runBlocking(lowerSlideCommands.up().toAction());
-                Actions.runBlocking(upperSlideCommands.front().toAction());
+                Actions.runBlocking(
+                                new SequentialAction(
+                                                lowerSlideCommands.up().toAction(),
+                                                upperSlideCommands.front().toAction()));
 
                 waitForStart();
                 if (isStopRequested())

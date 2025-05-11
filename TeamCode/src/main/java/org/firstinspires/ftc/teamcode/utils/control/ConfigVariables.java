@@ -84,8 +84,8 @@ public class ConfigVariables {
         public static double HOVER_SMALL = 0.1;
 
         // Claw positions
-        public static double CLAW_OPEN = 0.0;
-        public static double CLAW_CLOSE = 1.0;
+        public static double CLAW_OPEN = 1.0;
+        public static double CLAW_CLOSE = 0.0;
 
         public static int POS_GRAB_TIMEOUT = 300;
         public static int CLAW_CLOSE_TIMEOUT = POS_GRAB_TIMEOUT + 500;

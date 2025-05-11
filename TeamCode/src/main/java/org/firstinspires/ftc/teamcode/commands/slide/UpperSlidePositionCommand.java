@@ -37,9 +37,14 @@ public class UpperSlidePositionCommand extends CommandBase {
 
         @Override
         public void execute(TelemetryPacket packet) {
+                // Run PID update to move motors
+                double power = upSlide.updatePID();
+
+                // Add telemetry
                 double error = Math.abs(upSlide.pidfController.destination - upSlide.getCurrentPosition());
                 packet.put("upperSlidePosition/error", error);
                 packet.put("upperSlidePosition/target", targetPositionCm);
+                packet.put("upperSlidePosition/power", power);
         }
 
         @Override
