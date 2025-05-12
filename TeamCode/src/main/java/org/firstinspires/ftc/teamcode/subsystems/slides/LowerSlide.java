@@ -26,6 +26,7 @@ public class LowerSlide extends SubsystemBase {
 
     // Position control
     public final PIDController pidController;
+    private boolean PIDEnabled = true;
 
     // Constants for encoder calculations
     private static final double PI = 3.14;
@@ -71,6 +72,8 @@ public class LowerSlide extends SubsystemBase {
         part2.setPwmRange(servoRange);
         spinclaw.setPwmRange(servoRange);
         claw.setPwmRange(clawRange);
+
+        PIDEnabled = true;
     }
 
     public void low(double val) {
@@ -177,11 +180,14 @@ public class LowerSlide extends SubsystemBase {
      * Update PID control and return the calculated power
      */
     public double updatePID() {
+        if(!PIDEnabled) return 0;
         double power = pidController.calculate(slideEncoder.getCurrentPosition());
         slideMotor.setPower(power);
         return power;
     }
-
+    public void setPIDEnabled(boolean enabled) {
+        this.PIDEnabled = enabled;
+    }
     /**
      * Stop all slide movement
      */

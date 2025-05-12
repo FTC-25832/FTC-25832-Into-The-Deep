@@ -10,15 +10,17 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
+import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.commands.base.CommandScheduler;
+import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.drive.MecanumDriveCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
-import org.firstinspires.ftc.teamcode.commands.vision.VisionAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceCommand;
-import org.firstinspires.ftc.teamcode.commands.slide.ClawToggleCommand;
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.firstinspires.ftc.teamcode.subsystems.drive.Drivetrain;
@@ -33,7 +35,6 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 @TeleOp(group = "TeleOp")
 public class Swerve extends LinearOpMode {
     // Constants
-    private static final long BUTTON_PRESS_INTERVAL_MS = 80;
 
     // Subsystems
     private Drivetrain drive;
@@ -177,7 +178,7 @@ public class Swerve extends LinearOpMode {
         if (gamepad2.right_trigger > 0 && upperClaw.canStartGrabSequence()) {
             Command grabCommand = new UpperSlideGrabSequenceCommand(upSlide);
             upperClaw.startGrabSequence();
-            scheduler.schedule(new Command() {
+            scheduler.schedule(new CommandBase() {
                 @Override
                 public void initialize() {
                     grabCommand.initialize();
@@ -232,7 +233,7 @@ public class Swerve extends LinearOpMode {
         if (gamepad1.right_trigger > 0 && lowerClaw.canStartGrabSequence()) {
             Command grabCommand = new LowerSlideGrabSequenceCommand(lowSlide);
             lowerClaw.startGrabSequence();
-            scheduler.schedule(new Command() {
+            scheduler.schedule(new CommandBase() {
                 @Override
                 public void initialize() {
                     grabCommand.initialize();
@@ -279,7 +280,11 @@ public class Swerve extends LinearOpMode {
             scheduler.schedule(new ActionCommand(lowSlideCommands.slidePos2()));
 
         if (gamepad1.dpad_up) {
-            Command adjustCommand = new VisionAdjustCommand(lowSlide, camera);
+            Command adjustCommand = new SequentialCommandGroup(
+                    new DistanceAdjustCommand(lowSlide, camera),
+                    new ActionCommand(lowSlideCommands.hover()),
+                    new AngleAdjustCommand(lowSlide, camera)
+            );
             scheduler.schedule(adjustCommand);
         }
 
