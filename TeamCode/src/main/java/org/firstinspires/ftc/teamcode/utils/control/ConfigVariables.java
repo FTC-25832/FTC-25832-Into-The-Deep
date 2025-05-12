@@ -43,8 +43,8 @@ public class ConfigVariables {
     // @Configurable
     public static class UpperSlideVars {
         // Arm positions
-        public static double FRONT_ARM_POS = 0.50;
-        public static double FRONT_SWING_POS = 0.6;
+        public static double FRONT_ARM_POS = 0.4;
+        public static double FRONT_SWING_POS = 0.4;
         public static double BEHIND_ARM_POS = 0.20;
         public static double BEHIND_SWING_POS = 1.0;
 
@@ -57,7 +57,7 @@ public class ConfigVariables {
         public static double POS_PRE_0_CM = 10.0;
         public static double POS_1_CM = 25.0;
         public static double POS_2_CM = 42.0;
-        public static double POS_3_CM = 60.0;
+        public static double POS_3_CM = 55.0;
 
         // offwall positions
         public static double OFFWALL_FRONT_ARM_POS = 0.85;
@@ -89,13 +89,12 @@ public class ConfigVariables {
         public static double CLAW_OPEN = 1.0;
         public static double CLAW_CLOSE = 0.0;
 
-        public static int POS_GRAB_TIMEOUT = 300;
-        public static int CLAW_CLOSE_TIMEOUT = 500;
-        public static int POS_HOVER_TIMEOUT = 700;
+        public static int POS_GRAB_TIMEOUT = 200;
+        public static int CLAW_CLOSE_TIMEOUT = 200;
+        public static int POS_HOVER_TIMEOUT = 200;
 
         // spin claw positions angle degrees
         public static int ZERO = 0;
-
         public static int SPINCLAW_DEG = 45;
         public static double PID_KP = 0.01;
         public static double PID_KI = 0.0;

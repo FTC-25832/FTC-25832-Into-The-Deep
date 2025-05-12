@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
  */
 public class UpperSlideGrabSequenceCommand extends CommandBase {
         private final UpperSlide upSlide;
-        private final long POS_GRAB_TIMEOUT = ConfigVariables.UpperSlideVars.POS_GRAB_TIMEOUT;
-        private final long CLAW_CLOSE_TIMEOUT = ConfigVariables.UpperSlideVars.CLAW_CLOSE_TIMEOUT;
-        private final long POS_HOVER_TIMEOUT = ConfigVariables.UpperSlideVars.POS_HOVER_TIMEOUT;
+//        private final long POS_GRAB_TIMEOUT = ConfigVariables.UpperSlideVars.POS_GRAB_TIMEOUT;
+//        private final long CLAW_CLOSE_TIMEOUT = ConfigVariables.UpperSlideVars.CLAW_CLOSE_TIMEOUT;
+//        private final long POS_HOVER_TIMEOUT = ConfigVariables.UpperSlideVars.POS_HOVER_TIMEOUT;
 
         private long startTime;
         private boolean started = false;
@@ -42,21 +42,22 @@ public class UpperSlideGrabSequenceCommand extends CommandBase {
                 // Move to grab position after initial delay
                 // Close claw after grab position timeout
                 // Move to hover position after claw close timeout
-                if (elapsedTime >= POS_GRAB_TIMEOUT + CLAW_CLOSE_TIMEOUT + POS_HOVER_TIMEOUT) {
-                        upSlide.pos_hover();
-                } else if (elapsedTime >= POS_GRAB_TIMEOUT + CLAW_CLOSE_TIMEOUT) {
-                        upSlide.closeClaw();
-                } else if (elapsedTime >= POS_GRAB_TIMEOUT) {
-                        upSlide.pos_grab();
-                }
+//                if (elapsedTime >= POS_GRAB_TIMEOUT + CLAW_CLOSE_TIMEOUT + POS_HOVER_TIMEOUT) {
+//                        upSlide.pos_hover();
+//                } else if (elapsedTime >= POS_GRAB_TIMEOUT + CLAW_CLOSE_TIMEOUT) {
+//                        upSlide.closeClaw();
+//                } else if (elapsedTime >= POS_GRAB_TIMEOUT) {
+//                        upSlide.pos_grab();
+//                }
         }
 
         @Override
         public boolean isFinished() {
                 if (!started)
                         return false;
-                return System.currentTimeMillis() - startTime >= POS_GRAB_TIMEOUT + CLAW_CLOSE_TIMEOUT
-                                + POS_HOVER_TIMEOUT;
+                return System.currentTimeMillis() - startTime >= 0;
+//                        POS_GRAB_TIMEOUT + CLAW_CLOSE_TIMEOUT
+//                                + POS_HOVER_TIMEOUT;
         }
 
         @Override

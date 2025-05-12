@@ -20,7 +20,10 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceComma
 import org.firstinspires.ftc.teamcode.commands.slide.ClawToggleCommand;
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
+import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.firstinspires.ftc.teamcode.subsystems.drive.Drivetrain;
+
+import java.util.Set;
 import org.firstinspires.ftc.teamcode.subsystems.hang.Hanging;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
@@ -199,6 +202,11 @@ public class Swerve extends LinearOpMode {
                     grabCommand.end(interrupted);
                     upperClaw.endGrabSequence();
                 }
+
+                @Override
+                public Set<SubsystemBase> getRequirements() {
+                    return grabCommand.getRequirements();
+                }
             });
         }
 
@@ -248,6 +256,11 @@ public class Swerve extends LinearOpMode {
                 public void end(boolean interrupted) {
                     grabCommand.end(interrupted);
                     lowerClaw.endGrabSequence();
+                }
+
+                @Override
+                public Set<SubsystemBase> getRequirements() {
+                    return grabCommand.getRequirements();
                 }
             });
         }
