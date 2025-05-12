@@ -163,35 +163,6 @@ public class UpperSlideCommands {
                 return new ClawCommand(UpperSlideVars.CLAW_CLOSE);
         }
 
-        // // LEGACY COMBO COMMANDS
-        // public Action pos0() {
-        // return new SequentialAction(
-        // setSlidePos(UpperSlideVars.POS_0_CM),
-        // setArmPos(UpperSlideVars.FRONT_ARM_POS),
-        // setSwingPos(UpperSlideVars.FRONT_SWING_POS));
-        // }
-
-        // public Action pos1() {
-        // return new SequentialAction(
-        // setSlidePos(UpperSlideVars.POS_1_CM),
-        // setArmPos(UpperSlideVars.FRONT_ARM_POS),
-        // setSwingPos(UpperSlideVars.FRONT_SWING_POS));
-        // }
-
-        // public Action pos2() {
-        // return new SequentialAction(
-        // setSlidePos(UpperSlideVars.POS_2_CM),
-        // setArmPos(UpperSlideVars.FRONT_ARM_POS),
-        // setSwingPos(UpperSlideVars.FRONT_SWING_POS));
-        // }
-
-        // public Action pos3() {
-        // return new SequentialAction(
-        // setSlidePos(UpperSlideVars.POS_3_CM),
-        // setArmPos(UpperSlideVars.FRONT_ARM_POS),
-        // setSwingPos(UpperSlideVars.FRONT_SWING_POS));
-        // }
-
         public Action transfer() {
                 return new SequentialAction(
                                 setArmPos(UpperSlideVars.BEHIND_ARM_POS),

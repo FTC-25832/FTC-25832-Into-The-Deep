@@ -22,9 +22,69 @@ import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 @Autonomous
 public final class AutoSample extends LinearOpMode {
 
+        private SequentialAction scoreSequence(MecanumDrive drive, LowerSlideCommands lowerSlideCommands,
+                        UpperSlideCommands upperSlideCommands) {
+                return new SequentialAction(
+                                drive.actionBuilder(SCORE.pose)
+                                                .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
+                                                .build(),
+                                new ParallelAction(
+                                                upperSlideCommands.openClaw(),
+                                                lowerSlideCommands.setSlidePos(
+                                                                ConfigVariables.AutoTesting.lowerslideextendlength)),
+                                upperSlideCommands.scorespec());
+        }
+
+        private SequentialAction pickupAndScoreSequence(AutoPaths.RobotPosition pickupPos, MecanumDrive drive,
+                        LowerSlideCommands lowerSlideCommands, UpperSlideCommands upperSlideCommands,
+                        LowerSlide lowSlide) {
+                return new SequentialAction(
+                                // Drive to pickup while extending arm
+                                new ParallelAction(
+                                                drive.actionBuilder(START.pose)
+                                                                .strafeToLinearHeading(pickupPos.pos,
+                                                                                pickupPos.heading)
+                                                                .build(),
+                                                upperSlideCommands.slidePos0()),
+
+                                // Grab
+                                new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
+                                // Drive to score while transferring
+                                new ParallelAction(
+                                                drive.actionBuilder(pickupPos.pose)
+                                                                .strafeToLinearHeading(SCORE.pos,
+                                                                                SCORE.heading)
+                                                                .build(),
+                                                new SequentialAction(
+                                                                lowerSlideCommands.up(),
+                                                                lowerSlideCommands.setSlidePos(0),
+                                                                drive.actionBuilder(SCORE.pose)
+                                                                                .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
+                                                                                .build(),
+                                                                upperSlideCommands.transfer(),
+                                                                drive.actionBuilder(SCORE.pose)
+                                                                                .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
+                                                                                .build(),
+                                                                lowerSlideCommands.openClaw(),
+                                                                drive.actionBuilder(SCORE.pose)
+                                                                                .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
+                                                                                .build(),
+                                                                upperSlideCommands.closeClaw(),
+                                                                drive.actionBuilder(SCORE.pose)
+                                                                                .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
+                                                                                .build(),
+                                                                upperSlideCommands.front(),
+                                                                upperSlideCommands.setSlidePos(
+                                                                                ConfigVariables.AutoTesting.UPPERSLIDE_POS_3))),
+                                // Drop
+                                drive.actionBuilder(SCORE.pose)
+                                                .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
+                                                .build(),
+                                upperSlideCommands.openClaw());
+        }
+
         @Override
         public void runOpMode() throws InterruptedException {
-
                 // Initialize subsystems
                 LowerSlide lowSlide = new LowerSlide();
                 UpperSlide upSlide = new UpperSlide();
@@ -35,11 +95,8 @@ public final class AutoSample extends LinearOpMode {
                 LowerSlideCommands lowerSlideCommands = new LowerSlideCommands(lowSlide);
                 UpperSlideCommands upperSlideCommands = new UpperSlideCommands(upSlide);
 
-
                 // Initialize drive
                 MecanumDrive drive = new MecanumDrive(hardwareMap, START.pose);
-
-
 
                 // Start in a safe position
                 Actions.runBlocking(
@@ -53,77 +110,28 @@ public final class AutoSample extends LinearOpMode {
                 if (isStopRequested())
                         return;
 
-                // Simple pickup and score sequence
+                // Full autonomous sequence
                 Actions.runBlocking(
                                 new SequentialAction(
-                                                // score preload
+                                                // Score preload
                                                 new ParallelAction(
                                                                 drive.actionBuilder(START.pose)
                                                                                 .strafeToLinearHeading(SCORE.pos,
                                                                                                 SCORE.heading)
                                                                                 .build(),
-                                                                upperSlideCommands.closeClaw(), // double
-                                                                                                // makesure/check?
+                                                                upperSlideCommands.closeClaw(),
                                                                 new SequentialAction(
                                                                                 upperSlideCommands.front(),
-                                                                                upperSlideCommands.setSlidePos(ConfigVariables.AutoTesting.UPPERSLIDE_POS_3) // pos 3
-                                                                                                               // for
-                                                                                                               // score
-                                                                                                               // height
-                                                                )),
-                                                // drop to score, upperslide comback in next parallel action
-                                                drive.actionBuilder(SCORE.pose).waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S).build(),
-                                                new ParallelAction(
-                                                                upperSlideCommands.openClaw(),
-                                                                lowerSlideCommands.setSlidePos(ConfigVariables.AutoTesting.lowerslideextendlength) // 34cm
-                                                ),
-                                                upperSlideCommands.scorespec(),
+                                                                                upperSlideCommands.setSlidePos(
+                                                                                                ConfigVariables.AutoTesting.UPPERSLIDE_POS_3))),
+                                                scoreSequence(drive, lowerSlideCommands, upperSlideCommands),
 
-                                                // Drive to pickup while extending arm
-                                                new ParallelAction(
-                                                                drive.actionBuilder(START.pose)
-                                                                                .strafeToLinearHeading(PICKUP1.pos,
-                                                                                                PICKUP1.heading)
-                                                                                .build(),
-                                                                upperSlideCommands.slidePos0()),
-
-                                                // Grab
-                                                new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
-                                                // Drive to score while transferring
-                                                new ParallelAction(
-                                                                drive.actionBuilder(PICKUP1.pose)
-                                                                                .strafeToLinearHeading(SCORE.pos,
-                                                                                                SCORE.heading)
-                                                                                .build(),
-                                                                new SequentialAction(
-                                                                                lowerSlideCommands.up(),
-                                                                                drive.actionBuilder(SCORE.pose).waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S).build(),
-                                                                                upperSlideCommands.transfer(),
-                                                                                drive.actionBuilder(SCORE.pose).waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S).build(),
-                                                                                lowerSlideCommands.openClaw(),
-                                                                                drive.actionBuilder(SCORE.pose).waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S).build(),
-                                                                                upperSlideCommands.closeClaw(),
-                                                                                drive.actionBuilder(SCORE.pose).waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S).build(),
-                                                                                upperSlideCommands.front(),
-                                                                                upperSlideCommands.setSlidePos(ConfigVariables.AutoTesting.UPPERSLIDE_POS_3))),
-                                                // Drop
-                                                drive.actionBuilder(SCORE.pose).waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S).build(),
-                                                upperSlideCommands.openClaw()));
-
-                // .strafeToLinearHeading(PICKUP1.pos, PICKUP1.heading)
-                // .strafeToLinearHeading(SCORE.pos, SCORE.heading)
-                // .strafeToLinearHeading(PICKUP2.pos, PICKUP2.heading)
-                // .strafeToLinearHeading(SCORE.pos, SCORE.heading)
-                // .strafeToLinearHeading(PICKUP3.pos, PICKUP3.heading)
-                // .strafeToLinearHeading(SCORE.pos, SCORE.heading)
-
-                // .strafeToLinearHeading(new Vector2d(38,12), Math.toRadians(180))
-                //
-                // .strafeToConstantHeading(new Vector2d(23,12))
-                //
-                // .strafeToConstantHeading(new Vector2d(38,12))
-                //
-                // .strafeToLinearHeading(SCORE.pos, SCORE.heading);
-
+                                                // Pickup and score sequences
+                                                pickupAndScoreSequence(PICKUP1, drive, lowerSlideCommands,
+                                                                upperSlideCommands, lowSlide),
+                                                pickupAndScoreSequence(PICKUP2, drive, lowerSlideCommands,
+                                                                upperSlideCommands, lowSlide),
+                                                pickupAndScoreSequence(PICKUP3, drive, lowerSlideCommands,
+                                                                upperSlideCommands, lowSlide)));
         }
 }
