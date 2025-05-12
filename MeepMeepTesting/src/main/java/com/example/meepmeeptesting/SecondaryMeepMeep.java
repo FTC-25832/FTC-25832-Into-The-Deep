@@ -2,6 +2,7 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.example.meepmeeptesting.paths.AutoPaths;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
@@ -21,7 +22,9 @@ public class SecondaryMeepMeep {
                 .setDimensions(botWidth, botLength)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(30.5, 62, Math.toRadians(270)))
+        myBot.runAction(AutoPaths.autosamplepath(myBot.getDrive()).build());
+//        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(30.5, 62, Math.toRadians(270)))
+
 //                .strafeToLinearHeading(new Vector2d(47, 46), Math.toRadians(-90))
 //
 //                .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
@@ -34,17 +37,17 @@ public class SecondaryMeepMeep {
 //                .strafeToLinearHeading(new Vector2d(58,46), Math.toRadians(-55))
 //                .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
 //                .strafeToConstantHeading(new Vector2d(55, 55))
-
-                .strafeToLinearHeading(new Vector2d(38,32), Math.toRadians(180))
-
-
-                .strafeToConstantHeading(new Vector2d(38,12))
-                .strafeToConstantHeading(new Vector2d(23,10))
-
-                .strafeToConstantHeading(new Vector2d(38,12))
-                .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
-                .strafeToConstantHeading(new Vector2d(55, 55))
-                .build());
+//
+//                .strafeToLinearHeading(new Vector2d(38,32), Math.toRadians(180))
+//
+//
+//                .strafeToConstantHeading(new Vector2d(38,12))
+//                .strafeToConstantHeading(new Vector2d(23,10))
+//
+//                .strafeToConstantHeading(new Vector2d(38,12))
+//                .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
+//                .strafeToConstantHeading(new Vector2d(55, 55))
+//                .build());
 
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)

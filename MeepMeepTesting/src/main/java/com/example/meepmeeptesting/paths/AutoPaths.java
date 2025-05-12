@@ -1,8 +1,11 @@
 package com.example.meepmeeptesting.paths;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.roadrunner.DriveShim;
 
@@ -30,10 +33,15 @@ public final class AutoPaths {
     }
 
     // Sample autonomous positions
-    public static final RobotPosition START = new RobotPosition(30.5, 62, 270);
-    public static final RobotPosition PREPLACED = new RobotPosition(47, 46, -90);
-    public static final RobotPosition PICKUP = new RobotPosition(58, 46, -55);
-    public static final RobotPosition SCORE = new RobotPosition(60, 60, 225);
+    public static final RobotPosition START = new RobotPosition(40.1, 62, 270);
+    public static final RobotPosition PREPLACED = new RobotPosition(47, 46, -90); //?
+
+    public static final RobotPosition PICKUP1 = new RobotPosition(47.1, 47.1, -90);
+    public static final RobotPosition PICKUP2 = new RobotPosition(58, 47, -90);
+    public static final RobotPosition PICKUP3 = new RobotPosition(47.1, 47.1, -45);
+    public static final RobotPosition SCORE = new RobotPosition(57, 57, 225);
+
+
 
     // Primary autonomous path points
     public static final double TEST_Y_VALUE = 61.5;
@@ -68,6 +76,35 @@ public final class AutoPaths {
     public static void resetPose(DriveShim drive) {
         drive.setPoseEstimate(START.pose);
     }
+
+
+
+    public static TrajectoryActionBuilder autosamplepath(DriveShim drive) {
+        return drive.actionBuilder(START.pose)
+                    .strafeToLinearHeading(SCORE.pos, SCORE.heading)
+                    .strafeToLinearHeading(PICKUP1.pos, PICKUP1.heading)
+                    .strafeToLinearHeading(SCORE.pos, SCORE.heading)
+                    .strafeToLinearHeading(PICKUP2.pos, PICKUP2.heading)
+                    .strafeToLinearHeading(SCORE.pos, SCORE.heading)
+                    .strafeToLinearHeading(PICKUP3.pos, PICKUP3.heading)
+                    .strafeToLinearHeading(SCORE.pos, SCORE.heading)
+
+
+//                    .strafeToLinearHeading(new Vector2d(38,32), Math.toRadians(180))
+                    .strafeToLinearHeading(new Vector2d(38,12), Math.toRadians(180))
+
+                    .strafeToConstantHeading(new Vector2d(23,12))
+
+                    .strafeToConstantHeading(new Vector2d(38,12))
+//                    .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
+//                    .strafeToConstantHeading(SCORE.pos);
+                    .strafeToLinearHeading(SCORE.pos, SCORE.heading);
+
+
+
+
+    }
+
 
 
     public static TrajectoryActionBuilder getHangFirstPath(DriveShim drive){

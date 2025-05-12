@@ -22,11 +22,11 @@ import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 @Config
 public final class ThreeDeadWheelLocalizer implements Localizer {
         public static class Params {
-                public double par0YTicks = -9590.559534425398; // y position of the first parallel encoder (in tick
+                public double par0YTicks = -9690.675784657145; // y position of the first parallel encoder (in tick
                                                                // units)
-                public double par1YTicks = 9838.543243604217; // y position of the second parallel encoder (in tick
+                public double par1YTicks = 9773.439152317475; // y position of the second parallel encoder (in tick
                 // units)
-                public double perpXTicks = -2245.939378267486; // x position of the perpendicular encoder (in tick
+                public double perpXTicks = -2572.8974384671237; // x position of the perpendicular encoder (in tick
                 // units)
 
                 // public static double Ly = 126.59; // distance between left L wheel and Y

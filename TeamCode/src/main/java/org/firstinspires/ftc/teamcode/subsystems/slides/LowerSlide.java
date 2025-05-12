@@ -31,7 +31,7 @@ public class LowerSlide extends SubsystemBase {
     private static final double PI = 3.14;
     private static final double COUNTS_PER_MOTOR_REV = 28.0;
     private static final double WHEEL_CIRCUMFERENCE_MM = 37.0 * PI;
-    private static final double DRIVE_GEAR_REDUCTION = 4.0;
+    private static final double DRIVE_GEAR_REDUCTION = 4;
     private static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
     private static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
 

@@ -20,6 +20,15 @@ public class ConfigVariables {
     }
 
     @Config
+    public static class AutoTesting {
+        public static int lowerslideextendlength = 1;
+        public static double UPPERSLIDE_POS_1 = 1;
+        public static double UPPERSLIDE_POS_2 = 2;
+        public static double UPPERSLIDE_POS_3 = 3;
+        public static double DROPDELAY_S = 0.5;
+    }
+
+    @Config
     public static class Camera {
         // public static double CLAW_DISTANCE = 20; //cm
         // public static double[] DISTANCE_MAP = { CLAW_DISTANCE, CLAW_DISTANCE,
@@ -57,14 +66,14 @@ public class ConfigVariables {
         public static double POS_PRE_0_CM = 10.0;
         public static double POS_1_CM = 25.0;
         public static double POS_2_CM = 42.0;
-        public static double POS_3_CM = 55.0;
+        public static double POS_3_CM = 40.0;
 
         // offwall positions
         public static double OFFWALL_FRONT_ARM_POS = 0.85;
         public static double OFFWALL_FRONT_SWING_POS = 0.80;
 
         // scorespec positions
-        public static double SCORESPEC_FRONT_ARM_POS = 0.20;
+        public static double SCORESPEC_FRONT_ARM_POS = 0.23;
         public static double SCORESPEC_FRONT_SWING_POS = 0.65;
 
         public static double PID_KP = 0.01;
