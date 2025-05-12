@@ -36,7 +36,7 @@ public abstract class CommandBase implements Command {
         @Override
         public void execute(TelemetryPacket packet) {
         }
-
+        
         @Override
         public boolean isFinished() {
                 return false;
