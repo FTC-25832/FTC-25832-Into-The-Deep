@@ -118,6 +118,12 @@ public class LowerSlideCommands {
                 return setPart2Pos(LowerSlideVars.HOVER_SMALL);
         }
 
+        public Action hover() {
+                return new ParallelAction(
+                                hoverPart1(),
+                                hoverPart2());
+        }
+
         // SPINCLAW COMMANDS
         private class SpinClawCommand extends ServoCommand {
                 public SpinClawCommand(double deg) {
@@ -148,10 +154,9 @@ public class LowerSlideCommands {
 
         public Action up() {
                 return new ParallelAction(
-                        upPart1(),
-                        upPart2(),
-                        setSpinClawDeg(LowerSlideVars.SPINCLAW_DEG)
-                );
+                                upPart1(),
+                                upPart2(),
+                                setSpinClawDeg(LowerSlideVars.SPINCLAW_DEG));
         }
 
         // CLAW COMMANDS
@@ -177,6 +182,5 @@ public class LowerSlideCommands {
         public Action closeClaw() {
                 return new ClawCommand(LowerSlideVars.CLAW_CLOSE);
         }
-
 
 }

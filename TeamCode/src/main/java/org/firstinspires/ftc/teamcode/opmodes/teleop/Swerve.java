@@ -252,19 +252,23 @@ public class Swerve extends LinearOpMode {
             });
         }
 
-        if (gamepad1.right_bumper) {
-            Command adjustCommand = new VisionAdjustCommand(lowSlide, camera);
-            scheduler.schedule(adjustCommand);
-        }
-
         if (gamepad1.left_trigger > 0) {
             scheduler.schedule(new ActionCommand(lowSlideCommands.up()));
+        }
+
+        if (gamepad1.right_bumper) {
+            scheduler.schedule(new ActionCommand(lowSlideCommands.hover()));
         }
 
         if (gamepad1.x)
             scheduler.schedule(new ActionCommand(lowSlideCommands.slidePos1()));
         if (gamepad1.y)
             scheduler.schedule(new ActionCommand(lowSlideCommands.slidePos2()));
+
+        if (gamepad1.dpad_up) {
+            Command adjustCommand = new VisionAdjustCommand(lowSlide, camera);
+            scheduler.schedule(adjustCommand);
+        }
 
         if (gamepad1.dpad_down)
             scheduler.schedule(
