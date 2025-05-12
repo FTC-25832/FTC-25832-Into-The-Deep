@@ -40,19 +40,16 @@ public class LowerSlideGrabSequenceCommand extends CommandBase {
                 packet.put("grabSequence/elapsed", elapsedTime);
 
                 // Move to grab position after initial delay
-                if (elapsedTime >= POS_GRAB_TIMEOUT) {
-                        lowSlide.pos_grab();
-                }
-
                 // Close claw after grab position timeout
-                if (elapsedTime >= POS_GRAB_TIMEOUT + CLAW_CLOSE_TIMEOUT) {
-                        lowSlide.closeClaw();
-                }
-
                 // Move to hover position after claw close timeout
                 if (elapsedTime >= POS_GRAB_TIMEOUT + CLAW_CLOSE_TIMEOUT + POS_HOVER_TIMEOUT) {
                         lowSlide.pos_hover();
+                } else if (elapsedTime >= POS_GRAB_TIMEOUT + CLAW_CLOSE_TIMEOUT) {
+                        lowSlide.closeClaw();
+                } else if (elapsedTime >= POS_GRAB_TIMEOUT) {
+                        lowSlide.pos_grab();
                 }
+
         }
 
         @Override

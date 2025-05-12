@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto.sample;
 
 import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -13,25 +11,11 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
+import org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths;
+import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
 @Autonomous
 public final class AutoSample extends LinearOpMode {
-        private static final class RobotPosition {
-                public final Vector2d pos;
-                public final double heading;
-                public final Pose2d pose;
-
-                public RobotPosition(double x, double y, double headingDegrees) {
-                        this.pos = new Vector2d(x, y);
-                        this.heading = Math.toRadians(headingDegrees);
-                        this.pose = new Pose2d(x, y, this.heading);
-                }
-        }
-
-        private static final RobotPosition START = new RobotPosition(30.5, 62, 270);
-        private static final RobotPosition PREPLACED = new RobotPosition(47, 46, -90);
-        private static final RobotPosition PICKUP = new RobotPosition(58, 46, -55);
-        private static final RobotPosition SCORE = new RobotPosition(60, 60, 225);
 
         @Override
         public void runOpMode() throws InterruptedException {

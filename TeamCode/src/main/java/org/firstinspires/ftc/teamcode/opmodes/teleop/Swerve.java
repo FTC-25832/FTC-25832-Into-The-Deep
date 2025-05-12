@@ -205,15 +205,23 @@ public class Swerve extends LinearOpMode {
 
         if (gamepad1.left_bumper && time - lastTimeGP1LeftBumperCalled > BUTTON_PRESS_INTERVAL_MS) {
             lowClawIsOpen = !lowClawIsOpen;
-            scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, false, lowClawIsOpen));
             lastTimeGP1LeftBumperCalled = time;
         }
 
         if (gamepad2.left_bumper && time - lastTimeGP2LeftBumperCalled > BUTTON_PRESS_INTERVAL_MS) {
             upClawIsOpen = !upClawIsOpen;
-            scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, true, upClawIsOpen));
             lastTimeGP2LeftBumperCalled = time;
         }
+
+        if (lowClawIsOpen)
+            scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, false, lowClawIsOpen));
+        else
+            scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, false, lowClawIsOpen));
+
+        if (upClawIsOpen)
+            scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, true, upClawIsOpen));
+        else
+            scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, true, upClawIsOpen));
     }
 
     private void updateTelemetry() {

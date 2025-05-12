@@ -88,8 +88,8 @@ public class ConfigVariables {
         public static double CLAW_CLOSE = 0.0;
 
         public static int POS_GRAB_TIMEOUT = 300;
-        public static int CLAW_CLOSE_TIMEOUT = POS_GRAB_TIMEOUT + 500;
-        public static int POS_HOVER_TIMEOUT = CLAW_CLOSE_TIMEOUT + 700;
+        public static int CLAW_CLOSE_TIMEOUT = 500;
+        public static int POS_HOVER_TIMEOUT = 700;
 
         // spin claw positions angle degrees
         public static int ZERO = 0;
