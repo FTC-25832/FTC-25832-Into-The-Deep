@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.hardware.Localizer;
 import org.firstinspires.ftc.teamcode.utils.math.curvePoint;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
@@ -106,10 +107,10 @@ public class Drivetrain extends SubsystemBase {
         // one is out of the range [-1, 1]
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
 
-        double frontLeftPower = (rotY + rotX + rx) / denominator;
-        double backLeftPower = (rotY - rotX + rx) / denominator;
-        double frontRightPower = (rotY - rotX - rx) / denominator;
-        double backRightPower = (rotY + rotX - rx) / denominator;
+        double frontLeftPower = (rotY + rotX + rx) / denominator * ConfigVariables.General.DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT;
+        double backLeftPower = (rotY - rotX + rx) / denominator * ConfigVariables.General.DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT;
+        double frontRightPower = (rotY - rotX - rx) / denominator * ConfigVariables.General.DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT;
+        double backRightPower = (rotY + rotX - rx) / denominator * ConfigVariables.General.DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT;
 
         setMotorPowers(frontLeftPower, frontRightPower, backLeftPower, backRightPower);
     }

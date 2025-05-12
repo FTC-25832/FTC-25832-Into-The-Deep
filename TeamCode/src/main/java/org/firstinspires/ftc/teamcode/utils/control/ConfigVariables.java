@@ -15,6 +15,8 @@ public class ConfigVariables {
 
         public static int CLAW_FORTESTING_DEG = 55; // deg
         public static double HANGING_SERVOS_SPEED = 10; // pwm unit
+
+        public static double DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT = 0.5;
     }
 
     @Config
@@ -65,8 +67,8 @@ public class ConfigVariables {
         public static double SCORESPEC_FRONT_ARM_POS = 0.20;
         public static double SCORESPEC_FRONT_SWING_POS = 0.65;
 
-        public static double PID_KP = 0.02;
-        public static double PID_KI = 0.02;
+        public static double PID_KP = 0.01;
+        public static double PID_KI = 0.01;
         public static double PID_KD = 0.0;
         public static double PID_KF = 0.0; // Feedforward gain for gravity compensation
     }

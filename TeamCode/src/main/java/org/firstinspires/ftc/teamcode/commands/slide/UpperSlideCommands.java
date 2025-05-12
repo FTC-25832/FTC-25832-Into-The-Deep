@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.commands.slide;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import org.firstinspires.ftc.teamcode.commands.base.Command;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.SequentialAction;
+
+import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.UpperSlideVars;
 
@@ -49,23 +52,26 @@ public class UpperSlideCommands {
                 }
         }
 
-        public Command setSlidePos(double cm) {
+        public Action setSlidePos(double cm) {
                 return new SlidePositionCommand(cm);
         }
 
-        public Command slidePos0() {
-                return setSlidePos(UpperSlideVars.POS_0_CM);
+        public Action slidePos0() {
+                return new SequentialAction(
+                                setSlidePos(UpperSlideVars.POS_PRE_0_CM),
+                                new WaitCommand(0.1).toAction(),
+                                setSlidePos(UpperSlideVars.POS_0_CM));
         }
 
-        public Command slidePos1() {
+        public Action slidePos1() {
                 return setSlidePos(UpperSlideVars.POS_1_CM);
         }
 
-        public Command slidePos2() {
+        public Action slidePos2() {
                 return setSlidePos(UpperSlideVars.POS_2_CM);
         }
 
-        public Command slidePos3() {
+        public Action slidePos3() {
                 return setSlidePos(UpperSlideVars.POS_3_CM);
         }
 
@@ -81,23 +87,23 @@ public class UpperSlideCommands {
                 }
         }
 
-        public Command setArmPos(double pos) {
+        public Action setArmPos(double pos) {
                 return new ArmCommand(pos);
         }
 
-        public Command frontArm() {
+        public Action frontArm() {
                 return setArmPos(UpperSlideVars.FRONT_ARM_POS);
         }
 
-        public Command behindArm() {
+        public Action behindArm() {
                 return setArmPos(UpperSlideVars.BEHIND_ARM_POS);
         }
 
-        public Command offwallArm() {
+        public Action offwallArm() {
                 return setArmPos(UpperSlideVars.OFFWALL_FRONT_ARM_POS);
         }
 
-        public Command scorespecArm() {
+        public Action scorespecArm() {
                 return setArmPos(UpperSlideVars.SCORESPEC_FRONT_ARM_POS);
         }
 
@@ -113,23 +119,23 @@ public class UpperSlideCommands {
                 }
         }
 
-        public Command setSwingPos(double pos) {
+        public Action setSwingPos(double pos) {
                 return new SwingCommand(pos);
         }
 
-        public Command frontSwing() {
+        public Action frontSwing() {
                 return setSwingPos(UpperSlideVars.FRONT_SWING_POS);
         }
 
-        public Command behindSwing() {
+        public Action behindSwing() {
                 return setSwingPos(UpperSlideVars.BEHIND_SWING_POS);
         }
 
-        public Command offwallSwing() {
+        public Action offwallSwing() {
                 return setSwingPos(UpperSlideVars.OFFWALL_FRONT_SWING_POS);
         }
 
-        public Command scorespecSwing() {
+        public Action scorespecSwing() {
                 return setSwingPos(UpperSlideVars.SCORESPEC_FRONT_SWING_POS);
         }
 
@@ -149,76 +155,64 @@ public class UpperSlideCommands {
                 }
         }
 
-        public Command openClaw() {
+        public Action openClaw() {
                 return new ClawCommand(UpperSlideVars.CLAW_OPEN);
         }
 
-        public Command closeClaw() {
+        public Action closeClaw() {
                 return new ClawCommand(UpperSlideVars.CLAW_CLOSE);
         }
 
-        // LEGACY COMBO COMMANDS
-        public Command pos0() {
-                return new UpperSlidePositionCommand(
-                                upSlide,
-                                UpperSlideVars.POS_0_CM,
-                                UpperSlideVars.FRONT_ARM_POS,
-                                UpperSlideVars.FRONT_SWING_POS);
+        // // LEGACY COMBO COMMANDS
+        // public Action pos0() {
+        // return new SequentialAction(
+        // setSlidePos(UpperSlideVars.POS_0_CM),
+        // setArmPos(UpperSlideVars.FRONT_ARM_POS),
+        // setSwingPos(UpperSlideVars.FRONT_SWING_POS));
+        // }
+
+        // public Action pos1() {
+        // return new SequentialAction(
+        // setSlidePos(UpperSlideVars.POS_1_CM),
+        // setArmPos(UpperSlideVars.FRONT_ARM_POS),
+        // setSwingPos(UpperSlideVars.FRONT_SWING_POS));
+        // }
+
+        // public Action pos2() {
+        // return new SequentialAction(
+        // setSlidePos(UpperSlideVars.POS_2_CM),
+        // setArmPos(UpperSlideVars.FRONT_ARM_POS),
+        // setSwingPos(UpperSlideVars.FRONT_SWING_POS));
+        // }
+
+        // public Action pos3() {
+        // return new SequentialAction(
+        // setSlidePos(UpperSlideVars.POS_3_CM),
+        // setArmPos(UpperSlideVars.FRONT_ARM_POS),
+        // setSwingPos(UpperSlideVars.FRONT_SWING_POS));
+        // }
+
+        public Action transfer() {
+                return new SequentialAction(
+                                setArmPos(UpperSlideVars.BEHIND_ARM_POS),
+                                setSwingPos(UpperSlideVars.BEHIND_SWING_POS));
         }
 
-        public Command pos1() {
-                return new UpperSlidePositionCommand(
-                                upSlide,
-                                UpperSlideVars.POS_1_CM,
-                                UpperSlideVars.FRONT_ARM_POS,
-                                UpperSlideVars.FRONT_SWING_POS);
+        public Action front() {
+                return new SequentialAction(
+                                setArmPos(UpperSlideVars.FRONT_ARM_POS),
+                                setSwingPos(UpperSlideVars.FRONT_SWING_POS));
         }
 
-        public Command pos2() {
-                return new UpperSlidePositionCommand(
-                                upSlide,
-                                UpperSlideVars.POS_2_CM,
-                                UpperSlideVars.FRONT_ARM_POS,
-                                UpperSlideVars.FRONT_SWING_POS);
+        public Action offwall() {
+                return new SequentialAction(
+                                setArmPos(UpperSlideVars.OFFWALL_FRONT_ARM_POS),
+                                setSwingPos(UpperSlideVars.OFFWALL_FRONT_SWING_POS));
         }
 
-        public Command pos3() {
-                return new UpperSlidePositionCommand(
-                                upSlide,
-                                UpperSlideVars.POS_3_CM,
-                                UpperSlideVars.FRONT_ARM_POS,
-                                UpperSlideVars.FRONT_SWING_POS);
-        }
-
-        public Command transfer() {
-                return new UpperSlidePositionCommand(
-                                upSlide,
-                                upSlide.getCurrentPosition(), // Keep current position
-                                UpperSlideVars.BEHIND_ARM_POS,
-                                UpperSlideVars.BEHIND_SWING_POS);
-        }
-
-        public Command front() {
-                return new UpperSlidePositionCommand(
-                                upSlide,
-                                upSlide.getCurrentPosition(), // Keep current position
-                                UpperSlideVars.FRONT_ARM_POS,
-                                UpperSlideVars.FRONT_SWING_POS);
-        }
-
-        public Command offwall() {
-                return new UpperSlidePositionCommand(
-                                upSlide,
-                                upSlide.getCurrentPosition(), // Keep current position
-                                UpperSlideVars.OFFWALL_FRONT_ARM_POS,
-                                UpperSlideVars.OFFWALL_FRONT_SWING_POS);
-        }
-
-        public Command scorespec() {
-                return new UpperSlidePositionCommand(
-                                upSlide,
-                                upSlide.getCurrentPosition(), // Keep current position
-                                UpperSlideVars.SCORESPEC_FRONT_ARM_POS,
-                                UpperSlideVars.SCORESPEC_FRONT_SWING_POS);
+        public Action scorespec() {
+                return new SequentialAction(
+                                setArmPos(UpperSlideVars.SCORESPEC_FRONT_ARM_POS),
+                                setSwingPos(UpperSlideVars.SCORESPEC_FRONT_SWING_POS));
         }
 }

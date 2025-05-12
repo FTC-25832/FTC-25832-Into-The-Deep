@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.commands.base.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commands.drive.MecanumDriveCommand;
@@ -22,7 +22,8 @@ import org.firstinspires.ftc.teamcode.subsystems.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.hang.Hanging;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
-import org.firstinspires.ftc.teamcode.vision.limelight.Limelight;
+import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
+import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
 @TeleOp(group = "TeleOp")
 public class Swerve extends LinearOpMode {
@@ -140,27 +141,27 @@ public class Swerve extends LinearOpMode {
         lowSlideCommands = new LowerSlideCommands(lowSlide);
 
         // Set initial positions
-        scheduler.schedule(upSlideCommands.front());
-        scheduler.schedule(lowSlideCommands.up());
+        scheduler.schedule(new ActionCommand(upSlideCommands.front()));
+        scheduler.schedule(new ActionCommand(lowSlideCommands.up()));
     }
 
     private void handleUpperSlideControls() {
         if (gamepad2.a)
-            scheduler.schedule(upSlideCommands.pos0());
+            scheduler.schedule(new ActionCommand(upSlideCommands.slidePos0()));
         if (gamepad2.x)
-            scheduler.schedule(upSlideCommands.pos1());
+            scheduler.schedule(new ActionCommand(upSlideCommands.slidePos1()));
         if (gamepad2.y)
-            scheduler.schedule(upSlideCommands.pos2());
+            scheduler.schedule(new ActionCommand(upSlideCommands.slidePos2()));
         if (gamepad2.b)
-            scheduler.schedule(upSlideCommands.pos3());
+            scheduler.schedule(new ActionCommand(upSlideCommands.slidePos3()));
         if (gamepad2.dpad_down)
-            scheduler.schedule(upSlideCommands.transfer());
+            scheduler.schedule(new ActionCommand(upSlideCommands.transfer()));
         if (gamepad2.dpad_up)
-            scheduler.schedule(upSlideCommands.front());
+            scheduler.schedule(new ActionCommand(upSlideCommands.front()));
         if (gamepad2.dpad_left)
-            scheduler.schedule(upSlideCommands.offwall());
+            scheduler.schedule(new ActionCommand(upSlideCommands.offwall()));
         if (gamepad2.dpad_right)
-            scheduler.schedule(upSlideCommands.scorespec());
+            scheduler.schedule(new ActionCommand(upSlideCommands.scorespec()));
     }
 
     private void handleLowerSlideControls() {
@@ -175,20 +176,20 @@ public class Swerve extends LinearOpMode {
         }
 
         if (gamepad1.left_trigger > 0) {
-            scheduler.schedule(lowSlideCommands.up());
+            scheduler.schedule(new ActionCommand(lowSlideCommands.up()));
         }
 
         if (gamepad1.x)
-            scheduler.schedule(lowSlideCommands.slidePos1());
+            scheduler.schedule(new ActionCommand(lowSlideCommands.slidePos1()));
         if (gamepad1.y)
-            scheduler.schedule(lowSlideCommands.slidePos2());
+            scheduler.schedule(new ActionCommand(lowSlideCommands.slidePos2()));
 
         if (gamepad1.dpad_down)
-            scheduler.schedule(lowSlideCommands.spinClaw45());
+            scheduler.schedule(new ActionCommand(lowSlideCommands.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO)));
         if (gamepad1.dpad_left)
-            scheduler.schedule(lowSlideCommands.spinClaw0());
+            scheduler.schedule(new ActionCommand(lowSlideCommands.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 45)));
         if (gamepad1.dpad_right)
-            scheduler.schedule(lowSlideCommands.spinClaw90());
+            scheduler.schedule(new ActionCommand(lowSlideCommands.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 90)));
     }
 
     private void handleHangingControls() {
@@ -201,27 +202,44 @@ public class Swerve extends LinearOpMode {
     }
 
     private void handleClawControls() {
-        double time = System.currentTimeMillis();
 
-        if (gamepad1.left_bumper && time - lastTimeGP1LeftBumperCalled > BUTTON_PRESS_INTERVAL_MS) {
-            lowClawIsOpen = !lowClawIsOpen;
+        // if (lowClawIsOpen)
+        // scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, false,
+        // lowClawIsOpen));
+        // else
+        // scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, false,
+        // lowClawIsOpen));
+
+        // if (upClawIsOpen)
+        // scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, true,
+        // upClawIsOpen));
+        // else
+        // scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, true,
+        // upClawIsOpen));
+
+        // scheduler had problems
+        double time = System.currentTimeMillis();
+        if (gamepad1.left_bumper) {
+            if (time - lastTimeGP1LeftBumperCalled > BUTTON_PRESS_INTERVAL_MS) {
+                lowClawIsOpen = !lowClawIsOpen;
+            }
             lastTimeGP1LeftBumperCalled = time;
         }
-
-        if (gamepad2.left_bumper && time - lastTimeGP2LeftBumperCalled > BUTTON_PRESS_INTERVAL_MS) {
-            upClawIsOpen = !upClawIsOpen;
+        if (gamepad2.left_bumper) {
+            if (time - lastTimeGP2LeftBumperCalled > BUTTON_PRESS_INTERVAL_MS) {
+                upClawIsOpen = !upClawIsOpen;
+            }
             lastTimeGP2LeftBumperCalled = time;
         }
-
         if (lowClawIsOpen)
-            scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, false, lowClawIsOpen));
+            lowSlide.openClaw();
         else
-            scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, false, lowClawIsOpen));
-
+            lowSlide.closeClaw();
         if (upClawIsOpen)
-            scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, true, upClawIsOpen));
+            upSlide.openClaw();
         else
-            scheduler.schedule(new ClawToggleCommand(lowSlide, upSlide, true, upClawIsOpen));
+            upSlide.closeClaw();
+
     }
 
     private void updateTelemetry() {

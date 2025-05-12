@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.commands.slide;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import org.firstinspires.ftc.teamcode.commands.base.Command;
+import com.acmerobotics.roadrunner.Action;
 
 /**
  * Base class for one-shot servo commands
  */
-public abstract class ServoCommand implements Command {
+public abstract class ServoCommand implements Action {
         private boolean executed = false;
         private final String telemetryKey;
         private final double targetPosition;
@@ -16,7 +16,6 @@ public abstract class ServoCommand implements Command {
                 this.targetPosition = targetPosition;
         }
 
-        @Override
         public void initialize() {
                 setServoPosition();
                 executed = true;

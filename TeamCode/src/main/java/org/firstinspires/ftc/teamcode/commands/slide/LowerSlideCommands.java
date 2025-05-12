@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.commands.slide;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import org.firstinspires.ftc.teamcode.commands.base.Command;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SequentialAction;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.LowerSlideVars;
 
@@ -49,15 +51,15 @@ public class LowerSlideCommands {
                 }
         }
 
-        public Command setSlidePos(double cm) {
+        public Action setSlidePos(double cm) {
                 return new SlidePositionCommand(cm);
         }
 
-        public Command slidePos1() {
-                return setSlidePos(50); // 50cm
+        public Action slidePos1() {
+                return setSlidePos(30); // 50cm
         }
 
-        public Command slidePos2() {
+        public Action slidePos2() {
                 return setSlidePos(0);
         }
 
@@ -84,35 +86,35 @@ public class LowerSlideCommands {
                 }
         }
 
-        public Command setPart1Pos(double pos) {
+        public Action setPart1Pos(double pos) {
                 return new Part1Command(pos);
         }
 
-        public Command setPart2Pos(double pos) {
+        public Action setPart2Pos(double pos) {
                 return new Part2Command(pos);
         }
 
-        public Command upPart1() {
+        public Action upPart1() {
                 return setPart1Pos(LowerSlideVars.UP_BIG);
         }
 
-        public Command upPart2() {
+        public Action upPart2() {
                 return setPart2Pos(LowerSlideVars.UP_SMALL);
         }
 
-        public Command grabPart1() {
+        public Action grabPart1() {
                 return setPart1Pos(LowerSlideVars.GRAB_BIG);
         }
 
-        public Command grabPart2() {
+        public Action grabPart2() {
                 return setPart2Pos(LowerSlideVars.GRAB_SMALL);
         }
 
-        public Command hoverPart1() {
+        public Action hoverPart1() {
                 return setPart1Pos(LowerSlideVars.HOVER_BIG);
         }
 
-        public Command hoverPart2() {
+        public Action hoverPart2() {
                 return setPart2Pos(LowerSlideVars.HOVER_SMALL);
         }
 
@@ -128,20 +130,28 @@ public class LowerSlideCommands {
                 }
         }
 
-        public Command setSpinClawDeg(double deg) {
+        public Action setSpinClawDeg(double deg) {
                 return new SpinClawCommand(deg);
         }
 
-        public Command spinClaw0() {
+        public Action spinClaw0() {
                 return setSpinClawDeg(0);
         }
 
-        public Command spinClaw45() {
+        public Action spinClaw45() {
                 return setSpinClawDeg(45);
         }
 
-        public Command spinClaw90() {
+        public Action spinClaw90() {
                 return setSpinClawDeg(90);
+        }
+
+        public Action up() {
+                return new ParallelAction(
+                        upPart1(),
+                        upPart2(),
+                        setSpinClawDeg(LowerSlideVars.SPINCLAW_DEG)
+                );
         }
 
         // CLAW COMMANDS
@@ -160,39 +170,13 @@ public class LowerSlideCommands {
                 }
         }
 
-        public Command openClaw() {
+        public Action openClaw() {
                 return new ClawCommand(LowerSlideVars.CLAW_OPEN);
         }
 
-        public Command closeClaw() {
+        public Action closeClaw() {
                 return new ClawCommand(LowerSlideVars.CLAW_CLOSE);
         }
 
-        // LEGACY COMBO COMMANDS
-        public Command up() {
-                return new LowerSlidePositionCommand(
-                                lowSlide,
-                                lowSlide.getCurrentPosition(), // Keep current position
-                                LowerSlideVars.UP_BIG,
-                                LowerSlideVars.UP_SMALL,
-                                LowerSlideVars.SPINCLAW_DEG);
-        }
 
-        public Command grab() {
-                return new LowerSlidePositionCommand(
-                                lowSlide,
-                                lowSlide.getCurrentPosition(), // Keep current position
-                                LowerSlideVars.GRAB_BIG,
-                                LowerSlideVars.GRAB_SMALL,
-                                LowerSlideVars.SPINCLAW_DEG);
-        }
-
-        public Command hover() {
-                return new LowerSlidePositionCommand(
-                                lowSlide,
-                                lowSlide.getCurrentPosition(), // Keep current position
-                                LowerSlideVars.HOVER_BIG,
-                                LowerSlideVars.HOVER_SMALL,
-                                LowerSlideVars.SPINCLAW_DEG);
-        }
 }

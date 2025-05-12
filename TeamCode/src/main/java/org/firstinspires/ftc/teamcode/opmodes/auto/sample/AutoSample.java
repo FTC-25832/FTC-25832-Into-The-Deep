@@ -6,7 +6,9 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
+import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
@@ -35,8 +37,8 @@ public final class AutoSample extends LinearOpMode {
                 // Start in a safe position
                 Actions.runBlocking(
                                 new SequentialAction(
-                                                lowerSlideCommands.up().toAction(),
-                                                upperSlideCommands.front().toAction()));
+                                                lowerSlideCommands.up(),
+                                                upperSlideCommands.front()));
 
                 waitForStart();
                 if (isStopRequested())
@@ -51,9 +53,9 @@ public final class AutoSample extends LinearOpMode {
                                                                                 .strafeToLinearHeading(PICKUP.pos,
                                                                                                 PICKUP.heading)
                                                                                 .build(),
-                                                                lowerSlideCommands.slidePos1().toAction()),
+                                                                lowerSlideCommands.slidePos1()),
                                                 // Grab
-                                                lowerSlideCommands.grab().toAction(),
+                                                new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
                                                 // Drive to score while transferring
                                                 new ParallelAction(
                                                                 drive.actionBuilder(PICKUP.pose)
@@ -61,12 +63,12 @@ public final class AutoSample extends LinearOpMode {
                                                                                                 SCORE.heading)
                                                                                 .build(),
                                                                 new SequentialAction(
-                                                                                lowerSlideCommands.up().toAction(),
-                                                                                upperSlideCommands.transfer()
-                                                                                                .toAction(),
-                                                                                lowerSlideCommands.up().toAction(),
-                                                                                upperSlideCommands.pos3().toAction())),
+                                                                                lowerSlideCommands.up(),
+                                                                                upperSlideCommands.transfer(),
+                                                                                lowerSlideCommands.up(),
+                                                                                upperSlideCommands.slidePos3())),
                                                 // Drop
-                                                upperSlideCommands.front().toAction()));
+                                                upperSlideCommands.front(),
+                                                upperSlideCommands.openClaw()));
         }
 }

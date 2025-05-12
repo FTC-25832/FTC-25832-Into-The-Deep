@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.commands.slide;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
@@ -8,22 +9,11 @@ import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 /**
  * Base class for slide commands that use PID control
  */
-public abstract class SlideCommand implements Command {
+public abstract class SlideCommand implements Action {
         protected boolean initialized = false;
 
-        @Override
         public void initialize() {
                 setTargetPosition();
-        }
-
-        @Override
-        public void execute() {
-                updatePID();
-        }
-
-        @Override
-        public boolean isFinished() {
-                return Math.abs(getCurrentPosition() - getTargetPosition()) < 50;
         }
 
         @Override
@@ -36,6 +26,14 @@ public abstract class SlideCommand implements Command {
                 packet.put(getTelemetryName() + "/position", getCurrentPosition());
                 packet.put(getTelemetryName() + "/target", getTargetPosition());
                 return !isFinished();
+        }
+
+        protected void execute() {
+                updatePID();
+        }
+
+        protected boolean isFinished() {
+                return Math.abs(getCurrentPosition() - getTargetPosition()) < 50;
         }
 
         protected abstract void setTargetPosition();
