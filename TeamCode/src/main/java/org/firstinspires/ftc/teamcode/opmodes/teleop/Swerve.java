@@ -45,8 +45,8 @@ public class Swerve extends LinearOpMode {
     private IMU imu;
 
     // Commands
-    private UpperSlideCommands upSlideCommands;
-    private LowerSlideCommands lowSlideCommands;
+    private UpperSlideCommands upslideActions;
+    private LowerSlideCommands lowslideActions;
 
     // Command scheduler
     private CommandScheduler scheduler;
@@ -54,7 +54,6 @@ public class Swerve extends LinearOpMode {
     // Dashboard
     private FtcDashboard dashboard;
     private long lastDashboardUpdateTime = 0;
-    private static final long DASHBOARD_UPDATE_INTERVAL_MS = 250;
 
     // Claw controllers
     private ClawController upperClaw;
@@ -101,7 +100,7 @@ public class Swerve extends LinearOpMode {
             telemetry.update();
 
             // Update dashboard
-            if (System.currentTimeMillis() - lastDashboardUpdateTime >= DASHBOARD_UPDATE_INTERVAL_MS) {
+            if (System.currentTimeMillis() - lastDashboardUpdateTime >= ConfigVariables.General.DASHBOARD_UPDATE_INTERVAL_MS) {
                 dashboard.sendTelemetryPacket(packet);
                 lastDashboardUpdateTime = System.currentTimeMillis();
             }
@@ -156,8 +155,8 @@ public class Swerve extends LinearOpMode {
         camera.cameraStart();
 
         // Initialize command factories
-        upSlideCommands = new UpperSlideCommands(upSlide);
-        lowSlideCommands = new LowerSlideCommands(lowSlide);
+        upslideActions = new UpperSlideCommands(upSlide);
+        lowslideActions = new LowerSlideCommands(lowSlide);
 
         // Initialize claw controllers
         upperClaw = new ClawController(new ClawController.ClawActuator() {
@@ -185,8 +184,8 @@ public class Swerve extends LinearOpMode {
         });
 
         // Set initial positions
-        scheduler.schedule(new ActionCommand(upSlideCommands.front()));
-        scheduler.schedule(new ActionCommand(lowSlideCommands.up()));
+        scheduler.schedule(new ActionCommand(upslideActions.front()));
+        scheduler.schedule(new ActionCommand(lowslideActions.up()));
     }
 
     private void handleUpperSlideControls() {
@@ -227,21 +226,21 @@ public class Swerve extends LinearOpMode {
         }
 
         if (gamepad2.a)
-            scheduler.schedule(new ActionCommand(upSlideCommands.slidePos0()));
+            scheduler.schedule(new ActionCommand(upslideActions.slidePos0()));
         if (gamepad2.x)
-            scheduler.schedule(new ActionCommand(upSlideCommands.slidePos1()));
+            scheduler.schedule(new ActionCommand(upslideActions.slidePos1()));
         if (gamepad2.y)
-            scheduler.schedule(new ActionCommand(upSlideCommands.slidePos2()));
+            scheduler.schedule(new ActionCommand(upslideActions.slidePos2()));
         if (gamepad2.b)
-            scheduler.schedule(new ActionCommand(upSlideCommands.slidePos3()));
+            scheduler.schedule(new ActionCommand(upslideActions.slidePos3()));
         if (gamepad2.dpad_down)
-            scheduler.schedule(new ActionCommand(upSlideCommands.transfer()));
+            scheduler.schedule(new ActionCommand(upslideActions.transfer()));
         if (gamepad2.dpad_up)
-            scheduler.schedule(new ActionCommand(upSlideCommands.front()));
+            scheduler.schedule(new ActionCommand(upslideActions.front()));
         if (gamepad2.dpad_left)
-            scheduler.schedule(new ActionCommand(upSlideCommands.offwall()));
+            scheduler.schedule(new ActionCommand(upslideActions.offwall()));
         if (gamepad2.dpad_right)
-            scheduler.schedule(new ActionCommand(upSlideCommands.scorespec()));
+            scheduler.schedule(new ActionCommand(upslideActions.scorespec()));
     }
 
     private void handleLowerSlideControls() {
@@ -282,34 +281,34 @@ public class Swerve extends LinearOpMode {
         }
 
         if (gamepad1.left_trigger > 0) {
-            scheduler.schedule(new ActionCommand(lowSlideCommands.up()));
+            scheduler.schedule(new ActionCommand(lowslideActions.up()));
         }
 
         if (gamepad1.right_bumper) {
-            scheduler.schedule(new ActionCommand(lowSlideCommands.hover()));
+            scheduler.schedule(new ActionCommand(lowslideActions.hover()));
         }
 
         if (gamepad1.x)
-            scheduler.schedule(new ActionCommand(lowSlideCommands.slidePos1()));
+            scheduler.schedule(new ActionCommand(lowslideActions.slidePos1()));
         if (gamepad1.y)
-            scheduler.schedule(new ActionCommand(lowSlideCommands.slidePos2()));
+            scheduler.schedule(new ActionCommand(lowslideActions.slidePos2()));
 
         if (gamepad1.dpad_up) {
             Command adjustCommand = new SequentialCommandGroup(
                     new DistanceAdjustCommand(lowSlide, camera),
-                    new ActionCommand(lowSlideCommands.hover()),
+                    new ActionCommand(lowslideActions.hover()),
                     new AngleAdjustCommand(lowSlide, camera));
             scheduler.schedule(adjustCommand);
         }
 
         if (gamepad1.dpad_down)
             scheduler.schedule(
-                    new ActionCommand(lowSlideCommands.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 45)));
+                    new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 45)));
         if (gamepad1.dpad_left)
-            scheduler.schedule(new ActionCommand(lowSlideCommands.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO)));
+            scheduler.schedule(new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO)));
         if (gamepad1.dpad_right)
             scheduler.schedule(
-                    new ActionCommand(lowSlideCommands.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 90)));
+                    new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 90)));
     }
 
     // hardware unfinished + code untested

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.commands.base;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
@@ -54,7 +56,7 @@ public interface Command extends ActionConvertable {
                         private boolean initialized = false;
 
                         @Override
-                        public boolean run(TelemetryPacket packet) {
+                        public boolean run(@NonNull TelemetryPacket packet) {
                                 if (!initialized) {
                                         initialize();
                                         initialized = true;

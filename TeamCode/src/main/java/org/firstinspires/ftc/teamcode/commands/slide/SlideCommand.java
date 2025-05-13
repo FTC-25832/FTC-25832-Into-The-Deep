@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.Action;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
+import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
 /**
  * Base class for slide commands that use PID control
@@ -33,7 +34,7 @@ public abstract class SlideCommand implements Action {
         }
 
         protected boolean isFinished() {
-                return Math.abs(getCurrentPosition() - getTargetPosition()) < 50;
+                return Math.abs(getCurrentPosition() - getTargetPosition()) < ConfigVariables.General.DISTANCE_THRESHOLD_ENCODER;
         }
 
         protected abstract void setTargetPosition();
