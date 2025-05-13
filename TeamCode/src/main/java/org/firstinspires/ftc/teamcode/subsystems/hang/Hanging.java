@@ -32,17 +32,22 @@ public class Hanging extends SubsystemBase {
         left.setDirection(Servo.Direction.FORWARD);
         left.setPwmRange(v4range);
     }
-  public void turnForward(){
-    left.setPosition(ConfigVariables.General.HANGING_SERVOS_SPEED);
-    right.setPosition(ConfigVariables.General.HANGING_SERVOS_SPEED);
-  }
-  public void stop(){
-      left.setPosition(0);
-      right.setPosition(0);
-  }
-  public void turnBackward(){
-      left.setPosition(-ConfigVariables.General.HANGING_SERVOS_SPEED);
-      right.setPosition(-ConfigVariables.General.HANGING_SERVOS_SPEED);
-  }
+
+    public void turnForward() {
+        left.setPosition(ConfigVariables.General.HANGING_SERVOS_SPEED);
+        right.setPosition(ConfigVariables.General.HANGING_SERVOS_SPEED);
+    }
+
+    @Override
+    public void stop() {
+        // Use a safe neutral position (0.5) instead of 0 to avoid sudden movements
+        left.setPosition(0.5);
+        right.setPosition(0.5);
+    }
+
+    public void turnBackward() {
+        left.setPosition(-ConfigVariables.General.HANGING_SERVOS_SPEED);
+        right.setPosition(-ConfigVariables.General.HANGING_SERVOS_SPEED);
+    }
 
 }

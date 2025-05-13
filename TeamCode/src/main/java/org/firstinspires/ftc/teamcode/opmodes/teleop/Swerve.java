@@ -107,8 +107,23 @@ public class Swerve extends LinearOpMode {
             }
         }
 
-        // Cleanup
+        // Cleanup when stopping
+        cleanup();
+    }
+
+    private void cleanup() {
+        // Cancel all running commands
         scheduler.cancelAll();
+
+        // Stop all subsystems
+        drive.stop();
+        upSlide.stop();
+        lowSlide.stop();
+        hangingServos.stop();
+//        camera.stop();
+
+        // Reset scheduler state
+        scheduler.reset();
     }
 
     private void initializeSubsystems() {
@@ -283,8 +298,7 @@ public class Swerve extends LinearOpMode {
             Command adjustCommand = new SequentialCommandGroup(
                     new DistanceAdjustCommand(lowSlide, camera),
                     new ActionCommand(lowSlideCommands.hover()),
-                    new AngleAdjustCommand(lowSlide, camera)
-            );
+                    new AngleAdjustCommand(lowSlide, camera));
             scheduler.schedule(adjustCommand);
         }
 
@@ -298,6 +312,7 @@ public class Swerve extends LinearOpMode {
                     new ActionCommand(lowSlideCommands.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 90)));
     }
 
+    // hardware unfinished + code untested
     private void handleHangingControls() {
         if (gamepad2.right_trigger > 0)
             scheduler.schedule(new HangingCommand(hangingServos, HangingCommand.Direction.FORWARD));
