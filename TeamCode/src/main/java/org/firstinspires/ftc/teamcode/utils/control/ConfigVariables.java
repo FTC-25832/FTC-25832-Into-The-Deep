@@ -35,8 +35,7 @@ public class ConfigVariables {
         // CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE, CLAW_DISTANCE,
         // 20, 21, 22.5, 23.5, 24.3, 25.5, 26.5, 27.5, 28.5, 30, 31.5, 32.7, 34, 35.5,
         // 37, 38, 40, 41.5, 43, 44, 45.5, 0, 0, 0 };
-        public static int ANGLE_TIMEOUT = 500; // ms
-        public static int ADJUST_TIMEOUT = 1000;
+        public static int ANGLE_MAXNUM = 20;
         // public static int PID_UPDATE_TIMEOUT = 500;
         public static int ANGLE_OFFSET = 55;
         public static double PID_KP = 0.01;

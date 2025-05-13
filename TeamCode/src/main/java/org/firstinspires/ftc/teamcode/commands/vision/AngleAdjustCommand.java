@@ -51,12 +51,12 @@ public class AngleAdjustCommand extends CommandBase {
     // This command must be interrupted after 500ms to stop
     @Override
     public long getTimeout() {
-        return 500; // Timeout after 500ms
+        return 1000; // Timeout after 1000ms
     }
 
     @Override
     public boolean isFinished() {
-        return isAngleAdjusted;
+        return isAngleAdjusted || angleNum > ConfigVariables.Camera.ANGLE_MAXNUM;
     }
 
     @Override
