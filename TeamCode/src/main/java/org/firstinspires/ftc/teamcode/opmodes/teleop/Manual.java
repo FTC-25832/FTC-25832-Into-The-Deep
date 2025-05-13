@@ -31,6 +31,7 @@ import org.firstinspires.ftc.teamcode.subsystems.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.hang.Hanging;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 
@@ -44,7 +45,7 @@ public class Manual extends LinearOpMode {
     LowerSlide lowslide = new LowerSlide();
     Hanging hangingServos = new Hanging();
     // Limelight camera = new Limelight();
-    PIDController PIDY = new PIDController(
+    PIDFController PIDY = new PIDFController(
             ConfigVariables.Camera.PID_KP,
             ConfigVariables.Camera.PID_KI,
             ConfigVariables.Camera.PID_KD,
@@ -175,11 +176,11 @@ public class Manual extends LinearOpMode {
             double upslidePower = upslide.updatePID();
             double lowslidePower = lowslide.updatePID();
             telemetry.addData("upslide power", upslidePower);
-            telemetry.addData("upslide destination", upslide.pidController.destination);
-            telemetry.addData("upslide position", upslide.slide1Encoder.getCurrentPosition());
+            telemetry.addData("upslide destination", upslide.pidfController.destination);
+            telemetry.addData("upslide position", upslide.getCurrentPosition());
             telemetry.addData("lowslide power", lowslidePower);
             telemetry.addData("lowslide destination", lowslide.pidController.destination);
-            telemetry.addData("lowslide position", lowslide.slideEncoder.getCurrentPosition());
+            telemetry.addData("lowslide position", lowslide.getCurrentPosition());
             // Create dashboard packet
             // TelemetryPacket packet = new TelemetryPacket();
             field = packet.fieldOverlay();
@@ -241,10 +242,10 @@ public class Manual extends LinearOpMode {
         double frontRightPower = (rotY - rotX - rx) / denominator;
         double backRightPower = (rotY + rotX - rx) / denominator;
 
-        drive.fl(frontLeftPower);
-        drive.bl(backLeftPower);
-        drive.fr(frontRightPower);
-        drive.br(backRightPower);
+        drive.setFrontLeft(frontLeftPower);
+        drive.setBackLeft(backLeftPower);
+        drive.setFrontRight(frontRightPower);
+        drive.setBackRight(backRightPower);
 
         telemetry.addData("Motors", "frontLeft (%.2f), frontRight (%.2f), backLeft (%.2f), backRight (%.2f)",
                 frontLeftPower, frontRightPower, backLeftPower, backRightPower);

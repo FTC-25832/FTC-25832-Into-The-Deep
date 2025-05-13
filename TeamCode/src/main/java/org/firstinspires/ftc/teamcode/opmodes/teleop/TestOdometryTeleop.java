@@ -65,7 +65,7 @@ public class TestOdometryTeleop extends LinearOpMode {
                     odo.resetEncoder();
                 }
 
-                odo.positionArc();
+                Localizer.positionArc();
 
                 telemetry.addData("Status", "Running");
 

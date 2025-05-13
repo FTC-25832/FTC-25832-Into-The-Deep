@@ -1,74 +1,75 @@
 package org.firstinspires.ftc.teamcode.subsystems.slides;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
-import static org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.LowerSlideVars;
 
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
+import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 
-public class LowerSlide {
+import static org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.LowerSlideVars;
 
-    static final double PI = 3.14;
-    static final double COUNTS_PER_MOTOR_REV = 28.0;
-    // static final double WHEEL_CIRCUMFERENCE_MM = 40.0 * PI;
-    // static final double DRIVE_GEAR_REDUCTION = 18.88;
-    static final double WHEEL_CIRCUMFERENCE_MM = 37.0 * PI;
-    static final double DRIVE_GEAR_REDUCTION = 4.0;
-    static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
-    static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
+public class LowerSlide extends SubsystemBase {
+    // Hardware components
+    private ServoImplEx part1, part2, spinclaw, claw;
+    private DcMotor slideMotor;
 
-    HardwareMap hardwareMap;
-    public ServoImplEx part1, part2, part3, spinclaw, claw;
+    // Control ranges
+    private final PwmControl.PwmRange servoRange = new PwmControl.PwmRange(500, 2500);
+    private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1150);
 
-    public DcMotor slideMotor;
-    public DcMotor slideEncoder;
+    // Position control
+    public final PIDController pidController;
+    private boolean PIDEnabled = true;
 
-    PwmControl.PwmRange v4range = new PwmControl.PwmRange(500, 2500);
-    PwmControl.PwmRange downrange = new PwmControl.PwmRange(500, 900);
+    // Constants for encoder calculations
+    private static final double PI = 3.14;
+    private static final double COUNTS_PER_MOTOR_REV = 28.0;
+    private static final double WHEEL_CIRCUMFERENCE_MM = 37.0 * PI;
+    private static final double DRIVE_GEAR_REDUCTION = 4;
+    private static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
+    private static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
 
-    PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1150);
-
-    public PIDController pidController;
-
-    public void initialize(HardwareMap map) {
-        hardwareMap = map;
-
-        // 初始化PID控制器
+    public LowerSlide() {
+        super("lowerslide");
         pidController = new PIDController(
                 LowerSlideVars.PID_KP,
                 LowerSlideVars.PID_KI,
-                LowerSlideVars.PID_KD,
-                LowerSlideVars.PID_KF
-        );
+                LowerSlideVars.PID_KD);
+    }
 
-        // Initialize slide motor for power
-        slideMotor = hardwareMap.get(DcMotor.class, ControlHub.motor(2));
+    @Override
+    public void initialize(HardwareMap hardwareMap) {
+        // Initialize slide motor and encoder
+        slideMotor = hardwareMap.get(DcMotor.class, ExpansionHub.motor(2));
+
+        // Configure motor direction and mode
         slideMotor.setDirection(DcMotor.Direction.REVERSE);
+
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        // Initialize slide encoder
-        slideEncoder = hardwareMap.get(DcMotor.class, ExpansionHub.motor(2));
-        slideEncoder.setDirection(DcMotorSimple.Direction.REVERSE);
-        slideEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // Initialize servos
         part2 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(0));
         claw = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(0));
         spinclaw = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(2));
         part1 = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(3));
 
-        part1.setDirection(Servo.Direction.FORWARD);
-        part1.setPwmRange(v4range);
-        part2.setDirection(Servo.Direction.FORWARD);
-        part2.setPwmRange(v4range);
+        // Configure servo directions
+        part1.setDirection(ServoImplEx.Direction.FORWARD);
+        part2.setDirection(ServoImplEx.Direction.FORWARD);
 
-        spinclaw.setPwmRange(v4range);
+        // Configure servo ranges
+        part1.setPwmRange(servoRange);
+        part2.setPwmRange(servoRange);
+        spinclaw.setPwmRange(servoRange);
         claw.setPwmRange(clawRange);
+
+        PIDEnabled = true;
     }
 
     public void low(double val) {
@@ -76,71 +77,94 @@ public class LowerSlide {
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public void setSlidePower(double power) {
-        slideMotor.setPower(power);
-    }
-
     public void keepPosExceptArms(double pos) {
         part1.setPosition(0);
         part2.setPosition(0);
     }
 
+    @Override
+    public void periodic(TelemetryPacket packet) {
+        // Add slide positions to telemetry
+        packet.put("lowerslide/position", slideMotor.getCurrentPosition());
+        packet.put("lowerslide/target", pidController.destination);
+        packet.put("lowerslide/error", slideMotor.getCurrentPosition() - pidController.destination);
+
+        // Add servo positions to telemetry
+        packet.put("lowerslide/part1", part1.getPosition());
+        packet.put("lowerslide/part2", part2.getPosition());
+        packet.put("lowerslide/spinclaw", spinclaw.getPosition());
+        packet.put("lowerslide/claw", claw.getPosition());
+    }
+
+    /**
+     * Set slide position in centimeters
+     */
     public void setPositionCM(double cm) {
         pidController.setDestination(Math.round(COUNTS_PER_CM * cm));
     }
 
-    public void big(double val) {
-        part1.setPosition(val);
+    /**
+     * Set the slide motor power directly
+     */
+    public void setSlidePower(double power) {
+        slideMotor.setPower(power);
     }
 
-    public void small(double val) {
-        part2.setPosition(val);
+    /**
+     * Hold current position
+     */
+    public void posNow() {
+        pidController.setDestination(slideMotor.getCurrentPosition());
     }
 
-    public void smallclaw(double val) {
-        part3.setPosition(val);
+    /**
+     * Set part1 servo position
+     */
+    public void setPart1Position(double position) {
+        part1.setPosition(position);
     }
 
+    /**
+     * Set part2 servo position
+     */
+    public void setPart2Position(double position) {
+        part2.setPosition(position);
+    }
+
+    /**
+     * Set spinclaw position in degrees (0-270)
+     */
     public void spinclawSetPositionDeg(double degree) {
         spinclaw.setPosition(degree / 270);
     }
 
-    public void pos4() {
-        spinclaw.setPosition(0);
-    }
-    public void posNow() {
-        pidController.setDestination(slideEncoder.getCurrentPosition());
-    }
-
+    // Preset positions for grabbing action
     public void pos_grab() {
-        big(LowerSlideVars.GRAB_BIG);
-        small(LowerSlideVars.GRAB_SMALL);
+        setPart1Position(LowerSlideVars.GRAB_BIG);
+        setPart2Position(LowerSlideVars.GRAB_SMALL);
     }
 
     public void pos_up() {
-        big(LowerSlideVars.UP_BIG);
-        small(LowerSlideVars.UP_SMALL);
+        setPart1Position(LowerSlideVars.UP_BIG);
+        setPart2Position(LowerSlideVars.UP_SMALL);
     }
 
     public void pos_hover() {
-        big(LowerSlideVars.HOVER_BIG);
-        small(LowerSlideVars.HOVER_SMALL);
+        setPart1Position(LowerSlideVars.HOVER_BIG);
+        setPart2Position(LowerSlideVars.HOVER_SMALL);
     }
 
+    // Preset slide positions
+
+    public void setSlidePos0() { setPositionCM(LowerSlideVars.POS_0_CM); }
     public void setSlidePos1() {
-        pidController.setDestination(Math.round(COUNTS_PER_CM * 50));
+        setPositionCM(LowerSlideVars.POS_1_CM);
     }
-
     public void setSlidePos2() {
-        pidController.setDestination(0);
+        setPositionCM(LowerSlideVars.POS_2_CM);
     }
 
-    public double updatePID() {
-        double power = pidController.calculate(slideEncoder.getCurrentPosition());
-        slideMotor.setPower(power);
-        return power;
-    }
-
+    // Claw controls
     public void closeClaw() {
         claw.setPosition(LowerSlideVars.CLAW_CLOSE);
     }
@@ -149,4 +173,37 @@ public class LowerSlide {
         claw.setPosition(LowerSlideVars.CLAW_OPEN);
     }
 
+    /**
+     * Update PID control and return the calculated power
+     */
+    public double updatePID() {
+        if (!PIDEnabled)
+            return 0;
+        double power = pidController.calculate(slideMotor.getCurrentPosition());
+        slideMotor.setPower(power);
+        return power;
+    }
+
+    public void setPIDEnabled(boolean enabled) {
+        this.PIDEnabled = enabled;
+    }
+
+    @Override
+    public void stop() {
+        // Stop slide motor
+        slideMotor.setPower(0);
+        setPIDEnabled(false);
+
+        // Move servos to safe positions
+        setPart1Position(LowerSlideVars.UP_BIG);
+        setPart2Position(LowerSlideVars.UP_SMALL);
+        spinclawSetPositionDeg(LowerSlideVars.ZERO + 45);
+    }
+
+    /**
+     * Get the current position of the slide
+     */
+    public double getCurrentPosition() {
+        return slideMotor.getCurrentPosition();
+    }
 }

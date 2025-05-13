@@ -37,8 +37,8 @@ import java.text.DecimalFormat;
 
 public class Datalogger
 {
-    private LoggableField[] fields;
-    private BufferedCsvWriter bufferedCsvWriter;
+    private final LoggableField[] fields;
+    private final BufferedCsvWriter bufferedCsvWriter;
 
     /*
      * NOTE: We cannot simply pass `new OpModeNotifications()` inline to the call
@@ -46,7 +46,7 @@ public class Datalogger
      * a WeakReference set. This causes the object to be garbage collected because
      * nothing else is holding a reference to it.
      */
-    private OpModeNotifications opModeNotifications = new OpModeNotifications();
+    private final OpModeNotifications opModeNotifications = new OpModeNotifications();
 
     private Datalogger(BufferedCsvWriter bufferedCsvWriter, LoggableField[] fields)
     {
@@ -305,8 +305,8 @@ public class Datalogger
 
     private static class BufferedCsvWriter
     {
-        private FileWriter fileWriter;
-        private BufferedWriter bufferedWriter;
+        private final FileWriter fileWriter;
+        private final BufferedWriter bufferedWriter;
 
         public BufferedCsvWriter(String filepath) throws IOException
         {

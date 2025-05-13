@@ -1,140 +1,152 @@
 package org.firstinspires.ftc.teamcode.subsystems.slides;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-import org.firstinspires.ftc.teamcode.utils.PIDController;
-import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
+import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
+import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 
 import static org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.UpperSlideVars;
 
-public class UpperSlide {
-    HardwareMap hardwareMap;
-    public ServoImplEx arm1, arm2, swing, claw;
-    PwmControl.PwmRange swingRange = new PwmControl.PwmRange(500, 2500);
-    PwmControl.PwmRange armRange = new PwmControl.PwmRange(500, 2500);
-    PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1270);
-    public PIDController pidController;
-    static final double PI = 3.14;
-    static final double COUNTS_PER_MOTOR_REV = 28.0;
-    static final double WHEEL_CIRCUMFERENCE_MM = 34 * PI;
-    static final double DRIVE_GEAR_REDUCTION = 5.23;
-    static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
-    static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
-    public DcMotor slide1, slide2;
-    public DcMotor slide1Encoder, slide2Encoder;
+public class UpperSlide extends SubsystemBase {
+    // Hardware components
+    public ServoImplEx arm1;
+    public ServoImplEx arm2;
+    public ServoImplEx swing;
+    public ServoImplEx claw;
+    private DcMotor slide1, slide2;
 
-    public void initialize(HardwareMap map) {
-        hardwareMap = map;
-        pidController = new PIDController(
+    // Control ranges
+    private final PwmControl.PwmRange swingRange = new PwmControl.PwmRange(500, 2500);
+    private final PwmControl.PwmRange armRange = new PwmControl.PwmRange(500, 2500);
+    private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1270);
+
+    // Position control
+    public final PIDFController pidfController;
+
+    // Constants for encoder calculations
+    private static final double PI = 3.14;
+    private static final double COUNTS_PER_MOTOR_REV = 28.0;
+    private static final double WHEEL_CIRCUMFERENCE_MM = 34 * PI;
+    private static final double DRIVE_GEAR_REDUCTION = 5.23;
+    private static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
+    private static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
+
+    public UpperSlide() {
+        super("upperslide");
+        pidfController = new PIDFController(
                 UpperSlideVars.PID_KP,
                 UpperSlideVars.PID_KI,
                 UpperSlideVars.PID_KD,
                 UpperSlideVars.PID_KF);
-        // Initialize slide motors for power
-        slide1 = hardwareMap.get(DcMotor.class, ControlHub.motor(0));
-        slide2 = hardwareMap.get(DcMotor.class, ControlHub.motor(3));
-
-        // Initialize slide encoders
-        slide1Encoder = hardwareMap.get(DcMotor.class, ExpansionHub.motor(0));
-        slide2Encoder = hardwareMap.get(DcMotor.class, ExpansionHub.motor(3));
-
-        arm1 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(2));
-        arm1.setDirection(ServoImplEx.Direction.FORWARD);
-        arm1.setPwmRange(armRange);
-
-        arm2 = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(1));
-        arm2.setDirection(ServoImplEx.Direction.REVERSE);
-        arm2.setPwmRange(armRange);
-
-        swing = hardwareMap.get(ServoImplEx.class, ControlHub.servo(1));
-        swing.setDirection(ServoImplEx.Direction.FORWARD);
-        swing.setPwmRange(swingRange);
-
-        claw = hardwareMap.get(ServoImplEx.class, ControlHub.servo(3));
-        claw.setPwmRange(clawRange);
-
-        slide2.setDirection(DcMotor.Direction.REVERSE);
-        slide2Encoder.setDirection(DcMotorSimple.Direction.REVERSE);
-        slide1.setDirection(DcMotor.Direction.FORWARD);
-
-        // Set motors to run without encoder since we're using separate encoder ports
-        slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slide1Encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slide2Encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+    @Override
+    public void initialize(HardwareMap hardwareMap) {
+        // Initialize slide motors for power
+        slide1 = hardwareMap.get(DcMotor.class, ExpansionHub.motor(0));
+        slide2 = hardwareMap.get(DcMotor.class, ExpansionHub.motor(3));
+
+        // Initialize servos
+        arm1 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(2));
+        arm2 = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(1));
+        swing = hardwareMap.get(ServoImplEx.class, ControlHub.servo(1));
+        claw = hardwareMap.get(ServoImplEx.class, ControlHub.servo(3));
+
+        // Configure directions
+        slide2.setDirection(DcMotor.Direction.REVERSE);
+        slide1.setDirection(DcMotor.Direction.FORWARD);
+
+        arm1.setDirection(ServoImplEx.Direction.FORWARD);
+        arm2.setDirection(ServoImplEx.Direction.REVERSE);
+        swing.setDirection(ServoImplEx.Direction.FORWARD);
+
+        // Configure servo ranges
+        arm1.setPwmRange(armRange);
+        arm2.setPwmRange(armRange);
+        swing.setPwmRange(swingRange);
+        claw.setPwmRange(clawRange);
+
+        // Configure motor modes
+        slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    @Override
+    public void periodic(TelemetryPacket packet) {
+        // Add slide positions to telemetry
+        packet.put("upperslide/position1", slide1.getCurrentPosition());
+        packet.put("upperslide/position2", slide2.getCurrentPosition());
+        packet.put("upperslide/target", pidfController.destination);
+        packet.put("upperslide/error", slide1.getCurrentPosition() - pidfController.destination);
+
+        // Add servo positions to telemetry
+        packet.put("upperslide/arm1", arm1.getPosition());
+        packet.put("upperslide/arm2", arm2.getPosition());
+        packet.put("upperslide/swing", swing.getPosition());
+        packet.put("upperslide/claw", claw.getPosition());
+    }
+
+    /**
+     * Set slide position in centimeters
+     */
+    public void setPositionCM(double cm) {
+        pidfController.setDestination(Math.round(COUNTS_PER_CM * cm));
+    }
+
+    // Preset positions
     public void pos0() {
-        pidController.setDestination(Math.round(COUNTS_PER_CM * UpperSlideVars.POS_PRE_0_CM));
-        new Timeout(() -> pidController.setDestination(Math.round(COUNTS_PER_CM * UpperSlideVars.POS_0_CM)), 500);
+        setPositionCM(UpperSlideVars.POS_PRE_0_CM);
+        setPositionCM(UpperSlideVars.POS_0_CM);
     }
 
     public void pos1() {
-        // closeClaw();
-        pidController.setDestination(Math.round(COUNTS_PER_CM * UpperSlideVars.POS_1_CM));
-        // hang();
+        setPositionCM(UpperSlideVars.POS_1_CM);
     }
 
     public void pos2() {
-        pidController.setDestination(Math.round(COUNTS_PER_CM * UpperSlideVars.POS_2_CM));
+        setPositionCM(UpperSlideVars.POS_2_CM);
     }
 
     public void pos3() {
-        pidController.setDestination(Math.round(COUNTS_PER_CM * UpperSlideVars.POS_3_CM));
+        setPositionCM(UpperSlideVars.POS_3_CM);
     }
 
-    public void big(double x) {
-        arm1.setPosition(x);
-        arm2.setPosition(x);
+    // Arm position controls
+    public void setArmPosition(double position) {
+        arm1.setPosition(position);
+        arm2.setPosition(position);
     }
 
-    /*
-     * public void grab(){
-     * arm.setPosition(0);
-     * }
-     *
-     * public void pause(){
-     * arm.setPosition(0.25);
-     * }
-     * public void hang(){
-     * arm.setPosition(0.45);
-     * }
-     */
-
-    // public void transfer(){ arm.setPosition(0.5);}
-
-    public void out(double val) {
-        swing.setPosition(-val + 1);
+    public void setSwingPosition(double position) {
+        swing.setPosition(position);
     }
 
+    // Preset arm positions
     public void transfer() {
-        arm1.setPosition(UpperSlideVars.BEHIND_ARM_POS);
-        arm2.setPosition(UpperSlideVars.BEHIND_ARM_POS);
-        swing.setPosition(UpperSlideVars.BEHIND_SWING_POS);
+        setArmPosition(UpperSlideVars.BEHIND_ARM_POS);
+        setSwingPosition(UpperSlideVars.BEHIND_SWING_POS);
     }
 
     public void front() {
-        arm1.setPosition(UpperSlideVars.FRONT_ARM_POS);
-        arm2.setPosition(UpperSlideVars.FRONT_ARM_POS);
-        swing.setPosition(UpperSlideVars.FRONT_SWING_POS);
+        setArmPosition(UpperSlideVars.FRONT_ARM_POS);
+        setSwingPosition(UpperSlideVars.FRONT_SWING_POS);
     }
 
     public void offwall() {
-        arm1.setPosition(UpperSlideVars.OFFWALL_FRONT_ARM_POS);
-        arm2.setPosition(UpperSlideVars.OFFWALL_FRONT_ARM_POS);
-        swing.setPosition(UpperSlideVars.OFFWALL_FRONT_SWING_POS);
+        setArmPosition(UpperSlideVars.OFFWALL_FRONT_ARM_POS);
+        setSwingPosition(UpperSlideVars.OFFWALL_FRONT_SWING_POS);
     }
 
     public void scorespec() {
-        arm1.setPosition(UpperSlideVars.SCORESPEC_FRONT_ARM_POS);
-        arm2.setPosition(UpperSlideVars.SCORESPEC_FRONT_ARM_POS);
-        swing.setPosition(UpperSlideVars.SCORESPEC_FRONT_SWING_POS);
+        setArmPosition(UpperSlideVars.SCORESPEC_FRONT_ARM_POS);
+        setSwingPosition(UpperSlideVars.SCORESPEC_FRONT_SWING_POS);
     }
 
     public void keepPosExceptArms(double pos) {
@@ -160,6 +172,7 @@ public class UpperSlide {
         return swingPos;
     }
 
+    // Claw controls
     public void openClaw() {
         claw.setPosition(UpperSlideVars.CLAW_OPEN);
     }
@@ -168,12 +181,35 @@ public class UpperSlide {
         claw.setPosition(UpperSlideVars.CLAW_CLOSE);
     }
 
+    /**
+     * Update PID control and return the calculated power
+     */
     public double updatePID() {
-        double currentPosition = (slide1Encoder.getCurrentPosition() + slide2Encoder.getCurrentPosition()) / 2.0;
-        double power = pidController.calculate(currentPosition) * 0.8; // Power includes feedforward from PIDF
+        double currentPosition = (slide1.getCurrentPosition() + slide2.getCurrentPosition()) / 2.0;
+        double power = pidfController.calculate(currentPosition) * 0.8;
 
         slide1.setPower(power);
         slide2.setPower(power);
         return power;
+    }
+
+    @Override
+    public void stop() {
+        // Stop slide motors
+        slide1.setPower(0);
+        slide2.setPower(0);
+
+        // Disable PIDF control by setting destination to current position
+        pidfController.setDestination(getCurrentPosition());
+
+        // Move servos to safe positions
+        offwall();
+    }
+
+    /**
+     * Get the current position of the slide (average of both encoders)
+     */
+    public double getCurrentPosition() {
+        return (slide1.getCurrentPosition() + slide2.getCurrentPosition()) / 2.0;
     }
 }

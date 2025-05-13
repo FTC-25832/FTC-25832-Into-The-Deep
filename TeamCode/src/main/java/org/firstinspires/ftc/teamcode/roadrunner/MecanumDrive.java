@@ -73,14 +73,14 @@ public final class MecanumDrive {
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
 
         // drive model parameters
-        public double inPerTick = 0.00053546;
-        public double lateralInPerTick = 0.0004060388651;
-        public double trackWidthTicks = 20750.021403817;
+        public double inPerTick = 0.0005335675102;
+        public double lateralInPerTick = 0.0004081444909238228;
+        public double trackWidthTicks = 20822.310165720715;
 
         // feedforward parameters (in tick units)
-        // kV: 0.00009707993599647257, kS: 0.9721900656148792
-        public double kS = 0.8877909560895927;
-        public double kV = 0.00009849620561533806;
+        // kV: 0.00009838637639877366, kS: 1.02872909650401
+        public double kV = 0.00009838637639877366;
+        public double kS = 1.02872909650401;
         public double kA = 0.00001;
 
         // path profile parameters (in inches)
@@ -93,7 +93,7 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 7.0;
+        public double axialGain = 5.0;
         public double lateralGain = 8.0;
         public double headingGain = 10.0; // shared with turn
 
@@ -253,6 +253,12 @@ public final class MecanumDrive {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
         rightFront.setDirection(DcMotor.Direction.FORWARD);
+
+        // TODO: 111111
+//        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         // see

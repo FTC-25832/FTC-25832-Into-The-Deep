@@ -43,7 +43,7 @@ public final class TestSampleAuto extends LinearOpMode {
     private static final RobotPosition FULLSEND_END = new RobotPosition(23, 10, 180);
 
     public class lowSlide {
-        private LowerSlide lowslide;
+        private final LowerSlide lowslide;
         public lowSlide(HardwareMap hardwareMap) {
             lowslide = new LowerSlide();
             lowslide.initialize(hardwareMap);
@@ -103,7 +103,7 @@ public final class TestSampleAuto extends LinearOpMode {
     }
 
     public class upSlide {
-        private UpperSlide upslide;
+        private final UpperSlide upslide;
 
         public upSlide(HardwareMap hardwareMap) {
             upslide = new UpperSlide();
