@@ -23,16 +23,26 @@ import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 public final class AutoSample extends LinearOpMode {
 
         private SequentialAction scoreSequence(MecanumDrive drive, LowerSlideCommands lowerSlideCommands,
-                        UpperSlideCommands upperSlideCommands) {
+                        UpperSlideCommands upperSlideCommands, RobotPosition startPOS) {
                 return new SequentialAction(
+                                new ParallelAction(
+                                                drive.actionBuilder(startPOS.pose)
+                                                                .strafeToLinearHeading(SCORE.pos,
+                                                                                SCORE.heading)
+                                                                .build(),
+                                                upperSlideCommands.closeClaw(),
+                                                upperSlideCommands.scorespec(),
+                                                new SequentialAction(
+                                                                upperSlideCommands.slidePos3())),
+                                upperSlideCommands.front(),
                                 drive.actionBuilder(SCORE.pose)
                                                 .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
                                                 .build(),
                                 new ParallelAction(
                                                 upperSlideCommands.openClaw(),
                                                 lowerSlideCommands.setSlidePos(
-                                                                ConfigVariables.AutoTesting.lowerslideextendlength)),
-                                upperSlideCommands.scorespec());
+                                                                ConfigVariables.AutoTesting.lowerslideextendlength)));
+
         }
 
         private SequentialAction pickupAndScoreSequence(AutoPaths.RobotPosition pickupPos, MecanumDrive drive,
@@ -50,17 +60,15 @@ public final class AutoSample extends LinearOpMode {
                                 // Grab
                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
                                 // Drive to score while transferring
-                                new ParallelAction(
-                                                drive.actionBuilder(pickupPos.pose)
-                                                                .strafeToLinearHeading(SCORE.pos,
-                                                                                SCORE.heading)
-                                                                .build(),
+                                new SequentialAction(
                                                 new SequentialAction(
-                                                                lowerSlideCommands.up(),
-                                                                lowerSlideCommands.setSlidePos(0),
+                                                                new ParallelAction(
+                                                                                lowerSlideCommands.up(),
+                                                                                lowerSlideCommands.slidePos0()),
                                                                 drive.actionBuilder(SCORE.pose)
                                                                                 .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
                                                                                 .build(),
+                                                                upperSlideCommands.slidePos0(),
                                                                 upperSlideCommands.transfer(),
                                                                 drive.actionBuilder(SCORE.pose)
                                                                                 .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
@@ -69,18 +77,15 @@ public final class AutoSample extends LinearOpMode {
                                                                 drive.actionBuilder(SCORE.pose)
                                                                                 .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
                                                                                 .build(),
-                                                                upperSlideCommands.closeClaw(),
-                                                                drive.actionBuilder(SCORE.pose)
-                                                                                .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
-                                                                                .build(),
-                                                                upperSlideCommands.front(),
-                                                                upperSlideCommands.setSlidePos(
-                                                                                ConfigVariables.AutoTesting.UPPERSLIDE_POS_3))),
-                                // Drop
-                                drive.actionBuilder(SCORE.pose)
-                                                .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
-                                                .build(),
-                                upperSlideCommands.openClaw());
+                                                                upperSlideCommands.closeClaw()),
+
+                                                drive.actionBuilder(SCORE.pose)
+                                                        .waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S)
+                                                        .build(),
+                                                // Drop
+                                                scoreSequence(drive, lowerSlideCommands, upperSlideCommands,
+                                                                pickupPos)));
+
         }
 
         @Override
@@ -98,12 +103,11 @@ public final class AutoSample extends LinearOpMode {
                 // Initialize drive
                 MecanumDrive drive = new MecanumDrive(hardwareMap, START.pose);
 
-                // Start in a safe position
+                // Start position
                 Actions.runBlocking(
                                 new SequentialAction(
                                                 lowerSlideCommands.up(),
                                                 upperSlideCommands.offwall(),
-                                                upperSlideCommands.openClaw(),
                                                 upperSlideCommands.closeClaw()));
 
                 waitForStart();
@@ -114,24 +118,14 @@ public final class AutoSample extends LinearOpMode {
                 Actions.runBlocking(
                                 new SequentialAction(
                                                 // Score preload
-                                                new ParallelAction(
-                                                                drive.actionBuilder(START.pose)
-                                                                                .strafeToLinearHeading(SCORE.pos,
-                                                                                                SCORE.heading)
-                                                                                .build(),
-                                                                upperSlideCommands.closeClaw(),
-                                                                new SequentialAction(
-                                                                                upperSlideCommands.front(),
-                                                                                upperSlideCommands.setSlidePos(
-                                                                                                ConfigVariables.AutoTesting.UPPERSLIDE_POS_3))),
-                                                scoreSequence(drive, lowerSlideCommands, upperSlideCommands),
+                                                scoreSequence(drive, lowerSlideCommands, upperSlideCommands, START),
 
                                                 // Pickup and score sequences
                                                 pickupAndScoreSequence(PICKUP1, drive, lowerSlideCommands,
-                                                                upperSlideCommands, lowSlide),
-                                                pickupAndScoreSequence(PICKUP2, drive, lowerSlideCommands,
-                                                                upperSlideCommands, lowSlide),
-                                                pickupAndScoreSequence(PICKUP3, drive, lowerSlideCommands,
                                                                 upperSlideCommands, lowSlide)));
+                // pickupAndScoreSequence(PICKUP2, drive, lowerSlideCommands,
+                // upperSlideCommands, lowSlide),
+                // pickupAndScoreSequence(PICKUP3, drive, lowerSlideCommands,
+                // upperSlideCommands, lowSlide)));
         }
 }
