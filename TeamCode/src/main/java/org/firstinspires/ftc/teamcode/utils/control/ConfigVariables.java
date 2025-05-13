@@ -16,7 +16,7 @@ public class ConfigVariables {
 
         public static long DASHBOARD_UPDATE_INTERVAL_MS = 250;
         public static double HANGING_SERVOS_SPEED = 10; // pwm unit
-        public static double DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT = 0.5;
+        public static double DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT = 1;
         public static int DISTANCE_THRESHOLD_ENCODER = 50;
         public static int CLAW_OPERATION_TIMEOUT = 200;
         public static int ARM_OPERATION_TIMEOUT = 400;

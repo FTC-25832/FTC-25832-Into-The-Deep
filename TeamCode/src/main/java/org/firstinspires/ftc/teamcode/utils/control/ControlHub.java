@@ -2,10 +2,10 @@ package org.firstinspires.ftc.teamcode.utils.control;
 
 public class ControlHub {
         private static final String[] motorport = {
-                        "slide1", // slide 1 motor, leftpod encoder
+                        "rightBack", // slide 1 motor, leftpod encoder
                         "slide2",
-                        "podM",
-                        "podL"
+                        "leftFront",
+                        "leftBack"
         };
 
         private static final String[] servoport = {
