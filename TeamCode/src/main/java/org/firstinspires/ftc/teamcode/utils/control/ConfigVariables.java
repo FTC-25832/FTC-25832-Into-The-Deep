@@ -21,7 +21,13 @@ public class ConfigVariables {
         public static int CLAW_OPERATION_TIMEOUT = 200;
         public static int ARM_OPERATION_TIMEOUT = 400;
     }
-
+    @Config
+    public static class HangingTesting {
+        public static double pos1 = 0;
+        public static double pos2 = -1;
+        public static double pos3 = 1;
+        public static double pos4 = 0.2;
+    }
     @Config
     public static class AutoTesting {
         public static int lowerslideextendlength = 27;
@@ -38,7 +44,7 @@ public class ConfigVariables {
         public static int ANGLE_MAXNUM = 20;
         // public static int PID_UPDATE_TIMEOUT = 500;
         public static int ANGLE_OFFSET = 55;
-        public static double PID_KP = 0.01;
+        public static double PID_KP = 0.008;
         public static double PID_KI = 0.002;
         public static double PID_KD = 0.0;
         public static double PID_KF = 0.0;
@@ -76,7 +82,7 @@ public class ConfigVariables {
         public static double SCORESPEC_FRONT_SWING_POS = 0.65;
 
         public static double PID_KP = 0.01;
-        public static double PID_KI = 0.01;
+        public static double PID_KI = 0.001;
         public static double PID_KD = 0.0;
         public static double PID_KF = 0.0; // Feedforward gain for gravity compensation
     }
@@ -95,7 +101,7 @@ public class ConfigVariables {
 
         // slide positions
         public static double POS_0_CM = 0;
-        public static double POS_1_CM = 50;
+        public static double POS_1_CM = 35;
         public static double POS_2_CM = 0;
 
         // Claw positions

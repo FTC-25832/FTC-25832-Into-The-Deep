@@ -50,7 +50,7 @@ public class LowerSlide extends SubsystemBase {
 
         // Configure motor direction and mode
         slideMotor.setDirection(DcMotor.Direction.REVERSE);
-
+        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Initialize servos
@@ -177,8 +177,7 @@ public class LowerSlide extends SubsystemBase {
      * Update PID control and return the calculated power
      */
     public double updatePID() {
-        if (!PIDEnabled)
-            return 0;
+        if (!PIDEnabled) return 0;
         double power = pidController.calculate(slideMotor.getCurrentPosition());
         slideMotor.setPower(power);
         return power;

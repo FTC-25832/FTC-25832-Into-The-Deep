@@ -32,7 +32,10 @@ public class Hanging extends SubsystemBase {
         left.setDirection(Servo.Direction.FORWARD);
         left.setPwmRange(v4range);
     }
-
+    public void setPwm(double pwm){
+        left.setPosition(pwm);
+        right.setPosition(pwm);
+    }
     public void turnForward() {
         left.setPosition(ConfigVariables.General.HANGING_SERVOS_SPEED);
         right.setPosition(ConfigVariables.General.HANGING_SERVOS_SPEED);

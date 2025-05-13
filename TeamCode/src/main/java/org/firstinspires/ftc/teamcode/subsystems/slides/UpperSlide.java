@@ -73,6 +73,9 @@ public class UpperSlide extends SubsystemBase {
         swing.setPwmRange(swingRange);
         claw.setPwmRange(clawRange);
 
+        slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         // Configure motor modes
         slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
