@@ -151,7 +151,9 @@ public class CommandScheduler {
          * Cancel all running commands.
          */
         public void cancelAll() {
-                for (Command command : scheduledCommands) {
+                // Create a copy of the set to avoid concurrent modification
+                ArrayList<Command> commandsToCancel = new ArrayList<>(scheduledCommands);
+                for (Command command : commandsToCancel) {
                         cancel(command);
                 }
         }

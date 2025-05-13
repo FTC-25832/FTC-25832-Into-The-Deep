@@ -34,7 +34,7 @@ public abstract class SubsystemBase {
                 packet.put(name + "/hasDefaultCommand", defaultCommand != null);
                 packet.put(name + "/hasCurrentCommand", currentCommand != null);
                 if (currentCommand != null) {
-//                        packet.put(name + "/currentCommand", currentCommand.getName());
+                        // packet.put(name + "/currentCommand", currentCommand.getName());
                         packet.put(name + "/currentCommand", currentCommand);
                 }
         }
@@ -90,4 +90,11 @@ public abstract class SubsystemBase {
          */
         public void register() {
         }
+
+        /**
+         * Stop all hardware devices and cleanup subsystem state.
+         * Called when OpMode is stopping to ensure safe shutdown.
+         * Must be implemented by each subsystem to handle their specific hardware.
+         */
+        public abstract void stop();
 }

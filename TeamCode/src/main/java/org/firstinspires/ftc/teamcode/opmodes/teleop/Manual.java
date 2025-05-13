@@ -177,10 +177,10 @@ public class Manual extends LinearOpMode {
             double lowslidePower = lowslide.updatePID();
             telemetry.addData("upslide power", upslidePower);
             telemetry.addData("upslide destination", upslide.pidfController.destination);
-            telemetry.addData("upslide position", upslide.slide1Encoder.getCurrentPosition());
+            telemetry.addData("upslide position", upslide.getCurrentPosition());
             telemetry.addData("lowslide power", lowslidePower);
             telemetry.addData("lowslide destination", lowslide.pidController.destination);
-            telemetry.addData("lowslide position", lowslide.slideEncoder.getCurrentPosition());
+            telemetry.addData("lowslide position", lowslide.getCurrentPosition());
             // Create dashboard packet
             // TelemetryPacket packet = new TelemetryPacket();
             field = packet.fieldOverlay();

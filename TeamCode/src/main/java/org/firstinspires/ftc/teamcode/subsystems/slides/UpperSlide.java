@@ -21,8 +21,6 @@ public class UpperSlide extends SubsystemBase {
     public ServoImplEx swing;
     public ServoImplEx claw;
     private DcMotor slide1, slide2;
-    public DcMotor slide1Encoder;
-    public DcMotor slide2Encoder;
 
     // Control ranges
     private final PwmControl.PwmRange swingRange = new PwmControl.PwmRange(500, 2500);
@@ -52,12 +50,8 @@ public class UpperSlide extends SubsystemBase {
     @Override
     public void initialize(HardwareMap hardwareMap) {
         // Initialize slide motors for power
-        slide1 = hardwareMap.get(DcMotor.class, ControlHub.motor(0));
-        slide2 = hardwareMap.get(DcMotor.class, ControlHub.motor(3));
-
-        // Initialize slide encoders
-        slide1Encoder = hardwareMap.get(DcMotor.class, ExpansionHub.motor(0));
-        slide2Encoder = hardwareMap.get(DcMotor.class, ExpansionHub.motor(3));
+        slide1 = hardwareMap.get(DcMotor.class, ExpansionHub.motor(0));
+        slide2 = hardwareMap.get(DcMotor.class, ExpansionHub.motor(3));
 
         // Initialize servos
         arm1 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(2));
@@ -67,7 +61,6 @@ public class UpperSlide extends SubsystemBase {
 
         // Configure directions
         slide2.setDirection(DcMotor.Direction.REVERSE);
-        slide2Encoder.setDirection(DcMotorSimple.Direction.REVERSE);
         slide1.setDirection(DcMotor.Direction.FORWARD);
 
         arm1.setDirection(ServoImplEx.Direction.FORWARD);
@@ -83,17 +76,15 @@ public class UpperSlide extends SubsystemBase {
         // Configure motor modes
         slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slide1Encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slide2Encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     @Override
     public void periodic(TelemetryPacket packet) {
         // Add slide positions to telemetry
-        packet.put("upperslide/position1", slide1Encoder.getCurrentPosition());
-        packet.put("upperslide/position2", slide2Encoder.getCurrentPosition());
+        packet.put("upperslide/position1", slide1.getCurrentPosition());
+        packet.put("upperslide/position2", slide2.getCurrentPosition());
         packet.put("upperslide/target", pidfController.destination);
-        packet.put("upperslide/error", slide1Encoder.getCurrentPosition() - pidfController.destination);
+        packet.put("upperslide/error", slide1.getCurrentPosition() - pidfController.destination);
 
         // Add servo positions to telemetry
         packet.put("upperslide/arm1", arm1.getPosition());
@@ -194,7 +185,7 @@ public class UpperSlide extends SubsystemBase {
      * Update PID control and return the calculated power
      */
     public double updatePID() {
-        double currentPosition = (slide1Encoder.getCurrentPosition() + slide2Encoder.getCurrentPosition()) / 2.0;
+        double currentPosition = (slide1.getCurrentPosition() + slide2.getCurrentPosition()) / 2.0;
         double power = pidfController.calculate(currentPosition) * 0.8;
 
         slide1.setPower(power);
@@ -202,18 +193,23 @@ public class UpperSlide extends SubsystemBase {
         return power;
     }
 
-    /**
-     * Stop all slide movement
-     */
+    @Override
     public void stop() {
+        // Stop slide motors
         slide1.setPower(0);
         slide2.setPower(0);
+
+        // Disable PIDF control by setting destination to current position
+        pidfController.setDestination(getCurrentPosition());
+
+        // Move servos to safe positions
+        offwall();
     }
 
     /**
      * Get the current position of the slide (average of both encoders)
      */
     public double getCurrentPosition() {
-        return (slide1Encoder.getCurrentPosition() + slide2Encoder.getCurrentPosition()) / 2.0;
+        return (slide1.getCurrentPosition() + slide2.getCurrentPosition()) / 2.0;
     }
 }

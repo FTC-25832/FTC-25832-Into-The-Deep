@@ -55,12 +55,14 @@ public class LowerSlideCommands {
                 return new SlidePositionCommand(cm);
         }
 
-        public Action slidePos1() {
-                return setSlidePos(30); // 50cm
+        public Action slidePos0() {
+                return setSlidePos(LowerSlideVars.POS_0_CM);
         }
-
+        public Action slidePos1() {
+                return setSlidePos(LowerSlideVars.POS_1_CM);
+        }
         public Action slidePos2() {
-                return setSlidePos(0);
+                return setSlidePos(LowerSlideVars.POS_2_CM);
         }
 
         // PART1 AND PART2 COMMANDS
