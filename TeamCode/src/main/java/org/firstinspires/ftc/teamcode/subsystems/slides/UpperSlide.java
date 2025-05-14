@@ -21,7 +21,6 @@ public class UpperSlide extends SubsystemBase {
     public ServoImplEx swing;
     public ServoImplEx claw;
     private DcMotor slide1, slide2;
-
     // Control ranges
     private final PwmControl.PwmRange swingRange = new PwmControl.PwmRange(500, 2500);
     private final PwmControl.PwmRange armRange = new PwmControl.PwmRange(500, 2500);
@@ -188,7 +187,7 @@ public class UpperSlide extends SubsystemBase {
      * Update PID control and return the calculated power
      */
     public double updatePID() {
-        double currentPosition = (slide1.getCurrentPosition() + slide2.getCurrentPosition()) / 2.0;
+        double currentPosition = getCurrentPosition();
         double power = pidfController.calculate(currentPosition) * 0.8;
 
         slide1.setPower(power);
@@ -213,6 +212,6 @@ public class UpperSlide extends SubsystemBase {
      * Get the current position of the slide (average of both encoders)
      */
     public double getCurrentPosition() {
-        return (slide1.getCurrentPosition() + slide2.getCurrentPosition());
+        return slide1.getCurrentPosition();
     }
 }

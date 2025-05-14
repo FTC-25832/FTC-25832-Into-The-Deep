@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCalculated;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
@@ -287,7 +288,9 @@ public class Swerve extends LinearOpMode {
         if (gamepad1.right_bumper) {
             scheduler.schedule(new ActionCommand(lowslideActions.hover()));
         }
-
+        if (gamepad1.a){
+            scheduler.schedule(new DistanceAdjustCalculated(lowSlide, camera));
+        }
         if (gamepad1.x)
             scheduler.schedule(new ActionCommand(lowslideActions.slidePos1()));
         if (gamepad1.y)
@@ -295,9 +298,9 @@ public class Swerve extends LinearOpMode {
 
         if (gamepad1.dpad_up) {
             Command adjustCommand = new SequentialCommandGroup(
-                    new DistanceAdjustCommand(lowSlide, camera, gamepad1),
+//                    new DistanceAdjustCommand(lowSlide, camera, gamepad1),
                     new ActionCommand(lowslideActions.hover()),
-                    new AngleAdjustCommand(lowSlide, camera));
+                    new AngleAdjustCommand(lowSlide, camera, gamepad1));
             scheduler.schedule(adjustCommand);
         }
 
