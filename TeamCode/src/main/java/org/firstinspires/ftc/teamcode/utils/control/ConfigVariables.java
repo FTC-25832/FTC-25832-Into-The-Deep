@@ -30,8 +30,9 @@ public class ConfigVariables {
     }
     @Config
     public static class AutoTesting {
-        public static int lowerslideextendlength = 27;
-        public static double DROPDELAY_S = 0.5;
+        public static double lowerslideextendlength = 1;
+        public static double DROPDELAY_S = 1;
+
     }
 
     @Config
@@ -71,7 +72,7 @@ public class ConfigVariables {
         public static double POS_PRE_0_CM = 10.0;
         public static double POS_1_CM = 25.0;
         public static double POS_2_CM = 42.0;
-        public static double POS_3_CM = 40.0;
+        public static double POS_3_CM = 60.0;
 
         // offwall positions
         public static double OFFWALL_FRONT_ARM_POS = 0.85;
