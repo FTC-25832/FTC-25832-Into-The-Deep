@@ -73,6 +73,7 @@ public class AngleAdjustCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
+        camera.switchtoNeural();
         camera.reset();
     }
 }

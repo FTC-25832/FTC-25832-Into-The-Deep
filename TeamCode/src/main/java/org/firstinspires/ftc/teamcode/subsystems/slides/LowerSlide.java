@@ -205,4 +205,7 @@ public class LowerSlide extends SubsystemBase {
     public double getCurrentPosition() {
         return slideMotor.getCurrentPosition();
     }
+    public double getCurrentPositionCM(){
+        return slideMotor.getCurrentPosition() / COUNTS_PER_CM;
+    }
 }
