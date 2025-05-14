@@ -295,9 +295,9 @@ public class Swerve extends LinearOpMode {
 
         if (gamepad1.dpad_up) {
             Command adjustCommand = new SequentialCommandGroup(
-                    new DistanceAdjustCommand(lowSlide, camera, gamepad1),
+//                    new DistanceAdjustCommand(lowSlide, camera, gamepad1),
                     new ActionCommand(lowslideActions.hover()),
-                    new AngleAdjustCommand(lowSlide, camera));
+                    new AngleAdjustCommand(lowSlide, camera, gamepad1));
             scheduler.schedule(adjustCommand);
         }
 
