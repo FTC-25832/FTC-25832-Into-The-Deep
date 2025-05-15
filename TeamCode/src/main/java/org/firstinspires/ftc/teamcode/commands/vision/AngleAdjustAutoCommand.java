@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.commands.vision;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.robotcore.hardware.Gamepad;
-
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
@@ -12,18 +10,16 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 /**
  * Command to perform vision-assisted adjustments using Limelight
  */
-public class AngleAdjustCommand extends CommandBase {
+public class AngleAdjustAutoCommand extends CommandBase {
     private final LowerSlide lowSlide;
     private final Limelight camera;
-    // private final Gamepad gamepad1;
     private boolean isAngleAdjusted = false;
     private double angleAccum = 0;
     private double angleNum = 1;
 
-    public AngleAdjustCommand(LowerSlide lowSlide, Limelight camera) { // Gamepad gamepad1
+    public AngleAdjustAutoCommand(LowerSlide lowSlide, Limelight camera) {
         this.lowSlide = lowSlide;
         this.camera = camera;
-        // this.gamepad1 = gamepad1;
         addRequirement(lowSlide);
     }
 
@@ -32,10 +28,9 @@ public class AngleAdjustCommand extends CommandBase {
         isAngleAdjusted = false;
         angleAccum = 0;
         angleNum = 1;
-
+        camera.switchtoNeural();
         if (!camera.updateDetectorResult()) {
             isAngleAdjusted = true; // Skip if no detection
-            gamepad1.rumble(200);
             return;
         }
 
@@ -51,30 +46,24 @@ public class AngleAdjustCommand extends CommandBase {
         angleAccum += angle;
         angleNum += 1;
         packet.put("visionAdjust/angle", angle);
-        if (angleNum > ConfigVariables.Camera.ANGLE_MAXNUM) {
-            lowSlide.spinclawSetPositionDeg(angleAccum / angleNum);
-            angleAccum = 0;
-            angleNum = 1;
-        }
-        if (gamepad1.right_trigger > 0.5 || gamepad1.dpad_up) {
-            isAngleAdjusted = true;
-        }
     }
 
     // This command must be interrupted after 500ms to stop
     @Override
     public long getTimeout() {
-        return 0;
+        return 1000; // Timeout after 1000ms
     }
 
     @Override
     public boolean isFinished() {
-        return isAngleAdjusted;
+        return isAngleAdjusted || angleNum > ConfigVariables.Camera.ANGLE_MAXNUM;
     }
 
     @Override
     public void end(boolean interrupted) {
-        camera.switchtoNeural();
+        double averageAngle = angleAccum / angleNum;
+        lowSlide.spinclawSetPositionDeg(averageAngle);
+        isAngleAdjusted = true;
         camera.reset();
     }
 }
