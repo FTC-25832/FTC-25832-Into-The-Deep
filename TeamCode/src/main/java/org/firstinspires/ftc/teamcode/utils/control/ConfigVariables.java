@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.utils.control;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.sun.tools.javac.jvm.Gen;
+
+import java.util.ArrayList;
 //import com.bylazar.ftcontrol.panels.configurables.Configurables;
 
 @Config
@@ -15,6 +17,7 @@ public class ConfigVariables {
     public static class General {
 
         public static long DASHBOARD_UPDATE_INTERVAL_MS = 250;
+        public static double DRIVE_ROTATE_FACTOR = 0.5;
         public static double HANGING_SERVOS_SPEED = 10; // pwm unit
         public static double DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT = 1;
         public static int DISTANCE_THRESHOLD_ENCODER = 50;
@@ -37,21 +40,24 @@ public class ConfigVariables {
 
     @Config
     public static class Camera {
-         public static double CLAW_DISTANCE = 14; //cm
+         public static double CLAW_DISTANCE = 10.5; //cm
          public static double[] DISTANCE_MAP = {
                  CLAW_DISTANCE,
-                 15, 16, 17, 17.5, 18.3, // 5 per row, DO NOT format this
+                 14, 15.5, 16, 16.5, 17.3, // 5 per row, DO NOT format this
                  19.3, 20, 21, 22.5, 23.5,
                  24.3, 25.5, 26.5, 27.5, 28.5,
                  30, 31.5, 32.7, 34, 35.5,
                  37, 38, 40, 41.5, 43,
                  44, 45.5, 0, 0, 0
          };
-        public static double[] DISTANCE_MAP_NEGATIVE = { CLAW_DISTANCE, 13, 12, 11, 10 };
+         public static String[] ACCEPTED_COLORS = {
+                 "blue", "red", "yellow"
+         };
+        public static double[] DISTANCE_MAP_NEGATIVE = { CLAW_DISTANCE, 13.7, 13, 11.5, 10, 8.8, 7, 6, 5 };
         public static int ANGLE_MAXNUM = 15;
         public static int YACCUM_MAXNUM = 6;
         // public static int PID_UPDATE_TIMEOUT = 500;
-        public static int ANGLE_OFFSET = 55;
+        public static int ANGLE_OFFSET = 100;
         public static double PID_KP = 0.008;
         public static double PID_KI = 0.002;
         public static double PID_KD = 0.0;
@@ -110,7 +116,7 @@ public class ConfigVariables {
         // slide positions
         public static double POS_0_CM = 0;
         public static double POS_1_CM = 35;
-        public static double POS_2_CM = 10;
+        public static double POS_2_CM = 23;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;

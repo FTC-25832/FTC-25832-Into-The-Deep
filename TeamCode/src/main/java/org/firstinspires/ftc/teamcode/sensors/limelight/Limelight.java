@@ -5,6 +5,9 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
+
+import java.util.Arrays;
 import java.util.List;
 
 public class Limelight {
@@ -40,7 +43,13 @@ public class Limelight {
                 resultAvailable = false;
                 return false;
             }
-            detectorResult = detectorResults.get(0);
+            // get the first result whose classname is in ConfigVariables.Camera.ACCEPTED_COLORS
+            for (LLResultTypes.DetectorResult res : detectorResults){
+                if (Arrays.asList(ConfigVariables.Camera.ACCEPTED_COLORS).contains(res.getClassName())){
+                    detectorResult = res;
+                    break;
+                }
+            }
             resultAvailable = true;
             return true;
         }
@@ -83,7 +92,7 @@ public class Limelight {
     }
     public double getAngle(){
         if(!available) return 0;
-        return limelight.getLatestResult().getPythonOutput()[1] * 5;
+        return limelight.getLatestResult().getPythonOutput()[1];
     }
     public String getClassname(){
         if(!available ||!resultAvailable) return "blue";

@@ -32,7 +32,7 @@ public class DistanceAdjustCommand extends CommandBase {
     public void initialize() {
         isAdjusted = false;
         pidY.reset();
-        // lowSlide.setPIDEnabled(false);
+         lowSlide.setPIDEnabled(false);
         camera.switchtoNeural();
         if (!camera.updateDetectorResult()) {
             isAdjusted = true; // Skip if no detection
@@ -57,7 +57,7 @@ public class DistanceAdjustCommand extends CommandBase {
         // if (gamepad1.right_trigger > 0.5) {
         if (dy < ConfigVariables.Camera.DISTANCE_THRESHOLD) { //
             lowSlide.posNow(); // Hold current position
-//            lowSlide.setPIDEnabled(true);
+            lowSlide.setPIDEnabled(true);
             isAdjusted = true;
         }
     }
@@ -69,6 +69,7 @@ public class DistanceAdjustCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
+        lowSlide.setPIDEnabled(true);
         if (interrupted) {
             lowSlide.stop();
         }

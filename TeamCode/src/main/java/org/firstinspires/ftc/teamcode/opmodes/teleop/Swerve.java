@@ -291,6 +291,9 @@ public class Swerve extends LinearOpMode {
         if (gamepad1.a){
             scheduler.schedule(new DistanceAdjustCalculated(lowSlide, camera));
         }
+        if(gamepad1.b){
+            scheduler.schedule(new ActionCommand(lowslideActions.slidePos0()));
+        }
         if (gamepad1.x)
             scheduler.schedule(new ActionCommand(lowslideActions.slidePos1()));
         if (gamepad1.y)
