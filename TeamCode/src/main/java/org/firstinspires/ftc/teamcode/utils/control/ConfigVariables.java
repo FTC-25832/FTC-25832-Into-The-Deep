@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.utils.control;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.sun.tools.javac.jvm.Gen;
+
+import java.util.ArrayList;
 //import com.bylazar.ftcontrol.panels.configurables.Configurables;
 
 @Config
@@ -38,7 +40,7 @@ public class ConfigVariables {
 
     @Config
     public static class Camera {
-         public static double CLAW_DISTANCE = 12.5; //cm
+         public static double CLAW_DISTANCE = 10.5; //cm
          public static double[] DISTANCE_MAP = {
                  CLAW_DISTANCE,
                  14, 15.5, 16, 16.5, 17.3, // 5 per row, DO NOT format this
@@ -47,6 +49,9 @@ public class ConfigVariables {
                  30, 31.5, 32.7, 34, 35.5,
                  37, 38, 40, 41.5, 43,
                  44, 45.5, 0, 0, 0
+         };
+         public static String[] ACCEPTED_COLORS = {
+                 "blue", "red", "yellow"
          };
         public static double[] DISTANCE_MAP_NEGATIVE = { CLAW_DISTANCE, 13.7, 13, 11.5, 10, 8.8, 7, 6, 5 };
         public static int ANGLE_MAXNUM = 15;
@@ -111,7 +116,7 @@ public class ConfigVariables {
         // slide positions
         public static double POS_0_CM = 0;
         public static double POS_1_CM = 35;
-        public static double POS_2_CM = 10;
+        public static double POS_2_CM = 23;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;
