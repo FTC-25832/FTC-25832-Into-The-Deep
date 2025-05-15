@@ -2,10 +2,9 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
@@ -23,8 +22,9 @@ import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCalculated;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
+import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
-import org.firstinspires.ftc.teamcode.subsystems.drive.Drivetrain;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 import java.util.Set;
 import org.firstinspires.ftc.teamcode.subsystems.hang.Hanging;
@@ -35,15 +35,14 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
 @TeleOp(group = "TeleOp")
 public class Swerve extends LinearOpMode {
-    // Constants
+    // Drive system
+    private MecanumDrive drive;
 
     // Subsystems
-    private Drivetrain drive;
     private UpperSlide upSlide;
     private LowerSlide lowSlide;
     private Hanging hangingServos;
     private Limelight camera;
-    private IMU imu;
 
     // Commands
     private UpperSlideCommands upslideActions;
@@ -73,7 +72,7 @@ public class Swerve extends LinearOpMode {
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
         // Set default commands
-        drive.setDefaultCommand(new MecanumDriveCommand(drive, gamepad1, imu));
+        scheduler.schedule(new MecanumDriveCommand(drive, gamepad1));
 
         while (!isStopRequested() && !opModeIsActive()) {
             TelemetryPacket packet = new TelemetryPacket();
@@ -90,6 +89,13 @@ public class Swerve extends LinearOpMode {
             TelemetryPacket packet = new TelemetryPacket();
             scheduler.run(packet);
 
+            // Update pose estimate
+            drive.updatePoseEstimate();
+            Pose2d poseEstimate = drive.localizer.getPose();
+            packet.put("x", poseEstimate.position.x);
+            packet.put("y", poseEstimate.position.y);
+            packet.put("heading", Math.toDegrees(poseEstimate.heading.toDouble()));
+
             // Handle gamepad inputs
             handleUpperSlideControls();
             handleLowerSlideControls();
@@ -101,7 +107,8 @@ public class Swerve extends LinearOpMode {
             telemetry.update();
 
             // Update dashboard
-            if (System.currentTimeMillis() - lastDashboardUpdateTime >= ConfigVariables.General.DASHBOARD_UPDATE_INTERVAL_MS) {
+            if (System.currentTimeMillis()
+                    - lastDashboardUpdateTime >= ConfigVariables.General.DASHBOARD_UPDATE_INTERVAL_MS) {
                 dashboard.sendTelemetryPacket(packet);
                 lastDashboardUpdateTime = System.currentTimeMillis();
             }
@@ -116,41 +123,33 @@ public class Swerve extends LinearOpMode {
         scheduler.cancelAll();
 
         // Stop all subsystems
-        drive.stop();
         upSlide.stop();
         lowSlide.stop();
         hangingServos.stop();
-//        camera.stop();
+        // camera.stop();
 
         // Reset scheduler state
         scheduler.reset();
     }
 
     private void initializeSubsystems() {
-        // Initialize IMU
-        imu = hardwareMap.get(IMU.class, "imu");
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(logoDirection, usbDirection)));
-        imu.resetYaw();
+        // Initialize drive using pose from autonomous
+        drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
 
         // Initialize other subsystems
-        drive = new Drivetrain();
         upSlide = new UpperSlide();
         lowSlide = new LowerSlide();
         hangingServos = new Hanging();
         camera = new Limelight();
 
         // Register subsystems with scheduler
-        scheduler.registerSubsystem(drive);
         scheduler.registerSubsystem(upSlide);
         scheduler.registerSubsystem(lowSlide);
         scheduler.registerSubsystem(hangingServos);
 
-        // Initialize all subsystems, remember order for same ports so avoid conflicts
+        // Initialize all subsystems in proper order to avoid port conflicts
         upSlide.initialize(hardwareMap);
         lowSlide.initialize(hardwareMap);
-        drive.initialize(hardwareMap);
         hangingServos.initialize(hardwareMap);
         camera.initialize(hardwareMap);
         camera.cameraStart();
@@ -228,6 +227,7 @@ public class Swerve extends LinearOpMode {
 
         if (gamepad2.a)
             scheduler.schedule(new ActionCommand(upslideActions.slidePos0()));
+
         if (gamepad2.x)
             scheduler.schedule(new ActionCommand(upslideActions.slidePos1()));
         if (gamepad2.y)
@@ -314,7 +314,6 @@ public class Swerve extends LinearOpMode {
                     new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 90)));
     }
 
-    // hardware unfinished + code untested
     private void handleHangingControls() {
         if (gamepad2.right_trigger > 0)
             scheduler.schedule(new HangingCommand(hangingServos, HangingCommand.Direction.FORWARD));
