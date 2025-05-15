@@ -30,8 +30,8 @@ public class ConfigVariables {
     }
     @Config
     public static class AutoTesting {
-        public static double lowerslideextendlength = 1;
-        public static double DROPDELAY_S = 1;
+        public static double lowerslideextendlength = 1.5;
+        public static double DROPDELAY_S = 0.5;
 
     }
 
@@ -101,8 +101,8 @@ public class ConfigVariables {
     public static class LowerSlideVars {
         // Arm positions
         public static double GRAB_BIG = 0.93;
-        public static double GRAB_SMALL = 0.1;
-        public static double UP_BIG = 0.55;
+        public static double GRAB_SMALL = 0;
+        public static double UP_BIG = 0.58;
         public static double UP_SMALL = 1.0;
         public static double HOVER_BIG = 0.7;
         public static double HOVER_SMALL = 0.1;
@@ -110,7 +110,7 @@ public class ConfigVariables {
         // slide positions
         public static double POS_0_CM = 0;
         public static double POS_1_CM = 35;
-        public static double POS_2_CM = 0;
+        public static double POS_2_CM = 10;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;

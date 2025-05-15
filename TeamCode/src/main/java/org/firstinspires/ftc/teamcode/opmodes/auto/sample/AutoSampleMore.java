@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths;
@@ -31,13 +32,15 @@ import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
 @Autonomous
-public final class AutoSample extends LinearOpMode {
+public final class AutoSampleMore extends LinearOpMode {
         private MecanumDrive drive;
 
         private LowerSlide lowSlide;
         private LowerSlideCommands lowerSlideCommands;
         private UpperSlide upSlide;
         private UpperSlideCommands upperSlideCommands;
+
+        private Limelight camera;
 
         private Action waitSeconds(Pose2d pose, double seconds) {
                 return drive.actionBuilder(pose)
@@ -115,6 +118,9 @@ public final class AutoSample extends LinearOpMode {
                 lowerSlideCommands = new LowerSlideCommands(lowSlide);
                 upperSlideCommands = new UpperSlideCommands(upSlide);
 
+                // init camera
+                camera = new Limelight();
+
                 // Initialize drive with starting pose
                 drive = new MecanumDrive(hardwareMap, START.pose);
 
@@ -132,12 +138,31 @@ public final class AutoSample extends LinearOpMode {
                 // Full autonomous sequence
                 Actions.runBlocking(
                                 new SequentialAction(
-
+                                                // pre
                                                 scoreSequence(START),
 
+                                                // placed
                                                 pickupAndScoreSequence(SCORE, PICKUP1),
                                                 pickupAndScoreSequence(SCORE, PICKUP2),
-                                                pickupAndScoreSequence(SCORE, PICKUP3)
+                                                pickupAndScoreSequence(SCORE, PICKUP3),
+
+                                                // 0+5 now
+
+                                                // drive to tank
+                                                drive.actionBuilder(SCORE.pose)
+                                                                .strafeToLinearHeading(new Vector2d(38, 12),
+                                                                                Math.toRadians(180))
+                                                                .strafeToConstantHeading(new Vector2d(23, 12))
+                                                                .build(),
+
+                                                // fullsend
+                                                drive.actionBuilder(new Pose2d(23, 12, Math.toRadians(180)))
+                                                                .strafeToConstantHeading(new Vector2d(38, 12))
+                                                                .build(),
+
+                                                new DistanceAdjustCommand(lowSlide, camera).toAction(),
+                                                lowerSlideCommands.hover(),
+                                                new AngleAdjustCommand(lowSlide, camera).toAction()
 
                                 ));
 

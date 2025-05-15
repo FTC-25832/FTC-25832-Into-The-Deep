@@ -33,7 +33,7 @@ public class DistanceAdjustCalculated extends CommandBase {
     public void initialize() {
         isAdjusted = false;
         pidY.reset();
-        lowSlide.setPIDEnabled(false);
+//        lowSlide.setPIDEnabled(false);
         camera.switchtoNeural();
         if (!camera.updateDetectorResult()) {
             isAdjusted = true; // Skip if no detection

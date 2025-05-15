@@ -339,6 +339,6 @@ public class Swerve extends LinearOpMode {
         telemetry.addData("upslide power", upslidePower);
         telemetry.addData("upslide position", upSlide.pidfController.destination);
         telemetry.addData("lowslide power", lowslidePower);
-        telemetry.addData("lowslide position", lowSlide.pidController.destination);
+        telemetry.addData("lowslide position", lowSlide.pidfController.destination);
     }
 }

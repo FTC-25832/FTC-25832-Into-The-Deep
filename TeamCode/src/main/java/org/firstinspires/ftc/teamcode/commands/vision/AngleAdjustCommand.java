@@ -15,15 +15,15 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 public class AngleAdjustCommand extends CommandBase {
     private final LowerSlide lowSlide;
     private final Limelight camera;
-    private final Gamepad gamepad1;
+//    private final Gamepad gamepad1;
     private boolean isAngleAdjusted = false;
     private double angleAccum = 0;
     private double angleNum = 1;
 
-    public AngleAdjustCommand(LowerSlide lowSlide, Limelight camera, Gamepad gamepad1) {
+    public AngleAdjustCommand(LowerSlide lowSlide, Limelight camera) { // Gamepad gamepad1
         this.lowSlide = lowSlide;
         this.camera = camera;
-        this.gamepad1 = gamepad1;
+//        this.gamepad1 = gamepad1;
         addRequirement(lowSlide);
     }
 
@@ -55,7 +55,8 @@ public class AngleAdjustCommand extends CommandBase {
                 angleAccum = 0;
                 angleNum = 1;
             }
-            if(gamepad1.right_trigger > 0.5){
+//            if(gamepad1.right_trigger > 0.5){
+            if()
                 isAngleAdjusted = true;
             }
     }

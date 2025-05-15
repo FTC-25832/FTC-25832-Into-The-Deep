@@ -1,10 +1,16 @@
 package org.firstinspires.ftc.teamcode.commands.slide;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.LowerSlideVars;
+import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
 
 /**
  * Factory class for creating lower slide commands
@@ -41,7 +47,7 @@ public class LowerSlideCommands {
 
                 @Override
                 protected double getTargetPosition() {
-                        return lowSlide.pidController.destination;
+                        return lowSlide.pidfController.destination;
                 }
 
                 @Override
@@ -89,6 +95,21 @@ public class LowerSlideCommands {
 
         public Action setPart1Pos(double pos) {
                 return new Part1Command(pos);
+        }
+        public Action zero(HardwareMap hardwareMap) {
+                DcMotor slideMotor123;
+                slideMotor123 = hardwareMap.get(DcMotor.class, ExpansionHub.motor(2));
+
+                // Configure motor direction and mode
+                slideMotor123.setDirection(DcMotor.Direction.REVERSE);
+                slideMotor123.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                slideMotor123.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                return new Action() {
+                        @Override
+                        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                                return false;
+                        }
+                };
         }
 
         public Action setPart2Pos(double pos) {

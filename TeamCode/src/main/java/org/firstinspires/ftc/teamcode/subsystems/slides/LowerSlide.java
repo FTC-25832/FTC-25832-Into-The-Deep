@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
@@ -24,7 +25,7 @@ public class LowerSlide extends SubsystemBase {
     private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1150);
 
     // Position control
-    public final PIDController pidController;
+    public final PIDFController pidfController;
     private boolean PIDEnabled = true;
 
     // Constants for encoder calculations
@@ -37,10 +38,11 @@ public class LowerSlide extends SubsystemBase {
 
     public LowerSlide() {
         super("lowerslide");
-        pidController = new PIDController(
+        pidfController = new PIDFController(
                 LowerSlideVars.PID_KP,
                 LowerSlideVars.PID_KI,
-                LowerSlideVars.PID_KD);
+                LowerSlideVars.PID_KD,
+                0);
     }
 
     @Override
@@ -50,8 +52,8 @@ public class LowerSlide extends SubsystemBase {
 
         // Configure motor direction and mode
         slideMotor.setDirection(DcMotor.Direction.REVERSE);
-        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Initialize servos
         part2 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(0));
@@ -68,8 +70,6 @@ public class LowerSlide extends SubsystemBase {
         part2.setPwmRange(servoRange);
         spinclaw.setPwmRange(servoRange);
         claw.setPwmRange(clawRange);
-
-        PIDEnabled = true;
     }
 
     public void low(double val) {
@@ -86,8 +86,8 @@ public class LowerSlide extends SubsystemBase {
     public void periodic(TelemetryPacket packet) {
         // Add slide positions to telemetry
         packet.put("lowerslide/position", slideMotor.getCurrentPosition());
-        packet.put("lowerslide/target", pidController.destination);
-        packet.put("lowerslide/error", slideMotor.getCurrentPosition() - pidController.destination);
+        packet.put("lowerslide/target", pidfController.destination);
+        packet.put("lowerslide/error", slideMotor.getCurrentPosition() - pidfController.destination);
 
         // Add servo positions to telemetry
         packet.put("lowerslide/part1", part1.getPosition());
@@ -100,7 +100,7 @@ public class LowerSlide extends SubsystemBase {
      * Set slide position in centimeters
      */
     public void setPositionCM(double cm) {
-        pidController.setDestination(Math.round(COUNTS_PER_CM * cm));
+        pidfController.setDestination(Math.round(COUNTS_PER_CM * cm));
     }
 
     /**
@@ -114,7 +114,7 @@ public class LowerSlide extends SubsystemBase {
      * Hold current position
      */
     public void posNow() {
-        pidController.setDestination(slideMotor.getCurrentPosition());
+        pidfController.setDestination(slideMotor.getCurrentPosition());
     }
 
     /**
@@ -156,10 +156,14 @@ public class LowerSlide extends SubsystemBase {
 
     // Preset slide positions
 
-    public void setSlidePos0() { setPositionCM(LowerSlideVars.POS_0_CM); }
+    public void setSlidePos0() {
+        setPositionCM(LowerSlideVars.POS_0_CM);
+    }
+
     public void setSlidePos1() {
         setPositionCM(LowerSlideVars.POS_1_CM);
     }
+
     public void setSlidePos2() {
         setPositionCM(LowerSlideVars.POS_2_CM);
     }
@@ -177,21 +181,19 @@ public class LowerSlide extends SubsystemBase {
      * Update PID control and return the calculated power
      */
     public double updatePID() {
-        if (!PIDEnabled) return 0;
-        double power = pidController.calculate(slideMotor.getCurrentPosition());
+        double power = pidfController.calculate(slideMotor.getCurrentPosition());
         slideMotor.setPower(power);
         return power;
     }
 
-    public void setPIDEnabled(boolean enabled) {
-        this.PIDEnabled = enabled;
-    }
+    // public void setPIDEnabled(boolean enabled) {
+    // this.PIDEnabled = enabled;
+    // }
 
     @Override
     public void stop() {
         // Stop slide motor
         slideMotor.setPower(0);
-        setPIDEnabled(false);
 
         // Move servos to safe positions
         setPart1Position(LowerSlideVars.UP_BIG);
@@ -205,7 +207,8 @@ public class LowerSlide extends SubsystemBase {
     public double getCurrentPosition() {
         return slideMotor.getCurrentPosition();
     }
-    public double getCurrentPositionCM(){
+
+    public double getCurrentPositionCM() {
         return slideMotor.getCurrentPosition() / COUNTS_PER_CM;
     }
 }
