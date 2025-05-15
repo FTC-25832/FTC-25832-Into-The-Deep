@@ -182,14 +182,15 @@ public class LowerSlide extends SubsystemBase {
      * Update PID control and return the calculated power
      */
     public double updatePID() {
+        if(!PIDEnabled) return 0;
         double power = pidfController.calculate(slideMotor.getCurrentPosition());
         slideMotor.setPower(power);
         return power;
     }
 
-    // public void setPIDEnabled(boolean enabled) {
-    // this.PIDEnabled = enabled;
-    // }
+     public void setPIDEnabled(boolean enabled) {
+     this.PIDEnabled = enabled;
+     }
 
     @Override
     public void stop() {

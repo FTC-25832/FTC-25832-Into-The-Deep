@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
+import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -65,6 +66,7 @@ public final class AutoSample extends LinearOpMode {
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
                                 // lowerslide prepare for next cycle
                                 lowerSlideCommands.hover(),
+
                                 lowerSlideCommands.slidePos2(), // EXTEND
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
                                 upperSlideCommands.scorespec()); // score spec position for upperslides to go down
@@ -134,6 +136,7 @@ public final class AutoSample extends LinearOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 new LowerSlideUpdatePID(lowSlide).toAction(),
+                                new UpperSlideUpdatePID(upSlide).toAction(),
                                 new SequentialAction(
                                         scoreSequence(START),
                                         pickupAndScoreSequence(SCORE, PICKUP1),

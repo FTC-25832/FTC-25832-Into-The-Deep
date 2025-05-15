@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
 import java.util.Set;
 
@@ -44,7 +45,7 @@ public class MecanumDriveCommand implements Command {
                 // Pass in the rotated input + right stick value for rotation
                 drive.setDrivePowers(new PoseVelocity2d(
                                 rotated,
-                                -gamepad.right_stick_x));
+                                -gamepad.right_stick_x* ConfigVariables.General.DRIVE_ROTATE_FACTOR));
 
                 // Update drive pose
                 drive.updatePoseEstimate();
