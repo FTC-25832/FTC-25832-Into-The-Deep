@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
+import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
@@ -131,15 +132,15 @@ public final class AutoSample extends LinearOpMode {
 
                 // Full autonomous sequence
                 Actions.runBlocking(
+                        new ParallelAction(
+                                new LowerSlideUpdatePID(lowSlide).toAction(),
                                 new SequentialAction(
+                                        scoreSequence(START),
+                                        pickupAndScoreSequence(SCORE, PICKUP1),
+                                        pickupAndScoreSequence(SCORE, PICKUP2),
+                                        pickupAndScoreSequence(SCORE, PICKUP3)
+                        )));
 
-                                                scoreSequence(START),
-
-                                                pickupAndScoreSequence(SCORE, PICKUP1),
-                                                pickupAndScoreSequence(SCORE, PICKUP2),
-                                                pickupAndScoreSequence(SCORE, PICKUP3)
-
-                                ));
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
