@@ -52,8 +52,9 @@ public class LowerSlide extends SubsystemBase {
 
         // Configure motor direction and mode
         slideMotor.setDirection(DcMotor.Direction.REVERSE);
-        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         // Initialize servos
         part2 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(0));

@@ -35,6 +35,8 @@ public final class AutoPaths {
         public static final RobotPosition PICKUP3 = new RobotPosition(47.1, 47.1, -45);
         public static final RobotPosition SCORE = new RobotPosition(57, 57, 225);
 
+        public static final RobotPosition TANK = new RobotPosition(23, 12, 180);
+
         // Primary autonomous path points
         public static final double TEST_Y_VALUE = 61.5;
         public static final double TEST_Y_VALUE2 = 33;

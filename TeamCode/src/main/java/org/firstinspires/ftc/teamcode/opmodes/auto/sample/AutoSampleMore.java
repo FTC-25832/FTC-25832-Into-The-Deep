@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.bylazar.ftcontrol.panels.json.Pose;
 import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
+import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustAutoCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -41,7 +43,6 @@ public final class AutoSampleMore extends LinearOpMode {
         private UpperSlideCommands upperSlideCommands;
 
         private Limelight camera;
-
         private Action waitSeconds(Pose2d pose, double seconds) {
                 return drive.actionBuilder(pose)
                                 .waitSeconds(seconds)
@@ -155,14 +156,41 @@ public final class AutoSampleMore extends LinearOpMode {
                                                                 .strafeToConstantHeading(new Vector2d(23, 12))
                                                                 .build(),
 
-                                                // fullsend
-                                                drive.actionBuilder(new Pose2d(23, 12, Math.toRadians(180)))
-                                                                .strafeToConstantHeading(new Vector2d(38, 12))
-                                                                .build(),
+
+
 
                                                 new DistanceAdjustCommand(lowSlide, camera).toAction(),
                                                 lowerSlideCommands.hover(),
-                                                new AngleAdjustCommand(lowSlide, camera).toAction()
+                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
+
+
+
+                                                // Grab
+                                                waitSeconds(TANK.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                                new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
+                                                waitSeconds(TANK.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                                // retract, remember to keep pos_hover() when retracting slides
+                                                lowerSlideCommands.slidePos0(),
+                                                // lowerSlideCommands.zero(hardwareMap),
+
+                                                // transfer sequence
+                                                waitSeconds(TANK.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                                upperSlideCommands.transfer(),
+                                                lowerSlideCommands.up(),
+
+                                                waitSeconds(TANK.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                                lowerSlideCommands.openClaw(),
+
+                                                waitSeconds(TANK.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                                upperSlideCommands.closeClaw(),
+
+                                                // Score
+                                                // fullsend
+                                                waitSeconds(TANK.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                                drive.actionBuilder(TANK.pose)
+                                                                .strafeToConstantHeading(new Vector2d(38, 12))
+                                                                .build(),
+                                                scoreSequence(TANK)
 
                                 ));
 

@@ -1,26 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto.sample;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.robot.Robot;
 
-import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
-import org.firstinspires.ftc.teamcode.commands.base.Command;
-import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
-import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
-import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
@@ -31,7 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
 @Autonomous
-public final class AutoSample extends LinearOpMode {
+public final class AutoSampleLocalizerver extends LinearOpMode {
         private MecanumDrive drive;
 
         private LowerSlide lowSlide;
@@ -39,8 +27,8 @@ public final class AutoSample extends LinearOpMode {
         private UpperSlide upSlide;
         private UpperSlideCommands upperSlideCommands;
 
-        private Action waitSeconds(Pose2d pose, double seconds) {
-                return drive.actionBuilder(pose)
+        private Action waitSeconds(double seconds) {
+                return drive.actionBuilder(drive.localizer.getPose())
                                 .waitSeconds(seconds)
                                 .build();
         }
@@ -49,7 +37,7 @@ public final class AutoSample extends LinearOpMode {
                 return new SequentialAction(
 
                                 // Drive to score
-                                drive.actionBuilder(startPOS.pose)
+                                drive.actionBuilder(drive.localizer.getPose())
                                                 .strafeToLinearHeading(SCORE.pos, SCORE.heading)
                                                 .build(),
                                 upperSlideCommands.closeClaw(),
@@ -61,18 +49,18 @@ public final class AutoSample extends LinearOpMode {
                                 upperSlideCommands.openClaw(), // drop
                                 // SCORED
 
-                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S),
                                 // lowerslide prepare for next cycle
                                 lowerSlideCommands.hover(),
                                 lowerSlideCommands.slidePos2(), // EXTEND
-                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S),
                                 upperSlideCommands.scorespec()); // score spec position for upperslides to go down
         }
 
-        private SequentialAction pickupAndScoreSequence(RobotPosition startPOS, AutoPaths.RobotPosition pickupPos) {
+        private SequentialAction pickupAndScoreSequence(AutoPaths.RobotPosition pickupPos) {
                 return new SequentialAction(
                                 // Drive to pickup
-                                drive.actionBuilder(startPOS.pose)
+                                drive.actionBuilder(drive.localizer.getPose())
                                                 .strafeToLinearHeading(pickupPos.pos, pickupPos.heading)
                                                 .build(),
 
@@ -80,26 +68,26 @@ public final class AutoSample extends LinearOpMode {
                                 upperSlideCommands.slidePos0(),
 
                                 // Grab
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S),
                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S),
                                 // retract, remember to keep pos_hover() when retracting slides
                                 lowerSlideCommands.slidePos0(),
                                 // lowerSlideCommands.zero(hardwareMap),
 
                                 // transfer sequence
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S),
                                 upperSlideCommands.transfer(),
                                 lowerSlideCommands.up(),
 
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S),
                                 lowerSlideCommands.openClaw(),
 
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S),
                                 upperSlideCommands.closeClaw(),
 
                                 // Score
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                waitSeconds(ConfigVariables.AutoTesting.DROPDELAY_S),
                                 scoreSequence(pickupPos));
         }
 
@@ -135,13 +123,16 @@ public final class AutoSample extends LinearOpMode {
 
                                                 scoreSequence(START),
 
-                                                pickupAndScoreSequence(SCORE, PICKUP1),
-                                                pickupAndScoreSequence(SCORE, PICKUP2),
-                                                pickupAndScoreSequence(SCORE, PICKUP3)
+                                                pickupAndScoreSequence(PICKUP1),
+                                                pickupAndScoreSequence(PICKUP2),
+                                                pickupAndScoreSequence(PICKUP3)
 
                                 ));
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
+
+                // Update PID one final time
+                lowSlide.updatePID();
         }
 }
