@@ -59,6 +59,7 @@ public final class AutoSample extends LinearOpMode {
                                 upperSlideCommands.slidePos3(),
                                 // front pos for drop
                                 upperSlideCommands.front(),
+                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
                                 upperSlideCommands.openClaw(), // drop
                                 // SCORED
 
@@ -90,8 +91,10 @@ public final class AutoSample extends LinearOpMode {
 
                                 // transfer sequence
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
-                                upperSlideCommands.transfer(),
                                 lowerSlideCommands.up(),
+                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
+                                upperSlideCommands.transfer(),
+
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.DROPDELAY_S),
                                 lowerSlideCommands.openClaw(),
@@ -132,15 +135,13 @@ public final class AutoSample extends LinearOpMode {
 
                 // Full autonomous sequence
                 Actions.runBlocking(
-                        new ParallelAction(
-                                new LowerSlideUpdatePID(lowSlide).toAction(),
-                                new SequentialAction(
-                                        scoreSequence(START),
-                                        pickupAndScoreSequence(SCORE, PICKUP1),
-                                        pickupAndScoreSequence(SCORE, PICKUP2),
-                                        pickupAndScoreSequence(SCORE, PICKUP3)
-                        )));
-
+                                new ParallelAction(
+                                                new LowerSlideUpdatePID(lowSlide).toAction(),
+                                                new SequentialAction(
+                                                                scoreSequence(START),
+                                                                pickupAndScoreSequence(SCORE, PICKUP1),
+                                                                pickupAndScoreSequence(SCORE, PICKUP2),
+                                                                pickupAndScoreSequence(SCORE, PICKUP3))));
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
