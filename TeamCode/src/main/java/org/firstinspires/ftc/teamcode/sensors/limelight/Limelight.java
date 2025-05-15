@@ -83,7 +83,7 @@ public class Limelight {
     }
     public double getAngle(){
         if(!available) return 0;
-        return limelight.getLatestResult().getPythonOutput()[1] * 5;
+        return limelight.getLatestResult().getPythonOutput()[1];
     }
     public String getClassname(){
         if(!available ||!resultAvailable) return "blue";

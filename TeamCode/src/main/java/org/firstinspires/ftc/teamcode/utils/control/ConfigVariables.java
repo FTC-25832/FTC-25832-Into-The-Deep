@@ -52,7 +52,7 @@ public class ConfigVariables {
         public static int ANGLE_MAXNUM = 15;
         public static int YACCUM_MAXNUM = 6;
         // public static int PID_UPDATE_TIMEOUT = 500;
-        public static int ANGLE_OFFSET = 55;
+        public static int ANGLE_OFFSET = 100;
         public static double PID_KP = 0.008;
         public static double PID_KI = 0.002;
         public static double PID_KD = 0.0;
