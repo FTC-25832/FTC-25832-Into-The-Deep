@@ -24,6 +24,7 @@ public class ConfigVariables {
         public static int CLAW_OPERATION_TIMEOUT = 300;
         public static int ARM_OPERATION_TIMEOUT = 400;
     }
+
     @Config
     public static class HangingTesting {
         public static double pos1 = 0;
@@ -31,28 +32,40 @@ public class ConfigVariables {
         public static double pos3 = 1;
         public static double pos4 = 0.2;
     }
+
     @Config
     public static class AutoTesting {
-        public static double lowerslideextendlength = 1.5;
-        public static double DROPDELAY_S = 0.5;
+        public static double A_DROPDELAY_S = 0.5;
+
+        public static double B_DROPPEDAFTERDELAY_S = 0.1;
+        public static double C_AFTERGRABDELAY_S = 0.1;
+        public static double D_SLIDEPOS0AFTERDELAY_S = 0.1;
+        public static double E_LOWSLIDEUPAFTERDELAY_S = 0.35;
+        public static double F_TRANSFERAFTERDELAY_S = 0.2;
+        public static double G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S = 0.1;
+        public static double H_TRANSFERCOMPLETEAFTERDELAY_S = 0.2;
+
+        public static double Z_LowerslideExtend_FIRST = 23;
+        public static double Z_LowerslideExtend_SECOND = 23;
+        public static double Z_LowerslideExtend_THIRD = 23;
 
     }
 
     @Config
     public static class Camera {
-         public static double CLAW_DISTANCE = 10.5; //cm
-         public static double[] DISTANCE_MAP = {
-                 CLAW_DISTANCE,
-                 14, 15.5, 16, 16.5, 17.3, // 5 per row, DO NOT format this
-                 19.3, 20, 21, 22.5, 23.5,
-                 24.3, 25.5, 26.5, 27.5, 28.5,
-                 30, 31.5, 32.7, 34, 35.5,
-                 37, 38, 40, 41.5, 43,
-                 44, 45.5, 0, 0, 0
-         };
-         public static String[] ACCEPTED_COLORS = {
-                 "blue", "red", "yellow"
-         };
+        public static double CLAW_DISTANCE = 10.5; // cm
+        public static double[] DISTANCE_MAP = {
+                CLAW_DISTANCE,
+                14, 15.5, 16, 16.5, 17.3, // 5 per row, DO NOT format this
+                19.3, 20, 21, 22.5, 23.5,
+                24.3, 25.5, 26.5, 27.5, 28.5,
+                30, 31.5, 32.7, 34, 35.5,
+                37, 38, 40, 41.5, 43,
+                44, 45.5, 0, 0, 0
+        };
+        public static String[] ACCEPTED_COLORS = {
+                "blue", "red", "yellow"
+        };
         public static double[] DISTANCE_MAP_NEGATIVE = { CLAW_DISTANCE, 13.7, 13, 11.5, 10, 8.8, 7, 6, 5 };
         public static int ANGLE_MAXNUM = 15;
         public static int YACCUM_MAXNUM = 6;
@@ -71,10 +84,10 @@ public class ConfigVariables {
     // @Configurable
     public static class UpperSlideVars {
         // Arm positions
-        public static double FRONT_ARM_POS = 0.4;
+        public static double FRONT_ARM_POS = 0.5;
         public static double FRONT_SWING_POS = 0.4;
-        public static double BEHIND_ARM_POS = 0.20;
-        public static double BEHIND_SWING_POS = 1.0;
+        public static double BEHIND_ARM_POS = 0.18;
+        public static double BEHIND_SWING_POS = 0.85;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;
@@ -85,7 +98,7 @@ public class ConfigVariables {
         public static double POS_PRE_0_CM = 10.0;
         public static double POS_1_CM = 25.0;
         public static double POS_2_CM = 42.0;
-        public static double POS_3_CM = 60.0;
+        public static double POS_3_CM = 65.0;
 
         // offwall positions
         public static double OFFWALL_FRONT_ARM_POS = 0.85;
@@ -108,7 +121,7 @@ public class ConfigVariables {
         // Arm positions
         public static double GRAB_BIG = 0.93;
         public static double GRAB_SMALL = 0;
-        public static double UP_BIG = 0.58;
+        public static double UP_BIG = 0.53;
         public static double UP_SMALL = 1.0;
         public static double HOVER_BIG = 0.7;
         public static double HOVER_SMALL = 0.1;

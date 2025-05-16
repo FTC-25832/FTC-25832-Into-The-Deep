@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
@@ -7,6 +8,7 @@ import com.acmerobotics.roadrunner.Vector2d;
  * Shared autonomous path definitions for both robot code and MeepMeep
  * simulation
  */
+@Config
 public final class AutoPaths {
         // Robot dimensions (in inches)
         public static final double BOT_LENGTH = 15.748;
@@ -28,11 +30,10 @@ public final class AutoPaths {
 
         // Sample autonomous positions
         public static final RobotPosition START = new RobotPosition(40.1, 62, 270);
-        public static final RobotPosition PREPLACED = new RobotPosition(47, 46, -90); //?
-
-        public static final RobotPosition PICKUP1 = new RobotPosition(47.1, 47.1, -90);
-        public static final RobotPosition PICKUP2 = new RobotPosition(58, 47, -90);
-        public static final RobotPosition PICKUP3 = new RobotPosition(47.1, 47.1, -45);
+        public static final RobotPosition PREPLACED = new RobotPosition(47, 46, -90); // ?
+        public static final RobotPosition PICKUP1 = new RobotPosition(48.5, 47, -90);
+        public static final RobotPosition PICKUP2 = new RobotPosition(58.5, 47, -90);
+        public static final RobotPosition PICKUP3 = new RobotPosition(55.4, 40.1, -45);
         public static final RobotPosition SCORE = new RobotPosition(57, 57, 225);
 
         public static final RobotPosition TANK = new RobotPosition(23, 12, 180);
