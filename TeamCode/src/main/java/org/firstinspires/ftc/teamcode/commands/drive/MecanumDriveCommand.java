@@ -5,7 +5,9 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -16,10 +18,12 @@ import java.util.Set;
 public class MecanumDriveCommand implements Command {
         private final MecanumDrive drive;
         private final Gamepad gamepad;
+        private final IMU imu;
 
-        public MecanumDriveCommand(MecanumDrive drive, Gamepad gamepad) {
+        public MecanumDriveCommand(MecanumDrive drive, Gamepad gamepad, IMU imu) {
                 this.drive = drive;
                 this.gamepad = gamepad;
+                this.imu = imu;
         }
 
         @Override
@@ -28,14 +32,12 @@ public class MecanumDriveCommand implements Command {
 
         @Override
         public void execute(TelemetryPacket packet) {
-                // Read pose from localizer
-                Pose2d currentPose = drive.localizer.getPose();
-
                 // Create a vector from the gamepad x/y inputs
                 Vector2d input = new Vector2d(-gamepad.left_stick_y, -gamepad.left_stick_x);
 
                 // Rotate the input vector by the negative of the heading (field-centric)
-                double heading = currentPose.heading.toDouble();
+                double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+                // double heading = currentPose.heading.toDouble();
                 double cosHeading = Math.cos(-heading);
                 double sinHeading = Math.sin(-heading);
                 Vector2d rotated = new Vector2d(
@@ -45,15 +47,10 @@ public class MecanumDriveCommand implements Command {
                 // Pass in the rotated input + right stick value for rotation
                 drive.setDrivePowers(new PoseVelocity2d(
                                 rotated,
-                                -gamepad.right_stick_x* ConfigVariables.General.DRIVE_ROTATE_FACTOR));
-
-                // Update drive pose
-                drive.updatePoseEstimate();
+                                -gamepad.right_stick_x * ConfigVariables.General.DRIVE_ROTATE_FACTOR));
 
                 // Add telemetry
-                packet.put("x", currentPose.position.x);
-                packet.put("y", currentPose.position.y);
-                packet.put("heading", Math.toDegrees(currentPose.heading.toDouble()));
+                packet.put("heading", Math.toDegrees(heading));
         }
 
         @Override
