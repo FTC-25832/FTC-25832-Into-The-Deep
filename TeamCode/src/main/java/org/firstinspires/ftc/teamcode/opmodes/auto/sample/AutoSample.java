@@ -168,18 +168,17 @@ public final class AutoSample extends LinearOpMode {
 
                                                                 // end pos for teleop
                                                                 lowerSlideCommands.slidePos0(),
-                                                                upperSlideCommands.slidePos0()
-                                                // drive.actionBuilder(SCORE.pose)
-                                                // .turnTo(TELEOP_START.heading)
-                                                // .build(),
-                                                //
-                                                // drive.actionBuilder(new Pose2d(
-                                                // SCORE.pos,
-                                                // TELEOP_START.heading))
-                                                // .strafeToLinearHeading(TELEOP_START.pos,
-                                                // TELEOP_START.heading)
-                                                // .build()
-                                                )));
+                                                                upperSlideCommands.slidePos0(),
+                                                                drive.actionBuilder(SCORE.pose)
+                                                                                .turnTo(TELEOP_START.heading)
+                                                                                .build(),
+
+                                                                drive.actionBuilder(new Pose2d(
+                                                                                SCORE.pos,
+                                                                                TELEOP_START.heading))
+                                                                                .strafeToLinearHeading(TELEOP_START.pos,
+                                                                                                TELEOP_START.heading)
+                                                                                .build())));
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
