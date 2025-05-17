@@ -15,6 +15,7 @@ public class Limelight {
     LLResult result;
     public List<LLResultTypes.DetectorResult> detectorResults;
     public LLResultTypes.DetectorResult detectorResult;
+    private String[] ACCEPTED_COLORS = ConfigVariables.Camera.ACCEPTED_COLORS;
     public boolean available = true;
     public boolean resultAvailable = false;
     public Limelight3A limelight;
@@ -45,13 +46,14 @@ public class Limelight {
             }
             // get the first result whose classname is in ConfigVariables.Camera.ACCEPTED_COLORS
             for (LLResultTypes.DetectorResult res : detectorResults){
-                if (Arrays.asList(ConfigVariables.Camera.ACCEPTED_COLORS).contains(res.getClassName())){
+                if (Arrays.asList(ACCEPTED_COLORS).contains(res.getClassName())) {
                     detectorResult = res;
-                    break;
+                    resultAvailable = true;
+                    return true;
                 }
             }
-            resultAvailable = true;
-            return true;
+            resultAvailable = false;
+            return false;
         }
         resultAvailable = false;
         return false;
@@ -76,6 +78,15 @@ public class Limelight {
 //    }
     public void reset(){
         resultAvailable = false;
+    }
+    public void setAcceptedColors(boolean blue, boolean red, boolean yellow){
+        if(!available) return;
+        String[] colors = new String[3];
+        int i = 0;
+        if (blue) colors[i++] = "blue";
+        if (red) colors[i++] = "red";
+        if (yellow) colors[i++] = "yellow";
+        ACCEPTED_COLORS = Arrays.copyOf(colors, i);
     }
     public void setColor(String classname){
         if(!available) return;

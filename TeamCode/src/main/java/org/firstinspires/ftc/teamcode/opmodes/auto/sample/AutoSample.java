@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 //import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
+//import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -104,11 +105,11 @@ public final class AutoSample extends LinearOpMode {
                                 upperSlideCommands.transfer(),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.F_TRANSFERAFTERDELAY_S),
-                                lowerSlideCommands.openClaw(),
+                                upperSlideCommands.closeClaw(),
 
                                 waitSeconds(pickupPos.pose,
                                                 ConfigVariables.AutoTesting.G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S),
-                                upperSlideCommands.closeClaw(),
+                                lowerSlideCommands.openClaw(),
 
                                 // Score
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.H_TRANSFERCOMPLETEAFTERDELAY_S),
@@ -136,7 +137,7 @@ public final class AutoSample extends LinearOpMode {
                 Actions.runBlocking(
                                 new SequentialAction(
                                                 lowerSlideCommands.up(),
-                                                upperSlideCommands.offwall(),
+                                                upperSlideCommands.scorespec(),
                                                 upperSlideCommands.closeClaw()));
 
                 waitForStart();
@@ -161,20 +162,23 @@ public final class AutoSample extends LinearOpMode {
                                                                                 ConfigVariables.LowerSlideVars.ZERO
                                                                                                 + 90),
                                                                 pickupAndScoreSequence(SCORE, PICKUP3, 0),
+                                                                upperSlideCommands.setSlidePos(0),
+                                                                lowerSlideCommands.up(),
+                                                                upperSlideCommands.front(),
 
                                                                 // end pos for teleop
                                                                 lowerSlideCommands.slidePos0(),
                                                                 upperSlideCommands.slidePos0()
-//                                                                drive.actionBuilder(SCORE.pose)
-//                                                                                .turnTo(TELEOP_START.heading)
-//                                                                                .build(),
-//
-//                                                                drive.actionBuilder(new Pose2d(
-//                                                                                SCORE.pos,
-//                                                                                TELEOP_START.heading))
-//                                                                                .strafeToLinearHeading(TELEOP_START.pos,
-//                                                                                                TELEOP_START.heading)
-//                                                                                .build()
+                                                // drive.actionBuilder(SCORE.pose)
+                                                // .turnTo(TELEOP_START.heading)
+                                                // .build(),
+                                                //
+                                                // drive.actionBuilder(new Pose2d(
+                                                // SCORE.pos,
+                                                // TELEOP_START.heading))
+                                                // .strafeToLinearHeading(TELEOP_START.pos,
+                                                // TELEOP_START.heading)
+                                                // .build()
                                                 )));
 
                 // Save final pose for teleop

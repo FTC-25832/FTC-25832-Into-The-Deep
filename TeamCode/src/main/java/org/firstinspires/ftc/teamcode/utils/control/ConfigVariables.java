@@ -35,7 +35,7 @@ public class ConfigVariables {
 
     @Config
     public static class AutoTesting {
-        public static double A_DROPDELAY_S = 0.5;
+        public static double A_DROPDELAY_S = 0.7;
 
         public static double B_DROPPEDAFTERDELAY_S = 0.1;
         public static double C_AFTERGRABDELAY_S = 0.1;
@@ -45,9 +45,9 @@ public class ConfigVariables {
         public static double G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S = 0.05;
         public static double H_TRANSFERCOMPLETEAFTERDELAY_S = 0.2;
 
-        public static double Z_LowerslideExtend_FIRST = 19;
-        public static double Z_LowerslideExtend_SECOND = 19;
-        public static double Z_LowerslideExtend_THIRD = 17;
+        public static double Z_LowerslideExtend_FIRST = 18;
+        public static double Z_LowerslideExtend_SECOND = 18;
+        public static double Z_LowerslideExtend_THIRD = 15;
 
     }
 
@@ -86,7 +86,7 @@ public class ConfigVariables {
         // Arm positions
         public static double FRONT_ARM_POS = 0.5;
         public static double FRONT_SWING_POS = 0.25;
-        public static double BEHIND_ARM_POS = 0.18;
+        public static double BEHIND_ARM_POS = 0.2;
         public static double BEHIND_SWING_POS = 0.85;
 
         // Claw positions
@@ -106,7 +106,7 @@ public class ConfigVariables {
 
         // scorespec positions
         public static double SCORESPEC_FRONT_ARM_POS = 0.23;
-        public static double SCORESPEC_FRONT_SWING_POS = 0.65;
+        public static double SCORESPEC_FRONT_SWING_POS = 0.4;
 
         public static double PID_KP = 0.01;
         public static double PID_KI = 0.001;
