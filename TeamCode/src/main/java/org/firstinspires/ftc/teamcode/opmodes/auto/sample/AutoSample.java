@@ -104,10 +104,10 @@ public final class AutoSample extends LinearOpMode {
                                 upperSlideCommands.transfer(),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.F_TRANSFERAFTERDELAY_S),
-                                lowerSlideCommands.openClaw(),
+                                upperSlideCommands.closeClaw(),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S),
-                                upperSlideCommands.closeClaw(),
+                                lowerSlideCommands.openClaw(),
 
                                 // Score
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.H_TRANSFERCOMPLETEAFTERDELAY_S),
@@ -160,7 +160,7 @@ public final class AutoSample extends LinearOpMode {
                                                                 upperSlideCommands.front(),
 
                                                                 drive.actionBuilder(SCORE.pose)
-                                                                        .strafeToLinearHeading(new Vector2d(38,5), Math.toRadians(180))
+                                                                        .strafeToLinearHeading(new Vector2d(38,5), Math.toRadians(0))
                                                                         .strafeToConstantHeading(new Vector2d(23,5))
                                                                         .build(),
 
