@@ -86,7 +86,7 @@ public class ConfigVariables {
         // Arm positions
         public static double FRONT_ARM_POS = 0.5;
         public static double FRONT_SWING_POS = 0.25;
-        public static double BEHIND_ARM_POS = 0.2;
+        public static double BEHIND_ARM_POS = 0.18;
         public static double BEHIND_SWING_POS = 0.85;
 
         // Claw positions
@@ -96,17 +96,17 @@ public class ConfigVariables {
         // Slide positions (in cm)
         public static double POS_0_CM = 0.0;
         public static double POS_PRE_0_CM = 10.0;
-        public static double POS_1_CM = 25.0;
-        public static double POS_2_CM = 42.0;
+        public static double POS_1_CM = 13;
+        public static double POS_2_CM = 42;
         public static double POS_3_CM = 65.0;
 
         // offwall positions
         public static double OFFWALL_FRONT_ARM_POS = 0.85;
-        public static double OFFWALL_FRONT_SWING_POS = 0.80;
+        public static double OFFWALL_FRONT_SWING_POS = 0.40;
 
         // scorespec positions
         public static double SCORESPEC_FRONT_ARM_POS = 0.23;
-        public static double SCORESPEC_FRONT_SWING_POS = 0.4;
+        public static double SCORESPEC_FRONT_SWING_POS = 0.2;
 
         public static double PID_KP = 0.01;
         public static double PID_KI = 0.001;

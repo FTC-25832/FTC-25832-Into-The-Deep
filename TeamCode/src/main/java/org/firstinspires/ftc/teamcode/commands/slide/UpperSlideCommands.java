@@ -176,8 +176,8 @@ public class UpperSlideCommands {
 
         public Action offwall() {
                 return new SequentialAction(
-                                setArmPos(UpperSlideVars.OFFWALL_FRONT_ARM_POS),
-                                setSwingPos(UpperSlideVars.OFFWALL_FRONT_SWING_POS));
+                        setArmPos(UpperSlideVars.OFFWALL_FRONT_ARM_POS),
+                        setSwingPos(UpperSlideVars.OFFWALL_FRONT_SWING_POS));
         }
 
         public Action scorespec() {
