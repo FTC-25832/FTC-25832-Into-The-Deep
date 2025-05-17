@@ -35,7 +35,7 @@ import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
 @Autonomous
-public final class AutoSample extends LinearOpMode {
+public final class AutoSampleCamera extends LinearOpMode {
         private MecanumDrive drive;
 
         private LowerSlide lowSlide;
@@ -162,19 +162,30 @@ public final class AutoSample extends LinearOpMode {
                                                                                                 + 90),
                                                                 pickupAndScoreSequence(SCORE, PICKUP3, 0),
 
-                                                                // end pos for teleop
-                                                                lowerSlideCommands.slidePos0(),
-                                                                upperSlideCommands.slidePos0()
-//                                                                drive.actionBuilder(SCORE.pose)
-//                                                                                .turnTo(TELEOP_START.heading)
-//                                                                                .build(),
-//
-//                                                                drive.actionBuilder(new Pose2d(
-//                                                                                SCORE.pos,
-//                                                                                TELEOP_START.heading))
-//                                                                                .strafeToLinearHeading(TELEOP_START.pos,
-//                                                                                                TELEOP_START.heading)
-//                                                                                .build()
+                                                                drive.actionBuilder(SCORE.pose)
+                                                                                .strafeToLinearHeading(
+                                                                                                new Vector2d(38, 12),
+                                                                                                Math.toRadians(180))
+                                                                                .strafeToConstantHeading(
+                                                                                                new Vector2d(23, 12))
+                                                                                .build(),
+
+                                                                new DistanceAdjustCommand(lowSlide, camera).toAction(),
+                                                                lowerSlideCommands.hover(),
+                                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
+
+                                                                drive.actionBuilder(
+                                                                                new Pose2d(23, 12, Math.toRadians(180)))
+                                                                                .strafeToConstantHeading(
+                                                                                                new Vector2d(38, 12))
+                                                                                .build(),
+
+                                                                scoreSequence(new RobotPosition(38, 12, 180),
+                                                                                ConfigVariables.LowerSlideVars.POS_1_CM)
+                                                // .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
+                                                // .strafeToConstantHeading(SCORE.pos);
+                                                // .strafeToLinearHeading(SCORE.pos, SCORE.heading);
+
                                                 )));
 
                 // Save final pose for teleop

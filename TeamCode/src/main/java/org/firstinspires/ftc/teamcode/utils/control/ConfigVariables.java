@@ -42,12 +42,12 @@ public class ConfigVariables {
         public static double D_SLIDEPOS0AFTERDELAY_S = 0.1;
         public static double E_LOWSLIDEUPAFTERDELAY_S = 0.35;
         public static double F_TRANSFERAFTERDELAY_S = 0.2;
-        public static double G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S = 0.1;
+        public static double G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S = 0.05;
         public static double H_TRANSFERCOMPLETEAFTERDELAY_S = 0.2;
 
-        public static double Z_LowerslideExtend_FIRST = 23;
-        public static double Z_LowerslideExtend_SECOND = 23;
-        public static double Z_LowerslideExtend_THIRD = 23;
+        public static double Z_LowerslideExtend_FIRST = 19;
+        public static double Z_LowerslideExtend_SECOND = 19;
+        public static double Z_LowerslideExtend_THIRD = 17;
 
     }
 
@@ -85,7 +85,7 @@ public class ConfigVariables {
     public static class UpperSlideVars {
         // Arm positions
         public static double FRONT_ARM_POS = 0.5;
-        public static double FRONT_SWING_POS = 0.4;
+        public static double FRONT_SWING_POS = 0.25;
         public static double BEHIND_ARM_POS = 0.18;
         public static double BEHIND_SWING_POS = 0.85;
 

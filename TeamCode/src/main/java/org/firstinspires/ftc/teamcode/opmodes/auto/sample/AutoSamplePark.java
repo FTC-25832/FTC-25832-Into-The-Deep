@@ -35,7 +35,7 @@ import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
 @Autonomous
-public final class AutoSample extends LinearOpMode {
+public final class AutoSamplePark extends LinearOpMode {
         private MecanumDrive drive;
 
         private LowerSlide lowSlide;
@@ -162,20 +162,11 @@ public final class AutoSample extends LinearOpMode {
                                                                                                 + 90),
                                                                 pickupAndScoreSequence(SCORE, PICKUP3, 0),
 
-                                                                // end pos for teleop
-                                                                lowerSlideCommands.slidePos0(),
-                                                                upperSlideCommands.slidePos0()
-//                                                                drive.actionBuilder(SCORE.pose)
-//                                                                                .turnTo(TELEOP_START.heading)
-//                                                                                .build(),
-//
-//                                                                drive.actionBuilder(new Pose2d(
-//                                                                                SCORE.pos,
-//                                                                                TELEOP_START.heading))
-//                                                                                .strafeToLinearHeading(TELEOP_START.pos,
-//                                                                                                TELEOP_START.heading)
-//                                                                                .build()
-                                                )));
+                                                                //park
+                                                                drive.actionBuilder(SCORE.pose)
+                                                                        .strafeToLinearHeading(new Vector2d(38,0), Math.toRadians(0))
+                                                                        .strafeToConstantHeading(new Vector2d(23,0))
+                                                                        .build())));
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();

@@ -90,16 +90,20 @@ public final class AutoPaths {
                     .strafeToLinearHeading(SCORE.pos, SCORE.heading)
 
 
-//                    .strafeToLinearHeading(new Vector2d(38,32), Math.toRadians(180))
-                    .strafeToLinearHeading(new Vector2d(38,12), Math.toRadians(180))
+                //tank path
+//                    .strafeToLinearHeading(new Vector2d(38,12), Math.toRadians(180))
+//                    .strafeToConstantHeading(new Vector2d(23,12))
 
-                    .strafeToConstantHeading(new Vector2d(23,12))
-
-                    .strafeToConstantHeading(new Vector2d(38,12))
+//                    .strafeToConstantHeading(new Vector2d(38,12))
 //                    .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
 //                    .strafeToConstantHeading(SCORE.pos);
-                    .strafeToLinearHeading(SCORE.pos, SCORE.heading);
+//                    .strafeToLinearHeading(SCORE.pos, SCORE.heading);
 
+
+        //park path
+                //park path
+                .strafeToLinearHeading(new Vector2d(38,0), Math.toRadians(0))
+                .strafeToConstantHeading(new Vector2d(23,0));
 
 
 
