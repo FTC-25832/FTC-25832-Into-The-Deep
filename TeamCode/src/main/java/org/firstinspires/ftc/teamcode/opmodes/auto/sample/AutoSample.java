@@ -7,7 +7,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
+//import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -135,7 +135,7 @@ public final class AutoSample extends LinearOpMode {
                 Actions.runBlocking(
                                 new SequentialAction(
                                                 lowerSlideCommands.up(),
-                                                upperSlideCommands.offwall(),
+                                                upperSlideCommands.scorespec(),
                                                 upperSlideCommands.closeClaw()));
 
                 waitForStart();
@@ -155,10 +155,13 @@ public final class AutoSample extends LinearOpMode {
 
                                                                 lowerSlideCommands.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 90),
                                                                 pickupAndScoreSequence(SCORE, PICKUP3, 0),
+                                                                upperSlideCommands.setSlidePos(0),
+                                                                lowerSlideCommands.up(),
+                                                                upperSlideCommands.front(),
 
                                                                 drive.actionBuilder(SCORE.pose)
-                                                                        .strafeToLinearHeading(new Vector2d(38,12), Math.toRadians(180))
-                                                                        .strafeToConstantHeading(new Vector2d(23,12))
+                                                                        .strafeToLinearHeading(new Vector2d(38,5), Math.toRadians(180))
+                                                                        .strafeToConstantHeading(new Vector2d(23,5))
                                                                         .build(),
 
                                                                 new DistanceAdjustCommand(lowSlide, camera).toAction(),

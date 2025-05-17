@@ -243,14 +243,18 @@ public class Swerve extends LinearOpMode {
             scheduler.schedule(new ActionCommand(upslideActions.slidePos2()));
         if (gamepad2.b)
             scheduler.schedule(new ActionCommand(upslideActions.slidePos3()));
-        if (gamepad2.dpad_down)
+        if (gamepad2.dpad_down){
             scheduler.schedule(new ActionCommand(upslideActions.transfer()));
-        if (gamepad2.dpad_up)
+        }
+        if (gamepad2.dpad_up) {
             scheduler.schedule(new ActionCommand(upslideActions.front()));
-        if (gamepad2.dpad_left)
+        }
+        if (gamepad2.dpad_left){
             scheduler.schedule(new ActionCommand(upslideActions.offwall()));
-        if (gamepad2.dpad_right)
+        }
+        if (gamepad2.dpad_right){
             scheduler.schedule(new ActionCommand(upslideActions.scorespec()));
+        }
     }
 
     private void handleLowerSlideControls() {
@@ -298,10 +302,11 @@ public class Swerve extends LinearOpMode {
             scheduler.schedule(new ActionCommand(lowslideActions.hover()));
         }
         if (gamepad1.a) {
-            scheduler.schedule(new DistanceAdjustCalculated(lowSlide, camera));
+            //scheduler.schedule(new DistanceAdjustCalculated(lowSlide, camera));
+            scheduler.schedule(new ActionCommand(lowslideActions.slidePos0()));
         }
         if (gamepad1.b) {
-            scheduler.schedule(new ActionCommand(lowslideActions.slidePos0()));
+            imu.resetYaw();
         }
         if (gamepad1.x)
             scheduler.schedule(new ActionCommand(lowslideActions.slidePos1()));
