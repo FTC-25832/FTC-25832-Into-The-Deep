@@ -91,8 +91,8 @@ public final class AutoPaths {
 
 
                 //tank path
-//                    .strafeToLinearHeading(new Vector2d(38,12), Math.toRadians(180))
-//                    .strafeToConstantHeading(new Vector2d(23,12))
+                    .strafeToLinearHeading(new Vector2d(38,5), Math.toRadians(180))
+                    .strafeToConstantHeading(new Vector2d(23,5));
 
 //                    .strafeToConstantHeading(new Vector2d(38,12))
 //                    .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
@@ -102,8 +102,8 @@ public final class AutoPaths {
 
         //park path
                 //park path
-                .strafeToLinearHeading(new Vector2d(38,0), Math.toRadians(0))
-                .strafeToConstantHeading(new Vector2d(23,0));
+//                .strafeToLinearHeading(new Vector2d(38,0), Math.toRadians(0))
+//                .strafeToConstantHeading(new Vector2d(23,0));
 
 
 

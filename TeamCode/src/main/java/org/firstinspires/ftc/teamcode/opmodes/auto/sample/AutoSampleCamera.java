@@ -164,10 +164,10 @@ public final class AutoSampleCamera extends LinearOpMode {
 
                                                                 drive.actionBuilder(SCORE.pose)
                                                                                 .strafeToLinearHeading(
-                                                                                                new Vector2d(38, 12),
+                                                                                                new Vector2d(38, 5),
                                                                                                 Math.toRadians(180))
                                                                                 .strafeToConstantHeading(
-                                                                                                new Vector2d(23, 12))
+                                                                                                new Vector2d(23, 5))
                                                                                 .build(),
 
                                                                 new DistanceAdjustCommand(lowSlide, camera).toAction(),
@@ -177,10 +177,10 @@ public final class AutoSampleCamera extends LinearOpMode {
                                                                 drive.actionBuilder(
                                                                                 new Pose2d(23, 12, Math.toRadians(180)))
                                                                                 .strafeToConstantHeading(
-                                                                                                new Vector2d(38, 12))
+                                                                                                new Vector2d(38, 5))
                                                                                 .build(),
 
-                                                                scoreSequence(new RobotPosition(38, 12, 180),
+                                                                scoreSequence(new RobotPosition(38, 5, 180),
                                                                                 ConfigVariables.LowerSlideVars.POS_1_CM)
                                                 // .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
                                                 // .strafeToConstantHeading(SCORE.pos);
