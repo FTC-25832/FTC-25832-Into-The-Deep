@@ -9,7 +9,7 @@ import com.acmerobotics.roadrunner.Vector2d;
  * simulation
  */
 @Config
-public final class AutoPaths {
+public final class AutoPathSpecimenTemp {
         // Robot dimensions (in inches)
         public static final double BOT_LENGTH = 15.748;
         public static final double BOT_WIDTH = 13.386;
@@ -28,18 +28,14 @@ public final class AutoPaths {
                 }
         }
 
-        // Sample autonomous positions
-        public static final RobotPosition START = new RobotPosition(40.1, 62, 270);
-        public static final RobotPosition PREPLACED = new RobotPosition(47, 46, -90); // ?
-        public static final RobotPosition PICKUP1 = new RobotPosition(48.5, 47, -90);
-        public static final RobotPosition PICKUP2 = new RobotPosition(58.5, 47, -90);
-        public static final RobotPosition PICKUP3 = new RobotPosition(55.4, 40.1, -45);
-        public static final RobotPosition SCORE = new RobotPosition(57, 57, 225);
-
-        public static final RobotPosition TANK = new RobotPosition(23, 12, 180);
+        // Specimen autonomous positions
+        public static final RobotPosition START = new RobotPosition(-6.5, 62, -90);
+        public static final RobotPosition PICKUP1 = new RobotPosition(-48.5, 47, -90);
+        public static final RobotPosition PICKUP2 = new RobotPosition(-58.5, 47, -90);
+        public static final RobotPosition PICKUP3 = new RobotPosition(-55.4, 40.1, -45);
 
 
-        // vvvv these mostly arent used rn vvvv
+
         // Primary autonomous path points
         public static final double TEST_Y_VALUE = 61.5;
         public static final double TEST_Y_VALUE2 = 33;
@@ -68,3 +64,4 @@ public final class AutoPaths {
         public static final double MAX_ANG_VEL = 55;
         public static final double MAX_ANG_ACCEL = 60;
 }
+

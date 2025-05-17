@@ -44,8 +44,6 @@ public final class AutoSample extends LinearOpMode {
         private UpperSlide upSlide;
         private UpperSlideCommands upperSlideCommands;
 
-        private Limelight camera;
-
         private Action waitSeconds(Pose2d pose, double seconds) {
                 return drive.actionBuilder(pose)
                                 .waitSeconds(seconds)
@@ -127,8 +125,6 @@ public final class AutoSample extends LinearOpMode {
                 // Initialize command factories
                 lowerSlideCommands = new LowerSlideCommands(lowSlide);
                 upperSlideCommands = new UpperSlideCommands(upSlide);
-
-                camera = new Limelight();
 
                 // Initialize drive with starting pose
                 drive = new MecanumDrive(hardwareMap, START.pose);
