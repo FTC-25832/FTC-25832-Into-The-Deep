@@ -16,7 +16,9 @@ import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
+import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
+import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideUpdatePID;
@@ -27,13 +29,21 @@ import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
+import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
+import org.firstinspires.ftc.teamcode.subsystems.hang.Hanging;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths;
+import org.firstinspires.ftc.teamcode.utils.ClawController;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
+
+import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
+import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceCommand;
+
+import java.util.Set;
 
 @Autonomous
 public final class AutoSample extends LinearOpMode {
@@ -45,6 +55,8 @@ public final class AutoSample extends LinearOpMode {
         private UpperSlideCommands upperSlideCommands;
 
         private Limelight camera;
+
+        private Hanging hangingServos;
 
         private Action waitSeconds(Pose2d pose, double seconds) {
                 return drive.actionBuilder(pose)
@@ -68,16 +80,18 @@ public final class AutoSample extends LinearOpMode {
                                 upperSlideCommands.front(),
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
 
-                                new ParallelAction(
-                                                upperSlideCommands.openClaw(), // drop
-                                                // SCORED
+                                upperSlideCommands.openClaw(), // drop
+                                // SCORED
 
-                                                // lowerslide prepare for next cycle
-                                                lowerSlideCommands.hover(),
-                                                lowerSlideCommands.setSlidePos(lowerslideExtendLength)// EXTEND
-                                ),
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.B_DROPPEDAFTERDELAY_S),
-                                upperSlideCommands.scorespec()); // score spec position for upperslides to go down
+
+                                // lowerslide prepare for next cycle
+                                lowerSlideCommands.hover(),
+                                lowerSlideCommands.setSlidePos(lowerslideExtendLength), // EXTEND
+
+                                upperSlideCommands.scorespec() // score spec position for upperslides to go down
+
+                );
         }
 
         private SequentialAction pickupAndScoreSequence(RobotPosition startPOS, AutoPaths.RobotPosition pickupPos,
@@ -128,10 +142,14 @@ public final class AutoSample extends LinearOpMode {
                 lowerSlideCommands = new LowerSlideCommands(lowSlide);
                 upperSlideCommands = new UpperSlideCommands(upSlide);
 
+                hangingServos = new Hanging();
+
                 camera = new Limelight();
 
                 // Initialize drive with starting pose
                 drive = new MecanumDrive(hardwareMap, START.pose);
+
+                hangingServos.initialize(hardwareMap);
 
                 // Start position
                 Actions.runBlocking(
@@ -164,11 +182,23 @@ public final class AutoSample extends LinearOpMode {
                                                                 pickupAndScoreSequence(SCORE, PICKUP3, 0),
                                                                 upperSlideCommands.setSlidePos(0),
                                                                 lowerSlideCommands.up(),
-                                                                upperSlideCommands.front(),
+                                                                upperSlideCommands.scorespec(),
 
-                                                                // end pos for teleop
                                                                 lowerSlideCommands.slidePos0(),
-                                                                upperSlideCommands.slidePos0()
+                                                                upperSlideCommands.slidePos0(),
+
+                                                                drive.actionBuilder(SCORE.pose)
+                                                                        .strafeToLinearHeading(new Vector2d(38,5), Math.toRadians(0))
+                                                                        .strafeToConstantHeading(new Vector2d(23,5))
+                                                                        .build(),
+                                                                new HangingCommand(hangingServos, HangingCommand.Direction.FORWARD).toAction()
+
+
+
+
+
+                                                        // end pos for teleop
+
                                                 // drive.actionBuilder(SCORE.pose)
                                                 // .turnTo(TELEOP_START.heading)
                                                 // .build(),

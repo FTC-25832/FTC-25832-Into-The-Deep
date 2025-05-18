@@ -35,9 +35,9 @@ public class ConfigVariables {
 
     @Config
     public static class AutoTesting {
-        public static double A_DROPDELAY_S = 0.7;
+        public static double A_DROPDELAY_S = 0.5;
 
-        public static double B_DROPPEDAFTERDELAY_S = 0.1;
+        public static double B_DROPPEDAFTERDELAY_S = 0.4;
         public static double C_AFTERGRABDELAY_S = 0.1;
         public static double D_SLIDEPOS0AFTERDELAY_S = 0.1;
         public static double E_LOWSLIDEUPAFTERDELAY_S = 0.35;
@@ -85,20 +85,20 @@ public class ConfigVariables {
     public static class UpperSlideVars {
         // Arm positions
         public static double FRONT_ARM_POS = 0.5;
-        public static double FRONT_SWING_POS = 0.25;
-        public static double BEHIND_ARM_POS = 0.18;
+        public static double FRONT_SWING_POS = 0;
+        public static double BEHIND_ARM_POS = 0.21;
         public static double BEHIND_SWING_POS = 0.85;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;
-        public static double CLAW_CLOSE = 0.0;
+        public static double CLAW_CLOSE = 0.2;
 
         // Slide positions (in cm)
         public static double POS_0_CM = 0.0;
         public static double POS_PRE_0_CM = 10.0;
         public static double POS_1_CM = 13;
         public static double POS_2_CM = 42;
-        public static double POS_3_CM = 65.0;
+        public static double POS_3_CM = 70;
 
         // offwall positions
         public static double OFFWALL_FRONT_ARM_POS = 0.85;
@@ -123,7 +123,7 @@ public class ConfigVariables {
         public static double GRAB_SMALL = 0;
         public static double UP_BIG = 0.53;
         public static double UP_SMALL = 1.0;
-        public static double HOVER_BIG = 0.7;
+        public static double HOVER_BIG = 0.6;
         public static double HOVER_SMALL = 0.1;
 
         // slide positions
