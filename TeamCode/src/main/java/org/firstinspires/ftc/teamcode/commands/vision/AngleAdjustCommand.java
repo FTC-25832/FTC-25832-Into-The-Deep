@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.commands.vision;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
@@ -15,15 +14,14 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 public class AngleAdjustCommand extends CommandBase {
     private final LowerSlide lowSlide;
     private final Limelight camera;
-     private final Gamepad gamepad1;
     private boolean isAngleAdjusted = false;
     private double angleAccum = 0;
     private double angleNum = 1;
+    private long startTime; // For timeout
 
-    public AngleAdjustCommand(LowerSlide lowSlide, Limelight camera, Gamepad gamepad1) { // Gamepad gamepad1
+    public AngleAdjustCommand(LowerSlide lowSlide, Limelight camera) {
         this.lowSlide = lowSlide;
         this.camera = camera;
-         this.gamepad1 = gamepad1;
         addRequirement(lowSlide);
     }
 
@@ -32,10 +30,11 @@ public class AngleAdjustCommand extends CommandBase {
         isAngleAdjusted = false;
         angleAccum = 0;
         angleNum = 1;
+        startTime = System.currentTimeMillis();
 
         if (!camera.updateDetectorResult()) {
             isAngleAdjusted = true; // Skip if no detection
-            gamepad1.rumble(200);
+            // gamepad1.rumble(200); // Removed gamepad dependency
             return;
         }
 
@@ -53,23 +52,27 @@ public class AngleAdjustCommand extends CommandBase {
         packet.put("visionAdjust/angle", angle);
         if (angleNum > ConfigVariables.Camera.ANGLE_MAXNUM) {
             lowSlide.spinclawSetPositionDeg(angleAccum / angleNum);
-            angleAccum = 0;
-            angleNum = 1;
+            angleAccum = 0; // Reset after adjustment
+            angleNum = 1;   // Reset after adjustment
+            // isAngleAdjusted = true; // Consider finishing after one successful adjustment cycle
         }
-        if (gamepad1.right_trigger > 0.5 || gamepad1.dpad_up) {
-            isAngleAdjusted = true;
-        }
+        // Removed: if (gamepad1.right_trigger > 0.5 || gamepad1.dpad_up) { isAngleAdjusted = true; }
     }
 
-    // This command must be interrupted after 500ms to stop
+    // This command must be interrupted after 500ms to stop (Original comment)
+    // Implementing timeout via isFinished()
     @Override
     public long getTimeout() {
-        return 0;
+        return 500; // Informational, actual logic in isFinished
     }
 
     @Override
     public boolean isFinished() {
-        return isAngleAdjusted;
+        if (isAngleAdjusted) { // Handles case where camera detection fails
+            return true;
+        }
+        // Finish if timeout is reached
+        return (System.currentTimeMillis() - startTime) >= 500;
     }
 
     @Override

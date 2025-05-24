@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class SequentialCommandGroup extends CommandBase {
+public class SequentialCommandGroup extends CommandGroupBase { // Changed to CommandGroupBase
     private final List<Command> commands;
     private int currentCommandIndex = -1;
     private Command currentCommand = null;
@@ -18,7 +18,9 @@ public class SequentialCommandGroup extends CommandBase {
         this.commands = new ArrayList<>();
         for (Command cmd : commands) {
             this.commands.add(cmd);
-            // 合并所有子命令的requirements
+            // Requirements are aggregated using addRequirement from CommandBase,
+            // which is fine as CommandGroupBase inherits from CommandBase.
+            // This ensures all child command requirements are added to this group's requirements.
             cmd.getRequirements().forEach(this::addRequirement);
         }
     }
