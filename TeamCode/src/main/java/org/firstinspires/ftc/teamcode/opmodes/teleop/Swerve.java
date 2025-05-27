@@ -98,6 +98,10 @@ public class Swerve extends LinearOpMode {
             double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             packet.put("heading", heading);
 
+            // Add upperslide power to dashboard
+            double upslidePower = upSlide.updatePID();
+            packet.put("upperslide power", upslidePower);
+
             // Handle gamepad inputs
             handleUpperSlideControls();
             handleLowerSlideControls();
@@ -143,7 +147,8 @@ public class Swerve extends LinearOpMode {
         imu.resetYaw();
 
         // Initialize drive
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)));
+        drive = new MecanumDrive(hardwareMap,
+                new Pose2d(0, 0, imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)));
 
         // Initialize other subsystems
         upSlide = new UpperSlide();
@@ -243,16 +248,16 @@ public class Swerve extends LinearOpMode {
             scheduler.schedule(new ActionCommand(upslideActions.slidePos2()));
         if (gamepad2.b)
             scheduler.schedule(new ActionCommand(upslideActions.slidePos3()));
-        if (gamepad2.dpad_down){
+        if (gamepad2.dpad_down) {
             scheduler.schedule(new ActionCommand(upslideActions.transfer()));
         }
         if (gamepad2.dpad_up) {
             scheduler.schedule(new ActionCommand(upslideActions.front()));
         }
-        if (gamepad2.dpad_left){
+        if (gamepad2.dpad_left) {
             scheduler.schedule(new ActionCommand(upslideActions.offwall()));
         }
-        if (gamepad2.dpad_right){
+        if (gamepad2.dpad_right) {
             scheduler.schedule(new ActionCommand(upslideActions.scorespec()));
         }
     }
@@ -302,7 +307,7 @@ public class Swerve extends LinearOpMode {
             scheduler.schedule(new ActionCommand(lowslideActions.hover()));
         }
         if (gamepad1.a) {
-            //scheduler.schedule(new DistanceAdjustCalculated(lowSlide, camera));
+            // scheduler.schedule(new DistanceAdjustCalculated(lowSlide, camera));
             scheduler.schedule(new ActionCommand(lowslideActions.slidePos0()));
         }
         if (gamepad1.b) {
