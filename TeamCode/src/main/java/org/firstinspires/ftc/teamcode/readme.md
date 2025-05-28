@@ -1,110 +1,5 @@
-## Load Plugin
-add this to the top of your `TeamCode` `build.gradle`
-```groovy
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://repo.dairy.foundation/releases"
-        }
-    }
-    dependencies {
-        classpath "dev.frozenmilk:Load:0.2.1"
-    }
-}
-```
-
-add this after the apply lines in the same file
-```groovy
-// there should be 2 or 3 more lines that start with apply here
-apply plugin: 'dev.frozenmilk.sinister.sloth.load'
-```
-
-sync and download onto your robot via standard install
-
-now add the gradle tasks
-
-NOTE: if you use dashboard, install that now, then setup the gradle tasks
-
-## Dashboard
-add the dairy releases repository to your `TeamCode` `build.gradle`, above the `dependencies` block (if you already have it, no need to do so again)
-```groovy
-repositories {
-    maven {
-        url = "https://repo.dairy.foundation/releases"
-    }
-}
-```
-
-then add dashboard to the `dependencies` block:
-```groovy
-dependencies {
-    implementation("com.acmerobotics.slothboard:dashboard:0.2.1+0.4.16")
-}
-```
-
-NOTE: if you use a library that imports dashboard via a `implementation` or `api` dependency:
-
-ask the library maintainers to consider changing it to `compileOnly`
-
-change the `implementation` like so:
-```groovy
-implementation("com.pedropathing:pedro:1.0.8") {
-   exclude group: "com.acmerobotics.dashboard"
-}
-```
-```groovy
-implementation("com.acmerobotics.roadrunner:ftc:0.1.21") {
-   exclude group: "com.acmerobotics.dashboard"
-}
-implementation ("com.acmerobotics.roadrunner:actions:1.0.1"){
-   exclude group: "com.acmerobotics.dashboard"
-}
-```
-note that both pedro and rr require this.
-
-_pedro and rr version numbers may not be up to date._
-
-## Gradle Tasks
-
-edit configurations:
-
-![](image/edit_configurations.png)
-
-add new configuration:
-
-![](image/add_new_configuration.png)
-
-select gradle:
-
-![](image/add_new_gradle_configuration.png)
-
-add `deploySloth` and save it:
-
-![](image/add_deploySloth_task.png)
-NOTE: android studio will not auto complete the names of these tasks, just write it and it will work.
-
-edit TeamCode configuration:
-
-![](image/edit_TeamCode_configuration.png)
-
-add new gradle task:
-
-![](image/run_gradle_task.png)
-
-add `removeSlothRemote`:
-
-![](image/add_removeSlothRemote_task.png)
-
-note: type `:TeamCode` into the `Gradle Project` box to get the right contents,
-do not copy mine.
-
-put `removeSlothRemote` first and save:
-
-![](image/ensure_order.png)
-
-Run the deploySloth task you just added to deploy the code.
-
+### sloth
+https://github.com/Dairy-Foundation/Sloth?tab=readme-ov-file#gradle-tasks
 
 ### wireless code upload setup
 connect to wifi then adb commands
@@ -123,6 +18,32 @@ once adb established and connected to robot wifi in 'Program Ampersand Manage', 
 ### links and stuff
 - `192.168.43.1`
 - FTC Dashboard at address::8080/dash 8030/dash  ---- this for roadrunner + canvas funcs
-- FTControl at :8001 + :5801 can also limelight if want separate ----- this dash better for everything else
 - Robot logs at :8080/logs
-- Limelight if plugged in to computer at http://limelight.local:5801
+- 
+[//]: # (- FTControl at :8001 + :5801 can also limelight if want separate ----- this dash better for everything else)
+
+[//]: # (- Limelight if plugged in to computer at http://limelight.local:5801)
+
+---
+
+### LimeLight Tools
+
+With these tools you can:
+
+    Set the LimeLight to provide the image source for the drivers station "camera stream" during Init
+    Use port forwarding through control hub to access the limelight configuration tool remotely.
+    If using Ftc Dash Board, this will stream the limelight camera to dashboard
+
+See the comments in the following files located in the team directory on how to use these tools
+
+    LimeLightToolsTest.java provides an example of setting up the limelight and using the tools class to display images on drivers station and dashboard
+    LimeLightImageTools.java the class of tools for getting images from the limelight
+
+
+**Disclamer and Official event warning**
+
+## Disclaimer - intended for development only. Not recommended for competition or official events. This code has not been tested in event environments and may cause unexpected issues! Using the port forwarding for configuration or streaming to dashboard may use significant bandwidth and cause problems with other robots in a dense competition setting.
+
+We do think that the setDriverStationStreamSource() method utilizes minimal bandwidth, sending single snapshots as intended by the drivers station app and FTC SDK. Its use may be appropriate at event venues.
+
+Following is from any email with Danny Diaz, FTC Senior Engineering Manager "With that in mind, we do have an important request regarding the use of this particular tool at official FTC events. Due to the very limited and critical nature of Wi-Fi bandwidth at our events, tools that place a significant burden on the network can unfortunately impact the overall event experience for everyone. Therefore, we would greatly appreciate it if you could prominently include a statement in your repository explicitly advising users that this tool should absolutely not be used at official FTC events. This includes the competition area, pit area, and practice fields. It's crucial to emphasize that using such a tool at an event is forbidden due to the potential strain on the event's network infrastructure. This is a policy we maintain across the board, and it's the same reason we don't allow streaming to the Driver Station." */
