@@ -16,7 +16,7 @@ public class ConfigVariables {
     // @Configurable
     public static class General {
 
-        public static long DASHBOARD_UPDATE_INTERVAL_MS = 250;
+        public static long DASHBOARD_UPDATE_INTERVAL_MS = 1;
         public static double DRIVE_ROTATE_FACTOR = 0.5;
         public static double HANGING_SERVOS_SPEED = 10; // pwm unit
         public static double DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT = 1;
@@ -53,7 +53,7 @@ public class ConfigVariables {
 
     @Config
     public static class Camera {
-        public static double CLAW_DISTANCE = 10.5; // cm
+        public static double CLAW_DISTANCE = 11.5; // cm
         public static double[] DISTANCE_MAP = {
                 CLAW_DISTANCE,
                 14, 15.5, 16, 16.5, 17.3, // 5 per row, DO NOT format this
@@ -108,9 +108,9 @@ public class ConfigVariables {
         public static double SCORESPEC_FRONT_ARM_POS = 0.23;
         public static double SCORESPEC_FRONT_SWING_POS = 0.2;
 
-        public static double PID_KP = 0.01;
+        public static double PID_KP = 0.06;
         public static double PID_KI = 0.001;
-        public static double PID_KD = 0.0;
+        public static double PID_KD = 0.078;
         public static double PID_KF = 0.0; // Feedforward gain for gravity compensation
     }
 
