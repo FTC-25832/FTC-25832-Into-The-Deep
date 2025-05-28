@@ -18,7 +18,7 @@ import static org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.Lower
 public class LowerSlide extends SubsystemBase {
     // Hardware components
     private ServoImplEx part1, part2, spinclaw, claw;
-    private DcMotor slideMotor;
+    public DcMotor slideMotor;
 
     // Control ranges
     private final PwmControl.PwmRange servoRange = new PwmControl.PwmRange(500, 2500);
