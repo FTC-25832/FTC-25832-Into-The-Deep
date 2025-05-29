@@ -108,9 +108,9 @@ public class ConfigVariables {
         public static double SCORESPEC_FRONT_ARM_POS = 0.23;
         public static double SCORESPEC_FRONT_SWING_POS = 0.2;
 
-        public static double PID_KP = 0.06;
-        public static double PID_KI = 0.001;
-        public static double PID_KD = 0.078;
+        public static double PID_KP = 0.01;
+        public static double PID_KI = 0.0;
+        public static double PID_KD = 0.0;
         public static double PID_KF = 0.0; // Feedforward gain for gravity compensation
     }
 
