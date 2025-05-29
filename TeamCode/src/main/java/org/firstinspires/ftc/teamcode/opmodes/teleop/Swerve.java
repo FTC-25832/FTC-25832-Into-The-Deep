@@ -264,39 +264,9 @@ public class Swerve extends LinearOpMode {
 
     private void handleLowerSlideControls() {
         if (gamepad1.right_trigger > 0 && lowerClaw.canStartGrabSequence()) {
-            Command grabCommand = new LowerSlideGrabSequenceCommand(lowSlide);
+            Command grabCommand = new LowerSlideGrabSequenceCommand(lowSlide, lowerClaw);
             lowerClaw.startGrabSequence();
-            scheduler.schedule(new CommandBase() {
-                @Override
-                public void initialize() {
-                    grabCommand.initialize();
-                }
-
-                @Override
-                public void execute(TelemetryPacket packet) {
-                    grabCommand.execute(packet);
-                }
-
-                @Override
-                public boolean isFinished() {
-                    boolean finished = grabCommand.isFinished();
-                    if (finished) {
-                        lowerClaw.endGrabSequence();
-                    }
-                    return finished;
-                }
-
-                @Override
-                public void end(boolean interrupted) {
-                    grabCommand.end(interrupted);
-                    lowerClaw.endGrabSequence();
-                }
-
-                @Override
-                public Set<SubsystemBase> getRequirements() {
-                    return grabCommand.getRequirements();
-                }
-            });
+            scheduler.schedule(grabCommand);
         }
 
         if (gamepad1.left_trigger > 0) {
