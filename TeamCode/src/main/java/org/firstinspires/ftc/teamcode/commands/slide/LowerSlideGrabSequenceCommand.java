@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.commands.slide;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
+import org.firstinspires.ftc.teamcode.utils.ClawController;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
 /**
@@ -10,15 +11,23 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
  */
 public class LowerSlideGrabSequenceCommand extends CommandBase {
         private final LowerSlide lowSlide;
+        private ClawController lowerClaw;
+        private boolean hasClaw = false;
         private final long POS_GRAB_TIMEOUT = ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT;
         private final long CLAW_CLOSE_TIMEOUT = ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT;
         private final long POS_HOVER_TIMEOUT = ConfigVariables.LowerSlideVars.POS_HOVER_TIMEOUT;
 
         private long startTime;
         private boolean started = false;
-
         public LowerSlideGrabSequenceCommand(LowerSlide lowSlide) {
                 this.lowSlide = lowSlide;
+                this.hasClaw = false;
+                addRequirement(lowSlide);
+        }
+        public LowerSlideGrabSequenceCommand(LowerSlide lowSlide, ClawController lowerClaw) {
+                this.lowSlide = lowSlide;
+                this.lowerClaw = lowerClaw;
+                this.hasClaw = true;
                 addRequirement(lowSlide);
         }
 
@@ -65,5 +74,6 @@ public class LowerSlideGrabSequenceCommand extends CommandBase {
                 if (interrupted) {
                         lowSlide.stop();
                 }
+                if(hasClaw) lowerClaw.endGrabSequence();
         }
 }

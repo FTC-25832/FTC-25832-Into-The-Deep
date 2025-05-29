@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.commands.slide;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
+import org.firstinspires.ftc.teamcode.utils.ClawController;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
 /**
@@ -10,15 +11,24 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
  */
 public class UpperSlideGrabSequenceCommand extends CommandBase {
         private final UpperSlide upSlide;
+        private ClawController upperClaw;
+        private boolean hasClaw = false;
 //        private final long POS_GRAB_TIMEOUT = ConfigVariables.UpperSlideVars.POS_GRAB_TIMEOUT;
 //        private final long CLAW_CLOSE_TIMEOUT = ConfigVariables.UpperSlideVars.CLAW_CLOSE_TIMEOUT;
 //        private final long POS_HOVER_TIMEOUT = ConfigVariables.UpperSlideVars.POS_HOVER_TIMEOUT;
 
         private long startTime;
         private boolean started = false;
-
         public UpperSlideGrabSequenceCommand(UpperSlide upSlide) {
                 this.upSlide = upSlide;
+                this.hasClaw = false;
+                addRequirement(upSlide);
+        }
+
+        public UpperSlideGrabSequenceCommand(UpperSlide upSlide, ClawController upperClaw) {
+                this.upSlide = upSlide;
+                this.upperClaw = upperClaw;
+                this.hasClaw = true;
                 addRequirement(upSlide);
         }
 
@@ -65,5 +75,6 @@ public class UpperSlideGrabSequenceCommand extends CommandBase {
                 if (interrupted) {
                         upSlide.stop();
                 }
+                if(this.hasClaw) upperClaw.endGrabSequence();
         }
 }
