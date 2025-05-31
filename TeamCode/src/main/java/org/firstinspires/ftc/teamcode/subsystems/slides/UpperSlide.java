@@ -59,8 +59,8 @@ public class UpperSlide extends SubsystemBase {
         claw = hardwareMap.get(ServoImplEx.class, ControlHub.servo(3));
 
         // Configure directions
-        slide2.setDirection(DcMotor.Direction.FORWARD);
-        slide1.setDirection(DcMotor.Direction.REVERSE);
+        slide2.setDirection(DcMotor.Direction.REVERSE);
+        slide1.setDirection(DcMotor.Direction.FORWARD);
 
         arm1.setDirection(ServoImplEx.Direction.FORWARD);
         arm2.setDirection(ServoImplEx.Direction.REVERSE);
