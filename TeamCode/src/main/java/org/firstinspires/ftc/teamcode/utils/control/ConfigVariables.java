@@ -18,7 +18,7 @@ public class ConfigVariables {
 
         public static long DASHBOARD_UPDATE_INTERVAL_MS = 1;
         public static double DRIVE_ROTATE_FACTOR = 0.5;
-        public static double HANGING_SERVOS_SPEED = 10; // pwm unit
+        public static double HANGING_SERVOS_SPEED = 2500; // pwm unit
         public static double DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT = 1;
         public static int DISTANCE_THRESHOLD_ENCODER = 50;
         public static int CLAW_OPERATION_TIMEOUT = 300;
@@ -84,10 +84,10 @@ public class ConfigVariables {
     // @Configurable
     public static class UpperSlideVars {
         // Arm positions
-        public static double FRONT_ARM_POS = 0.5;
-        public static double FRONT_SWING_POS = 0.25;
-        public static double BEHIND_ARM_POS = 0.18;
-        public static double BEHIND_SWING_POS = 0.85;
+        public static double FRONT_ARM_POS = 0.6;
+        public static double FRONT_SWING_POS = 0.3;
+        public static double BEHIND_ARM_POS = 0;
+        public static double BEHIND_SWING_POS = 0.5;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;
@@ -97,16 +97,16 @@ public class ConfigVariables {
         public static double POS_0_CM = 0.0;
         public static double POS_PRE_0_CM = 10.0;
         public static double POS_1_CM = 13;
-        public static double POS_2_CM = 42;
+        public static double POS_2_CM = 40;
         public static double POS_3_CM = 65.0;
 
         // offwall positions
-        public static double OFFWALL_FRONT_ARM_POS = 0.85;
-        public static double OFFWALL_FRONT_SWING_POS = 0.40;
+        public static double OFFWALL_FRONT_ARM_POS = 0.95;
+        public static double OFFWALL_FRONT_SWING_POS = 0.65;
 
         // scorespec positions
-        public static double SCORESPEC_FRONT_ARM_POS = 0.23;
-        public static double SCORESPEC_FRONT_SWING_POS = 0.2;
+        public static double SCORESPEC_FRONT_ARM_POS = 0.18;
+        public static double SCORESPEC_FRONT_SWING_POS = 0.65;
 
         public static double PID_KP = 0.01;
         public static double PID_KI = 0.0;
@@ -121,7 +121,7 @@ public class ConfigVariables {
         // Arm positions
         public static double GRAB_BIG = 0.93;
         public static double GRAB_SMALL = 0;
-        public static double UP_BIG = 0.53;
+        public static double UP_BIG = 0.55;
         public static double UP_SMALL = 1.0;
         public static double HOVER_BIG = 0.7;
         public static double HOVER_SMALL = 0.1;
