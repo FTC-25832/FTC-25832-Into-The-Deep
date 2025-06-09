@@ -21,11 +21,9 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
-import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCalculated;
-import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCalculated;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
-import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
@@ -277,7 +275,6 @@ public class Swerve extends LinearOpMode {
             scheduler.schedule(new ActionCommand(lowslideActions.hover()));
         }
         if (gamepad1.a) {
-            // scheduler.schedule(new DistanceAdjustCalculated(lowSlide, camera));
             scheduler.schedule(new ActionCommand(lowslideActions.slidePos0()));
         }
         if (gamepad1.b) {
@@ -285,12 +282,12 @@ public class Swerve extends LinearOpMode {
         }
         if (gamepad1.x)
             scheduler.schedule(new ActionCommand(lowslideActions.slidePos1()));
+//            scheduler.schedule(new DistanceAdjustCalculated(lowSlide, camera, gamepad1));
         if (gamepad1.y)
             scheduler.schedule(new ActionCommand(lowslideActions.slidePos2()));
 
         if (gamepad1.dpad_up) {
             Command adjustCommand = new SequentialCommandGroup(
-                    // new DistanceAdjustCommand(lowSlide, camera, gamepad1),
                     new ActionCommand(lowslideActions.hover()),
                     new AngleAdjustCommand(lowSlide, camera, gamepad1));
             scheduler.schedule(adjustCommand);

@@ -8,16 +8,39 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+
+import org.opencv.calib3d.Calib3d;
+import org.opencv.core.*;
 
 public class Limelight {
     HardwareMap hardwareMap;
     LLResult result;
     public List<LLResultTypes.DetectorResult> detectorResults;
     public LLResultTypes.DetectorResult detectorResult;
+    public double[] poseResult = {0, 0, 0, 0}; // [x, y, z, rotationAngle]
+    public List<List<Double>> outerCorners;
     private String[] ACCEPTED_COLORS = ConfigVariables.Camera.ACCEPTED_COLORS;
     public boolean available = true;
     public boolean resultAvailable = false;
+    private static final Mat CAMERA_INTRINSIC_MATRIX = new Mat(3, 3, CvType.CV_64F);
+    private static final MatOfDouble DISTORTION_COEFFICIENTS = new MatOfDouble(Mat.zeros(5, 1, CvType.CV_64F));
+    static {
+        CAMERA_INTRINSIC_MATRIX.put(0, 0,
+                1221.445, 0, 637.226,
+                0, 1223.398, 502.549,
+                0, 0, 1
+        );
+        DISTORTION_COEFFICIENTS.put(0, 0,0.177168, -0.457341, 0.000360, 0.002753, 0.178259);
+    }
+    private static final double PRISM_LENGTH = 8.5; // cm
+    private static final double PRISM_WIDTH = 3.5; // cm
+    private static final double CAMERA_HEIGHT = 24; // cm
+    private static final double CAMERA_TILT_ANGLE = 45.0; // degrees
+    private static final double WIDTH_RATIO = PRISM_LENGTH;
+    private static final double HEIGHT_RATIO = PRISM_WIDTH;
+
     public Limelight3A limelight;
     public void initialize(HardwareMap map){
         hardwareMap = map;
@@ -58,24 +81,154 @@ public class Limelight {
         resultAvailable = false;
         return false;
     }
-    public void switchtoPython(){
-        limelight.pipelineSwitch(1);
+    public void updatePosition(){
+        if (!resultAvailable) return;
+
+        outerCorners = detectorResult.getTargetCorners();
+        if (outerCorners == null || outerCorners.size() != 4) {
+            resultAvailable = false;
+            return;
+        }
+
+        List<List<Double>> innerCorners = getInnerCorners(outerCorners);
+        if (innerCorners.isEmpty()) {
+            resultAvailable = false;
+            return;
+        }
+        MatOfPoint2f innerCornersMat = new MatOfPoint2f(
+                new Point(innerCorners.get(0).get(0), innerCorners.get(0).get(1)),
+                new Point(innerCorners.get(1).get(0), innerCorners.get(1).get(1)),
+                new Point(innerCorners.get(2).get(0), innerCorners.get(2).get(1)),
+                new Point(innerCorners.get(3).get(0), innerCorners.get(3).get(1))
+        );
+        poseResult = estimatePrismPose(innerCornersMat);
     }
-    public void switchtoNeural(){
-        limelight.pipelineSwitch(0);
+    public static List<List<Double>> getInnerCorners(List<List<Double>> outerCorners) {
+        if (outerCorners == null || outerCorners.size() != 4) {
+            return new ArrayList<>();
+        }
+        double A = Math.sqrt(Math.pow(outerCorners.get(1).get(0) - outerCorners.get(0).get(0), 2) +
+                Math.pow(outerCorners.get(1).get(1) - outerCorners.get(0).get(1), 2));
+        double B = Math.sqrt(Math.pow(outerCorners.get(2).get(0) - outerCorners.get(1).get(0), 2) +
+                Math.pow(outerCorners.get(2).get(1) - outerCorners.get(1).get(1), 2));
+        double[] solution = solveEquations(A, B);
+        if (solution[1]==0 || solution[2]==0) {
+            return new ArrayList<>();
+        }
+        double x = solution[0];
+        double a = solution[1];
+        double b = solution[2];
+
+        double centerX = (outerCorners.get(0).get(0) + outerCorners.get(2).get(0)) / 2;
+        double centerY = (outerCorners.get(0).get(1) + outerCorners.get(2).get(1)) / 2;
+
+        List<List<Double>> innerCorners = new ArrayList<>();
+        double halfWidth = a / 2;
+        double halfHeight = b / 2;
+
+        double[][] offsets = {
+                {-halfWidth, -halfHeight},
+                {halfWidth, -halfHeight},
+                {halfWidth, halfHeight},
+                {-halfWidth, halfHeight}
+        };
+
+        for (double[] offset : offsets) {
+            double rotatedX = offset[0] * Math.cos(x) - offset[1] * Math.sin(x);
+            double rotatedY = offset[0] * Math.sin(x) + offset[1] * Math.cos(x);
+
+            List<Double> corner = new ArrayList<>();
+            corner.add(centerX + rotatedX);
+            corner.add(centerY + rotatedY);
+            innerCorners.add(corner);
+        }
+        return innerCorners;
     }
-//    public double getAngle(){
-//        if(!available ||!resultAvailable) return 0;
-//        List<List<Double>> corners = detectorResult.getTargetCorners();
-//        if (!corners.isEmpty()) {
-//            double width = Math.sqrt(Math.pow(corners.get(1).get(0) - corners.get(0).get(0), 2) +
-//                    Math.pow(corners.get(1).get(1) - corners.get(0).get(1), 2));
-//            double height = Math.sqrt(Math.pow(corners.get(3).get(0) - corners.get(0).get(0), 2) +
-//                    Math.pow(corners.get(3).get(1) - corners.get(0).get(1), 2));
-//            return Math.atan2(height, width);
-//        }
-//        return 0;
-//    }
+    private static double[] solveEquations(double A, double B) {
+        if (Math.abs(A) < 1e-10 && Math.abs(B) < 1e-10) {
+            return new double[]{0.0, 0.0, 0.0};
+        }
+        double numerator = HEIGHT_RATIO * A - WIDTH_RATIO * B;
+        double denominator = HEIGHT_RATIO * B - WIDTH_RATIO * A;
+        double x;
+        if (Math.abs(numerator) < 1e-10) {
+            x = 0.0;
+        } else if (Math.abs(denominator) < 1e-10) {
+            x = Math.PI / 2;
+        } else {
+            x = Math.atan2(numerator, denominator);
+        }
+        double denominatorK1 = WIDTH_RATIO * Math.cos(x) + HEIGHT_RATIO * Math.sin(x);
+        double denominatorK2 = WIDTH_RATIO * Math.sin(x) + HEIGHT_RATIO * Math.cos(x);
+        double k;
+        if (Math.abs(denominatorK1) > 1e-10) {
+            k = A / denominatorK1;
+        } else if (Math.abs(denominatorK2) > 1e-10) {
+            k = B / denominatorK2;
+        } else {
+            return new double[]{0.0, 0.0, 0.0};
+        }
+        double a = WIDTH_RATIO * k;
+        double b = HEIGHT_RATIO * k;
+        return new double[]{x, a, b};
+    }
+
+    /**
+     * Estimates the pose (position and rotation) of a rectangular prism from observed image points.
+     *
+     * @param imagePoints 2D coordinates of the prism's top surface corners in the image
+     **/
+    public double[] estimatePrismPose(MatOfPoint2f imagePoints) {
+        
+        // origin at the center of the top surface
+        MatOfPoint3f objectPoints = new MatOfPoint3f(
+                new Point3(-PRISM_LENGTH/2, -PRISM_WIDTH/2, 0), // top-left
+                new Point3(PRISM_LENGTH/2, -PRISM_WIDTH/2, 0),  // top-right
+                new Point3(PRISM_LENGTH/2, PRISM_WIDTH/2, 0),   // bottom-right
+                new Point3(-PRISM_LENGTH/2, PRISM_WIDTH/2, 0)   // bottom-left
+        );
+
+        Mat rvec = new Mat();
+        Mat tvec = new Mat();
+
+        boolean success = Calib3d.solvePnP(objectPoints, imagePoints, CAMERA_INTRINSIC_MATRIX, DISTORTION_COEFFICIENTS, rvec, tvec);
+
+        if (!success) {
+            return new double[] {0, 0, 0, 0};
+        }
+        
+        Mat rotationMatrix = new Mat();
+        Calib3d.Rodrigues(rvec, rotationMatrix);
+        
+        double[] rotMat = new double[9];
+        rotationMatrix.get(0, 0, rotMat);
+        
+        double rotationAngle = Math.atan2(rotMat[1], rotMat[0]) * 180 / Math.PI;
+        
+        double tiltRad = CAMERA_TILT_ANGLE * Math.PI / 180.0;
+        double[][] cam2world = {
+                {1, 0, 0},
+                {0, Math.cos(tiltRad), -Math.sin(tiltRad)},
+                {0, Math.sin(tiltRad), Math.cos(tiltRad)}
+        };
+        
+        double[] translation = new double[3];
+        tvec.get(0, 0, translation);
+        
+        double[] worldPos = new double[3];
+        for (int i = 0; i < 3; i++) {
+            worldPos[i] = 0;
+            for (int j = 0; j < 3; j++) {
+                worldPos[i] += cam2world[i][j] * translation[j];
+            }
+        }
+        
+        worldPos[2] = CAMERA_HEIGHT - worldPos[2];
+
+        // [x, y, z, rotationAngle]
+        return new double[] {worldPos[0], worldPos[1], worldPos[2], rotationAngle};
+    }
+
     public void reset(){
         resultAvailable = false;
     }
@@ -101,21 +254,26 @@ public class Limelight {
                 limelight.updatePythonInputs(2, 0, 0, 0, 0, 0, 0, 0);
         }
     }
-    public double getAngle(){
-        if(!available) return 0;
-        return limelight.getLatestResult().getPythonOutput()[1];
-    }
     public String getClassname(){
         if(!available ||!resultAvailable) return "blue";
         return detectorResult.getClassName();
     }
-    public double getX(){
+    public double getTx(){
         if(!available ||!resultAvailable) return 0;
         return result.getTx();
     }
-    public double getY(){
+    public double getTy(){
         if(!available ||!resultAvailable) return -2;
         return result.getTy();
+    }
+    public double getWorldx(){
+        return poseResult[0];
+    }
+    public double getWorldy(){
+        return -poseResult[1];
+    }
+    public double getAngle(){
+        return poseResult[3]; // degree
     }
 
 }

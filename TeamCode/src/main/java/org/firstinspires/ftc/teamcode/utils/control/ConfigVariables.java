@@ -54,6 +54,7 @@ public class ConfigVariables {
     @Config
     public static class Camera {
         public static double CLAW_DISTANCE = 11.5; // cm
+        public static double CAMERA_DISTANCE = 24; // cm, y distance between camera and sample
         public static double[] DISTANCE_MAP = {
                 CLAW_DISTANCE,
                 14, 15.5, 16, 16.5, 17.3, // 5 per row, DO NOT format this

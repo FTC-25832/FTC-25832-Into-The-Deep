@@ -8,22 +8,23 @@ import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
-public class DistanceAdjustCommand extends CommandBase {
+public class DistanceAdjustLUT extends CommandBase {
     private final LowerSlide lowSlide;
     private final Limelight camera;
     private final PIDFController pidY;
-//    private final Gamepad gamepad1;
     private boolean isAdjusted = false;
-
-    public DistanceAdjustCommand(LowerSlide lowSlide, Limelight camera) { //Gamepad gamepad1
+    private double dyAccum;
+    private int dyNum;
+    public DistanceAdjustLUT(LowerSlide lowSlide, Limelight camera) {
         this.lowSlide = lowSlide;
         this.camera = camera;
-//        this.gamepad1 = gamepad1;
         this.pidY = new PIDFController(
                 ConfigVariables.Camera.PID_KP,
                 ConfigVariables.Camera.PID_KI,
                 ConfigVariables.Camera.PID_KD,
                 ConfigVariables.Camera.PID_KF);
+        dyAccum = 0;
+        dyNum = 0;
         addRequirement(lowSlide);
     }
 
@@ -31,7 +32,7 @@ public class DistanceAdjustCommand extends CommandBase {
     public void initialize() {
         isAdjusted = false;
         pidY.reset();
-         lowSlide.setPIDEnabled(false);
+//        lowSlide.setPIDEnabled(false);
         if (!camera.updateDetectorResult()) {
             isAdjusted = true; // Skip if no detection
             return;
@@ -41,21 +42,15 @@ public class DistanceAdjustCommand extends CommandBase {
 
     @Override
     public void execute(TelemetryPacket packet) {
-        // Adjust slide position using PID
         camera.updateDetectorResult();
+        // processing position
         double dy = camera.getTy();
-        double yPower = pidY.calculate(-dy);
-        lowSlide.setSlidePower(yPower);
-
-        // Add telemetry
-        packet.put("visionAdjust/yDifference", dy);
-        packet.put("visionAdjust/yPower", yPower);
-
-        // Check if we're close enough
-        // if (gamepad1.right_trigger > 0.5) {
-        if (dy < ConfigVariables.Camera.DISTANCE_THRESHOLD) { //
-            lowSlide.posNow(); // Hold current position
-            lowSlide.setPIDEnabled(true);
+        if(dy==0){
+            return;
+        }
+        dyAccum += dy;
+        dyNum += 1;
+        if(dyNum > ConfigVariables.Camera.YACCUM_MAXNUM){
             isAdjusted = true;
         }
     }
@@ -67,10 +62,26 @@ public class DistanceAdjustCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        lowSlide.setPIDEnabled(true);
         if (interrupted) {
             lowSlide.stop();
+            return;
         }
+        if(dyNum==0){
+            return;
+        }
+        double current = lowSlide.getCurrentPositionCM();
+        double averageY = dyAccum / dyNum;
+        averageY = Math.min(averageY, ConfigVariables.Camera.DISTANCE_MAP.length - 1);
+        double position;
+        if(averageY<0){
+            averageY = -averageY;
+            position = ConfigVariables.Camera.DISTANCE_MAP_NEGATIVE[(int) Math.floor(averageY)] + (averageY - Math.floor(averageY)) *
+                    (ConfigVariables.Camera.DISTANCE_MAP_NEGATIVE[(int) Math.floor(averageY) + 1] - ConfigVariables.Camera.DISTANCE_MAP_NEGATIVE[(int) Math.floor(averageY)]);
+        } else{
+            position = ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY)] + (averageY - Math.floor(averageY)) *
+                    (ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY) + 1] - ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY)]);
+        }
+        lowSlide.setPositionCM(current + position - ConfigVariables.Camera.CLAW_DISTANCE);
         camera.reset();
     }
 }
