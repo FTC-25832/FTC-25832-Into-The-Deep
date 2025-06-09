@@ -39,10 +39,13 @@ public class AngleAdjustCommand extends CommandBase {
         camera.updatePosition();
         // Processing angle for spinclaw
         double angle = camera.getAngle(); // -90 ~ 90
-        angle = angle + ConfigVariables.Camera.ANGLE_OFFSET;
-        lowSlide.spinclawSetPositionDeg(angle);
+        if(angle < -55){
+            lowSlide.spinclawSetPositionDeg(45);
+        } else {
+            lowSlide.spinclawSetPositionDeg(45+90);
+        }
         packet.put("visionAdjust/angle", angle);
-        if (gamepad1.right_trigger > 0.5 || gamepad1.dpad_up) {
+        if (gamepad1.right_trigger > 0.5) {
             isAngleAdjusted = true;
         }
     }
@@ -50,7 +53,7 @@ public class AngleAdjustCommand extends CommandBase {
     // This command must be interrupted after 500ms to stop
     @Override
     public long getTimeout() {
-        return 2000; // Timeout after 1000ms
+        return 0; // Timeout after 1000ms
     }
 
     @Override

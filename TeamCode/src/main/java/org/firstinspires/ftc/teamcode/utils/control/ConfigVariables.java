@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.control;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.sun.tools.javac.jvm.Gen;
-
-import java.util.ArrayList;
 //import com.bylazar.ftcontrol.panels.configurables.Configurables;
 
 @Config
@@ -53,23 +50,29 @@ public class ConfigVariables {
 
     @Config
     public static class Camera {
-        public static double CLAW_DISTANCE = 11.5; // cm
-        public static double CAMERA_DISTANCE = 24; // cm, y distance between camera and sample
-        public static double[] DISTANCE_MAP = {
-                CLAW_DISTANCE,
-                14, 15.5, 16, 16.5, 17.3, // 5 per row, DO NOT format this
-                19.3, 20, 21, 22.5, 23.5,
-                24.3, 25.5, 26.5, 27.5, 28.5,
-                30, 31.5, 32.7, 34, 35.5,
-                37, 38, 40, 41.5, 43,
-                44, 45.5, 0, 0, 0
+        public static double CLAW_DISTANCE = 22; // cm
+        public static double CLAW_90 = 90;
+        public static double CAMERA_DISTANCE = 27; // cm, y distance between camera and sample
+        public static double[] Y_DISTANCE_MAP_X = {
+                -100,
+                -7, -5.4, -4.3,-3.5, -2,
+                1, 2.1, 5.5, 8.7, 10,
+                12.4, 14.2, 16.5, 19.7, 21,
+                22.3 , 23.0, 23.5, 24.1, 27.1
+                , 100
+        };
+        public static double[] Y_DISTANCE_MAP_Y = {
+                12.5,
+                12.5,  14.5,  15.5, 16, 18.5,
+                21.5, 23.5, 25.5, 27.5, 28.5,
+                30.5, 33, 35, 38.5, 41,
+                42.3 , 44, 45, 45.5, 50
+                , 50
         };
         public static String[] ACCEPTED_COLORS = {
                 "blue", "red", "yellow"
         };
-        public static double[] DISTANCE_MAP_NEGATIVE = { CLAW_DISTANCE, 13.7, 13, 11.5, 10, 8.8, 7, 6, 5 };
         public static int ANGLE_MAXNUM = 15;
-        public static int YACCUM_MAXNUM = 6;
         // public static int PID_UPDATE_TIMEOUT = 500;
         public static int ANGLE_OFFSET = 100;
         public static double PID_KP = 0.008;

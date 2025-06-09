@@ -1,58 +1,112 @@
 package org.firstinspires.ftc.teamcode.commands.vision;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
-import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
+import org.firstinspires.ftc.teamcode.utils.math.InterpLUT;
 
 public class DistanceAdjustLUT extends CommandBase {
     private final LowerSlide lowSlide;
     private final Limelight camera;
-    private final PIDFController pidY;
+    private final InterpLUT lut = new InterpLUT();
+    private final Gamepad gamepad1;
     private boolean isAdjusted = false;
-    private double dyAccum;
-    private int dyNum;
-    public DistanceAdjustLUT(LowerSlide lowSlide, Limelight camera) {
+
+    // Variables for feedforward compensation
+    private static final double CAMERA_DELAY = 0.05; // 0.1 second camera delay
+    private double prevDy = 0;
+    private double dyVelocity = 0; // Change in dy per second
+    private ElapsedTime velocityTimer = new ElapsedTime();
+    private static final double VELOCITY_SMOOTHING = 0.7; // Smoothing factor for velocity calculation
+
+    public final void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public DistanceAdjustLUT(LowerSlide lowSlide, Limelight camera, Gamepad gamepad1) {
         this.lowSlide = lowSlide;
         this.camera = camera;
-        this.pidY = new PIDFController(
-                ConfigVariables.Camera.PID_KP,
-                ConfigVariables.Camera.PID_KI,
-                ConfigVariables.Camera.PID_KD,
-                ConfigVariables.Camera.PID_KF);
-        dyAccum = 0;
-        dyNum = 0;
+        for (int i = 0; i < ConfigVariables.Camera.Y_DISTANCE_MAP_Y.length; i++) {
+            lut.add(ConfigVariables.Camera.Y_DISTANCE_MAP_X[i], ConfigVariables.Camera.Y_DISTANCE_MAP_Y[i]);
+        }
+        lut.createLUT();
+        this.gamepad1 = gamepad1;
         addRequirement(lowSlide);
     }
 
     @Override
     public void initialize() {
         isAdjusted = false;
-        pidY.reset();
 //        lowSlide.setPIDEnabled(false);
         if (!camera.updateDetectorResult()) {
             isAdjusted = true; // Skip if no detection
             return;
         }
-        camera.setColor(camera.getClassname());
+        velocityTimer.reset();
     }
 
     @Override
     public void execute(TelemetryPacket packet) {
-        camera.updateDetectorResult();
-        // processing position
-        double dy = camera.getTy();
-        if(dy==0){
-            return;
+        if(Math.abs(lowSlide.pidfController.lastError) > 20) return;
+        if(camera.updateDetectorResult()){
+            // processing position
+            double dy = camera.getTy();
+            if(dy == 0){
+                lowSlide.setPositionCM(lowSlide.getCurrentPositionCM() - 1);
+                return;
+            }
+
+            // Calculate velocity (change in dy per second)
+            double dt = velocityTimer.seconds();
+            velocityTimer.reset();
+            if (dt > 0) {
+                double instantVelocity = (dy - prevDy) / dt;
+                dyVelocity = VELOCITY_SMOOTHING * instantVelocity + (1 - VELOCITY_SMOOTHING) * dyVelocity;
+            }
+            prevDy = dy;
+
+            packet.put("vision/rawTy", dy);
+
+            // Apply feedforward to predict position after delay
+//            double predictedDy = dy + (dyVelocity * CAMERA_DELAY);
+//            packet.put("vision/predictedTy", predictedDy);
+//            packet.put("vision/velocity", dyVelocity);
+
+            // Use the predicted position instead of current position
+            double dycm = lut.get(dy);
+            double pos = lowSlide.getCurrentPositionCM() + dycm - lut.get(0);
+            packet.put("vision/position", pos);
+            packet.put("vision/dycm", dycm);
+            packet.put("vision/0", lut.get(0));
+
+
+            // Apply limits and set position
+            if(pos > 45){
+                lowSlide.setPositionCM(45);
+            } else if (pos < 0){
+                lowSlide.setPositionCM(0);
+            } else {
+                lowSlide.setPositionCM(pos);
+            }
+            isAdjusted = true;
+
+        } else{
+            lowSlide.setPositionCM(lowSlide.getCurrentPositionCM() - 1);
         }
-        dyAccum += dy;
-        dyNum += 1;
-        if(dyNum > ConfigVariables.Camera.YACCUM_MAXNUM){
+
+        if(gamepad1.dpad_up){
             isAdjusted = true;
         }
+
     }
 
     @Override
@@ -66,22 +120,7 @@ public class DistanceAdjustLUT extends CommandBase {
             lowSlide.stop();
             return;
         }
-        if(dyNum==0){
-            return;
-        }
-        double current = lowSlide.getCurrentPositionCM();
-        double averageY = dyAccum / dyNum;
-        averageY = Math.min(averageY, ConfigVariables.Camera.DISTANCE_MAP.length - 1);
-        double position;
-        if(averageY<0){
-            averageY = -averageY;
-            position = ConfigVariables.Camera.DISTANCE_MAP_NEGATIVE[(int) Math.floor(averageY)] + (averageY - Math.floor(averageY)) *
-                    (ConfigVariables.Camera.DISTANCE_MAP_NEGATIVE[(int) Math.floor(averageY) + 1] - ConfigVariables.Camera.DISTANCE_MAP_NEGATIVE[(int) Math.floor(averageY)]);
-        } else{
-            position = ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY)] + (averageY - Math.floor(averageY)) *
-                    (ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY) + 1] - ConfigVariables.Camera.DISTANCE_MAP[(int) Math.floor(averageY)]);
-        }
-        lowSlide.setPositionCM(current + position - ConfigVariables.Camera.CLAW_DISTANCE);
+
         camera.reset();
     }
 }

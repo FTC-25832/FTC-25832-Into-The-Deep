@@ -36,7 +36,7 @@ public class Limelight {
     }
     private static final double PRISM_LENGTH = 8.5; // cm
     private static final double PRISM_WIDTH = 3.5; // cm
-    private static final double CAMERA_HEIGHT = 24; // cm
+    private static final double CAMERA_HEIGHT = 27; // cm
     private static final double CAMERA_TILT_ANGLE = 45.0; // degrees
     private static final double WIDTH_RATIO = PRISM_LENGTH;
     private static final double HEIGHT_RATIO = PRISM_WIDTH;
@@ -232,6 +232,7 @@ public class Limelight {
     public void reset(){
         resultAvailable = false;
     }
+
     public void setAcceptedColors(boolean blue, boolean red, boolean yellow){
         if(!available) return;
         String[] colors = new String[3];
@@ -241,6 +242,7 @@ public class Limelight {
         if (yellow) colors[i++] = "yellow";
         ACCEPTED_COLORS = Arrays.copyOf(colors, i);
     }
+
     public void setColor(String classname){
         if(!available) return;
         switch(classname){
@@ -263,7 +265,7 @@ public class Limelight {
         return result.getTx();
     }
     public double getTy(){
-        if(!available ||!resultAvailable) return -2;
+        if(!available ||!resultAvailable) return 0;
         return result.getTy();
     }
     public double getWorldx(){
