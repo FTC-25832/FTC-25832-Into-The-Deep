@@ -18,7 +18,7 @@ public class ConfigVariables {
 
         public static long DASHBOARD_UPDATE_INTERVAL_MS = 1;
         public static double DRIVE_ROTATE_FACTOR = 0.5;
-        public static double HANGING_SERVOS_SPEED = 2500; // pwm unit
+        public static double HANGING_SERVOS_SPEED = 0.8; // pwm unit
         public static double DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT = 1;
         public static int DISTANCE_THRESHOLD_ENCODER = 50;
         public static int CLAW_OPERATION_TIMEOUT = 300;
@@ -87,8 +87,8 @@ public class ConfigVariables {
         // Arm positions
         public static double FRONT_ARM_POS = 0.6;
         public static double FRONT_SWING_POS = 0.3;
-        public static double BEHIND_ARM_POS = 0;
-        public static double BEHIND_SWING_POS = 0.5;
+        public static double BEHIND_ARM_POS = 0.05;
+        public static double BEHIND_SWING_POS = 0.65;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;
@@ -122,7 +122,7 @@ public class ConfigVariables {
         // Arm positions
         public static double GRAB_BIG = 0.93;
         public static double GRAB_SMALL = 0;
-        public static double UP_BIG = 0.55;
+        public static double UP_BIG = 0.57;
         public static double UP_SMALL = 1.0;
         public static double HOVER_BIG = 0.7;
         public static double HOVER_SMALL = 0.1;
