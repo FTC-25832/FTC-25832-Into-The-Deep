@@ -51,7 +51,7 @@ public class DistanceAdjustLUTY extends CommandBase {
     public void initialize() {
         isAdjusted = false;
 //        lowSlide.setPIDEnabled(false);
-        if (!camera.updateDetectorResult()) {
+        if (!camera.resultAvailable) {
             isAdjusted = true; // Skip if no detection
             return;
         }
@@ -61,18 +61,13 @@ public class DistanceAdjustLUTY extends CommandBase {
     @Override
     public void execute(TelemetryPacket packet) {
 //        if(Math.abs(lowSlide.pidfController.lastError) > 20) return;
-        if(camera.updateDetectorResult()){
-            double dy = camera.getTy();
-            double dx = camera.getTx();
-            if(dy == 0 || dx == 0){
-                return;
-            }
-            adjusty(dy, packet);
-            isAdjusted = true;
-
-        } else{
-            lowSlide.setPositionCM(lowSlide.getCurrentPositionCM() - 1);
+        double dy = camera.getTy();
+        double dx = camera.getTx();
+        if(dy == 0 || dx == 0){
+            return;
         }
+        adjusty(dy, packet);
+        isAdjusted = true;
 
         if(gamepad1.dpad_up){
             isAdjusted = true;

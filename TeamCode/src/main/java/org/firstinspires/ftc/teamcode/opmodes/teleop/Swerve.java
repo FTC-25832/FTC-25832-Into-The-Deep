@@ -173,11 +173,9 @@ public class Swerve extends LinearOpMode {
     private void setupGamepadControls() {
 
         gamepad1Controller.onPressed(ButtonType.X, () -> {
-            Command adjustCommand = new SequentialCommandGroup(
-                    new DistanceAdjustLUTY(lowSlide, camera, gamepad1),
-                    new WaitCommand(0.5),
-                    new DistanceAdjustLUTX(camera, gamepad1, drive));
-            scheduler.schedule(adjustCommand);
+            camera.updateDetectorResult();
+            scheduler.schedule(new DistanceAdjustLUTY(lowSlide, camera, gamepad1));
+            scheduler.schedule(new DistanceAdjustLUTX(camera, gamepad1, drive));
         });
 
         gamepad1Controller.onPressed(ButtonType.DPAD_UP, () -> {

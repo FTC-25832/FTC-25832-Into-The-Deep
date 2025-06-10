@@ -24,7 +24,6 @@ public class DistanceAdjustLUTX extends CommandBase {
     private ElapsedTime actionTimer = new ElapsedTime();
     private static final double ACTION_TIMEOUT = 1.5; // 1.5 seconds timeout for movement
 
-    private static final double VELOCITY_SMOOTHING = 0.7; // Smoothing factor for velocity calculation
 
     public final void sleep(long milliseconds) {
         try {
@@ -48,7 +47,7 @@ public class DistanceAdjustLUTX extends CommandBase {
     public void initialize() {
         isAdjusted = false;
         moveAction = null;
-        if (!camera.updateDetectorResult()) {
+        if (!camera.resultAvailable) {
             isAdjusted = true; // Skip if no detection
             return;
         }
@@ -75,9 +74,14 @@ public class DistanceAdjustLUTX extends CommandBase {
         }
 
         // Only detect new adjustments if no active movement
-        if (moveAction == null && camera.updateDetectorResult()) {
+        if (moveAction == null) {
             double dx = camera.getTx();
+            double dy = camera.getTy();
             if (dx != 0) {
+//                tx: +11.11°
+//                ty: +31.91°
+                final double gradient = 11.11/31.91;
+                dx = dx - dy * gradient;
                 adjustx(dx, packet);
             }
         }
@@ -100,7 +104,6 @@ public class DistanceAdjustLUTX extends CommandBase {
             drive.setDrivePowers(new com.acmerobotics.roadrunner.PoseVelocity2d(
                     new Vector2d(0, 0), 0));
         }
-        camera.reset();
     }
 
     public void adjustx(double dx, TelemetryPacket packet) {
