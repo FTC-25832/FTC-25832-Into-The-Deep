@@ -1,17 +1,14 @@
 package org.firstinspires.ftc.teamcode.commands.vision;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
-import org.firstinspires.ftc.teamcode.commands.base.CommandScheduler;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.math.InterpLUT;
@@ -22,8 +19,10 @@ public class DistanceAdjustLUTX extends CommandBase {
     private final InterpLUT lutx = new InterpLUT();
     private final MecanumDrive drive;
     private final Gamepad gamepad1;
-    private final CommandScheduler scheduler;
     private boolean isAdjusted = false;
+    private Action moveAction = null;
+    private ElapsedTime actionTimer = new ElapsedTime();
+    private static final double ACTION_TIMEOUT = 1.5; // 1.5 seconds timeout for movement
 
     private static final double VELOCITY_SMOOTHING = 0.7; // Smoothing factor for velocity calculation
 
@@ -35,21 +34,20 @@ public class DistanceAdjustLUTX extends CommandBase {
         }
     }
 
-    public DistanceAdjustLUTX(Limelight camera, Gamepad gamepad1, MecanumDrive drive, CommandScheduler scheduler) {
+    public DistanceAdjustLUTX(Limelight camera, Gamepad gamepad1, MecanumDrive drive) {
         this.camera = camera;
         for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
             lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
         }
         lutx.createLUT();
         this.gamepad1 = gamepad1;
-        this.scheduler = scheduler;
         this.drive = drive;
     }
 
     @Override
     public void initialize() {
         isAdjusted = false;
-//        lowSlide.setPIDEnabled(false);
+        moveAction = null;
         if (!camera.updateDetectorResult()) {
             isAdjusted = true; // Skip if no detection
             return;
@@ -59,34 +57,53 @@ public class DistanceAdjustLUTX extends CommandBase {
     @Override
     public void execute(TelemetryPacket packet) {
         packet.put("vision/x", "running");
-        //        if(Math.abs(lowSlide.pidfController.lastError) > 20) return;
-        if(camera.updateDetectorResult()){
-            double dx = camera.getTx();
-            if(dx == 0){
-                return;
+
+        // If we have an active movement action, run it
+        if (moveAction != null) {
+            // Check if action is done or timed out
+            boolean actionDone = !moveAction.run(packet);
+            boolean timedOut = actionTimer.seconds() > ACTION_TIMEOUT;
+
+            if (actionDone || timedOut) {
+                moveAction = null;
+                isAdjusted = true;
+                packet.put("vision/adjustment", actionDone ? "completed" : "timed out");
+            } else {
+                drive.updatePoseEstimate();
+                return; // Continue running current action
             }
-            adjustx(dx, packet);
-            isAdjusted = true;
-
-        }
-        if(gamepad1.dpad_up){
-            isAdjusted = true;
         }
 
+        // Only detect new adjustments if no active movement
+        if (moveAction == null && camera.updateDetectorResult()) {
+            double dx = camera.getTx();
+            if (dx != 0) {
+                adjustx(dx, packet);
+            }
+        }
+
+        if (gamepad1.dpad_up) {
+            isAdjusted = true;
+        }
     }
 
     @Override
     public boolean isFinished() {
-        return isAdjusted;
+        return isAdjusted && moveAction == null;
     }
 
     @Override
     public void end(boolean interrupted) {
-
+        // Stop any ongoing movement if interrupted
+        if (interrupted && moveAction != null) {
+            // Set drive powers to zero to stop movement
+            drive.setDrivePowers(new com.acmerobotics.roadrunner.PoseVelocity2d(
+                    new Vector2d(0, 0), 0));
+        }
         camera.reset();
     }
 
-    public void adjustx(double dx, TelemetryPacket packet){
+    public void adjustx(double dx, TelemetryPacket packet) {
         packet.put("vision/rawTx", dx);
 
         double dxcm = lutx.get(dx);
@@ -101,10 +118,23 @@ public class DistanceAdjustLUTX extends CommandBase {
             double heading = startpose.heading.toDouble();
             // robot centric to field centric
             Vector2d endpose = new Vector2d(
-                    startpose.position.x + adjustmentNeeded * Math.cos(heading),
-                    startpose.position.y + adjustmentNeeded * Math.sin(heading)
+                    startpose.position.x - adjustmentNeeded * Math.sin(heading),
+                    startpose.position.y - adjustmentNeeded * Math.cos(heading)
             );
-            scheduler.schedule(new ActionCommand(drive.actionBuilder(startpose).strafeToConstantHeading(endpose).build()));
+
+            // Create the action
+            moveAction = drive.actionBuilder(startpose)
+                    .strafeToConstantHeading(endpose)
+                    .build();
+
+            // Reset the timer for timeout tracking
+            actionTimer.reset();
+
+            // Run the action first time
+            drive.updatePoseEstimate();
+            moveAction.run(packet);
+        } else {
+            isAdjusted = true; // No significant adjustment needed
         }
     }
 }
