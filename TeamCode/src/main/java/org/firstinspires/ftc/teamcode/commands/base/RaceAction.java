@@ -28,6 +28,13 @@ public class RaceAction implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
                 if (hasExited) {
+                        // Continue running unfinished actions even after exit
+                        for (int i = 0; i < actions.size(); i++) {
+                                if (!actionResults.get(i)) {
+                                        boolean result = actions.get(i).run(packet);
+                                        actionResults.set(i, !result);
+                                }
+                        }
                         return false;
                 }
 
@@ -44,7 +51,8 @@ public class RaceAction implements Action {
                         }
                 }
 
-                // If any action finished, mark this action as exited
+                // If any action finished, mark this action as exited but continue running
+                // others
                 if (anyActionFinished) {
                         hasExited = true;
                         return false;
