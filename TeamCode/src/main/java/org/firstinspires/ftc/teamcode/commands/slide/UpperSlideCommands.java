@@ -154,6 +154,21 @@ public class UpperSlideCommands {
                 }
         }
 
+        private class ExtendoClawCommand extends ServoCommand {
+                public ExtendoClawCommand(double pos) {
+                        super("upperslide/extendo_claw_target", pos);
+                }
+
+                @Override
+                protected void setServoPosition() {
+                        if (getTargetPosition() == UpperSlideVars.EXTENDO_OPEN) {
+                                upSlide.openExtendoClaw();
+                        } else {
+                                upSlide.closeExtendoClaw();
+                        }
+                }
+        }
+
         public Action openClaw() {
                 return new ClawCommand(UpperSlideVars.CLAW_OPEN);
         }
@@ -161,6 +176,12 @@ public class UpperSlideCommands {
         public Action closeClaw() {
                 return new ClawCommand(UpperSlideVars.CLAW_CLOSE);
         }
+
+        public Action openExtendoClaw() { return new ExtendoClawCommand(UpperSlideVars.EXTENDO_OPEN); }
+
+        public Action closeExtendoClaw() { return new ExtendoClawCommand(UpperSlideVars.EXTENDO_CLOSE); }
+
+
 
         public Action transfer() {
                 return new SequentialAction(

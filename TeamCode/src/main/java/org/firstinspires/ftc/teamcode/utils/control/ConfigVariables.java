@@ -73,8 +73,7 @@ public class ConfigVariables {
                 0,
                 2, 4.2, 6.4, 9.4, 12.4,
                 15.4, 18.4, 22.5, 25, 28.5,
-                31.4, 34.0, 35.5, 37
-                , 100
+                31.4, 34.0, 35.5, 37, 100
         };
         public static double[] X_DISTANCE_MAP_Y = {
                 -13,
@@ -82,8 +81,7 @@ public class ConfigVariables {
                 0,
                 2, 3.5, 4.8, 5.5, 7.5,
                 9, 10.2, 12.5, 13.5, 15.5,
-                17.3, 21, 21.8, 24.3
-                , 24.3
+                17.3, 21, 21.8, 24.3, 24.3
         };
         public static String[] ACCEPTED_COLORS = {
                 "blue", "red", "yellow"
@@ -112,8 +110,8 @@ public class ConfigVariables {
         // Claw positions
         public static double CLAW_OPEN = 1.0;
         public static double CLAW_CLOSE = 0.0;
-        public static double EXTENDO_OPEN = 1.0;
-        public static double EXTENDO_CLOSE = 0.0;
+        public static double EXTENDO_OPEN = 0.0;
+        public static double EXTENDO_CLOSE = 1.0;
 
         // Slide positions (in cm)
         public static double POS_0_CM = 0.0;

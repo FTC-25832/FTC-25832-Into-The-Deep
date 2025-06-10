@@ -63,11 +63,14 @@ public final class AutoSample extends LinearOpMode {
                                 ),
 
                                 // front pos for drop
-                                upperSlideCommands.front(),
+                                new ParallelAction(
+                                                upperSlideCommands.front(),
+
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
 
                                 new ParallelAction(
                                                 upperSlideCommands.openClaw(), // drop
+                                                upperSlideCommands.openExtendoClaw()),
                                                 // SCORED
 
                                                 // lowerslide prepare for next cycle
@@ -75,6 +78,7 @@ public final class AutoSample extends LinearOpMode {
                                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength)// EXTEND
                                 ),
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.B_DROPPEDAFTERDELAY_S),
+                                upperSlideCommands.closeExtendoClaw(),
                                 upperSlideCommands.scorespec()); // score spec position for upperslides to go down
         }
 
@@ -98,7 +102,10 @@ public final class AutoSample extends LinearOpMode {
 
                                 // transfer sequence
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.D_SLIDEPOS0AFTERDELAY_S),
-                                lowerSlideCommands.up(),
+                                new ParallelAction(
+                                        lowerSlideCommands.up(),
+                                        upperSlideCommands.slidePos1()
+                                ),
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.E_LOWSLIDEUPAFTERDELAY_S),
                                 upperSlideCommands.transfer(),
 
@@ -165,17 +172,17 @@ public final class AutoSample extends LinearOpMode {
                                                                 // end pos for teleop
                                                                 lowerSlideCommands.slidePos0(),
                                                                 upperSlideCommands.slidePos0()
-//                                                                ,drive.actionBuilder(SCORE.pose)
-//                                                                                .turnTo(TELEOP_START.heading)
-//                                                                                .build(),
-//
-//                                                                drive.actionBuilder(new Pose2d(
-//                                                                                SCORE.pos,
-//                                                                                TELEOP_START.heading))
-//                                                                                .strafeToLinearHeading(TELEOP_START.pos,
-//                                                                                                TELEOP_START.heading)
-//                                                                                .build()
-                                                                                )));
+                                                // ,drive.actionBuilder(SCORE.pose)
+                                                // .turnTo(TELEOP_START.heading)
+                                                // .build(),
+                                                //
+                                                // drive.actionBuilder(new Pose2d(
+                                                // SCORE.pos,
+                                                // TELEOP_START.heading))
+                                                // .strafeToLinearHeading(TELEOP_START.pos,
+                                                // TELEOP_START.heading)
+                                                // .build()
+                                                )));
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
         }
