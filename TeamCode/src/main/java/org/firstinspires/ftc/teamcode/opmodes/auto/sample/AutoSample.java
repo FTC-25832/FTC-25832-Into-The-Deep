@@ -63,14 +63,14 @@ public final class AutoSample extends LinearOpMode {
                                 ),
 
                                 // front pos for drop
-                                new ParallelAction(
-                                                upperSlideCommands.front(),
+                                upperSlideCommands.front(),
+                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
+                                upperSlideCommands.openExtendoClaw(),
 
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
-
                                 new ParallelAction(
                                                 upperSlideCommands.openClaw(), // drop
-                                                upperSlideCommands.openExtendoClaw()),
+
                                                 // SCORED
 
                                                 // lowerslide prepare for next cycle
@@ -89,6 +89,8 @@ public final class AutoSample extends LinearOpMode {
                                 drive.actionBuilder(startPOS.pose)
                                                 .strafeToLinearHeading(pickupPos.pos, pickupPos.heading)
                                                 .build(),
+
+                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
 
                                 new ParallelAction(
                                                 // upperslides go down

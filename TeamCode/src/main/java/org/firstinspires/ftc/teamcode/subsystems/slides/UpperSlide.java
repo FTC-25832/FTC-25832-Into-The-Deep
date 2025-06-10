@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
+//import com.qualcomm.robotcore.hardware.CurrentUnit;
 
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
@@ -114,6 +115,16 @@ public class UpperSlide extends SubsystemBase {
     public void pos0() {
         setPositionCM(UpperSlideVars.POS_PRE_0_CM);
         setPositionCM(UpperSlideVars.POS_0_CM);
+
+        // Check if motors are drawing high current (indicating they're at the bottom)
+//        if (Math.abs(slide1.getCurrent(CurrentUnit.AMPS)) > 2.0
+//                || Math.abs(slide2.getCurrent(CurrentUnit.AMPS)) > 2.0) {
+//            slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//            slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//            pidfController.setDestination(0); // Reset PID target to match new encoder position
+//        }
     }
 
     public void pos1() {
