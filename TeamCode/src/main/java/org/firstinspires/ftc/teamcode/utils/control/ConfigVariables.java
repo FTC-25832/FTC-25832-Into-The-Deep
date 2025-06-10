@@ -55,19 +55,17 @@ public class ConfigVariables {
         public static double CAMERA_DISTANCE = 27; // cm, y distance between camera and sample
         public static double[] Y_DISTANCE_MAP_X = {
                 -100,
-                -7, -5.4, -4.3,-3.5, -2,
+                -7, -5.4, -4.3, -3.5, -2,
                 1, 2.1, 5.5, 8.7, 10,
                 12.4, 14.2, 16.5, 19.7, 21,
-                22.3 , 23.0, 23.5, 24.1, 27.1
-                , 100
+                22.3, 23.0, 23.5, 24.1, 27.1, 100
         };
         public static double[] Y_DISTANCE_MAP_Y = {
                 12.5,
-                12.5,  14.5,  15.5, 16, 18.5,
+                12.5, 14.5, 15.5, 16, 18.5,
                 21.5, 23.5, 25.5, 27.5, 28.5,
                 30.5, 33, 35, 38.5, 41,
-                42.3 , 44, 45, 45.5, 50
-                , 50
+                42.3, 44, 45, 45.5, 50, 50
         };
         public static String[] ACCEPTED_COLORS = {
                 "blue", "red", "yellow"
@@ -96,6 +94,8 @@ public class ConfigVariables {
         // Claw positions
         public static double CLAW_OPEN = 1.0;
         public static double CLAW_CLOSE = 0.0;
+        public static double EXTENDO_OPEN = 1.0;
+        public static double EXTENDO_CLOSE = 0.0;
 
         // Slide positions (in cm)
         public static double POS_0_CM = 0.0;

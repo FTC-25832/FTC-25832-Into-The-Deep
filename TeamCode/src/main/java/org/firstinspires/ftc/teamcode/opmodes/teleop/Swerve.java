@@ -153,7 +153,7 @@ public class Swerve extends LinearOpMode {
         LimeLightImageTools llIt = new LimeLightImageTools(camera.limelight);
         llIt.setDriverStationStreamSource();
         llIt.forwardAll();
-        FtcDashboard.getInstance().startCameraStream(llIt.getStreamSource(),10);
+        FtcDashboard.getInstance().startCameraStream(llIt.getStreamSource(), 10);
 
         upslideActions = new UpperSlideCommands(upSlide);
         lowslideActions = new LowerSlideCommands(lowSlide);
@@ -167,6 +167,17 @@ public class Swerve extends LinearOpMode {
             @Override
             public void closeClaw() {
                 upSlide.closeClaw();
+            }
+        });
+        upperExtendo = new ClawController(new ClawController.ClawActuator() {
+            @Override
+            public void openClaw() {
+                upSlide.openExtendoClaw();
+            }
+
+            @Override
+            public void closeClaw() {
+                upSlide.closeExtendoClaw();
             }
         });
 
@@ -219,7 +230,8 @@ public class Swerve extends LinearOpMode {
         });
 
         gamepad1Controller.onPressed(ButtonType.DPAD_DOWN, () -> {
-            scheduler.schedule(new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 45)));
+            scheduler.schedule(
+                    new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 45)));
         });
 
         gamepad1Controller.onPressed(ButtonType.DPAD_LEFT, () -> {
@@ -227,7 +239,8 @@ public class Swerve extends LinearOpMode {
         });
 
         gamepad1Controller.onPressed(ButtonType.DPAD_RIGHT, () -> {
-            scheduler.schedule(new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 90)));
+            scheduler.schedule(
+                    new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 90)));
         });
 
         gamepad2Controller.onPressed(ButtonType.A, () -> {
@@ -260,10 +273,6 @@ public class Swerve extends LinearOpMode {
 
         gamepad2Controller.onPressed(ButtonType.DPAD_RIGHT, () -> {
             scheduler.schedule(new ActionCommand(upslideActions.scorespec()));
-        });
-
-        gamepad2Controller.onPressed(ButtonType.RIGHT_BUMPER, () -> {
-            scheduler.schedule(new HangingCommand(hangingServos, HangingCommand.Direction.STOP));
         });
 
     }
@@ -301,6 +310,7 @@ public class Swerve extends LinearOpMode {
 
         lowerClaw.handleManualControl(gamepad1.left_bumper, time);
         upperClaw.handleManualControl(gamepad2.left_bumper, time);
+        upperExtendo.handleManualControl(gamepad2.right_bumper, time);
     }
 
     private void updatePID() {

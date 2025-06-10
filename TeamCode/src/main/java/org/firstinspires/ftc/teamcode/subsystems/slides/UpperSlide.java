@@ -21,10 +21,15 @@ public class UpperSlide extends SubsystemBase {
     public ServoImplEx swing;
     public ServoImplEx claw;
     private DcMotor slide1, slide2;
+    public ServoImplEx extendo;
+
+    PwmControl.PwmRange v4range = new PwmControl.PwmRange(500, 2500);
+
     // Control ranges
     private final PwmControl.PwmRange swingRange = new PwmControl.PwmRange(500, 2500);
     private final PwmControl.PwmRange armRange = new PwmControl.PwmRange(500, 2500);
     private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1270);
+    private final PwmControl.PwmRange extendoRange = new PwmControl.PwmRange(500, 1270);
 
     // Position control
     public final PIDFController pidfController;
@@ -57,6 +62,7 @@ public class UpperSlide extends SubsystemBase {
         arm2 = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(1));
         swing = hardwareMap.get(ServoImplEx.class, ControlHub.servo(1));
         claw = hardwareMap.get(ServoImplEx.class, ControlHub.servo(3));
+        extendo = hardwareMap.get(ServoImplEx.class, ControlHub.servo(4));
 
         // Configure directions
         slide2.setDirection(DcMotor.Direction.REVERSE);
@@ -71,6 +77,7 @@ public class UpperSlide extends SubsystemBase {
         arm2.setPwmRange(armRange);
         swing.setPwmRange(swingRange);
         claw.setPwmRange(clawRange);
+        extendo.setPwmRange(extendoRange);
 
         slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -93,6 +100,7 @@ public class UpperSlide extends SubsystemBase {
         packet.put("upperslide/arm2", arm2.getPosition());
         packet.put("upperslide/swing", swing.getPosition());
         packet.put("upperslide/claw", claw.getPosition());
+        packet.put("upperslide/extendo", extendo.getPosition());
     }
 
     /**
@@ -181,6 +189,15 @@ public class UpperSlide extends SubsystemBase {
 
     public void closeClaw() {
         claw.setPosition(UpperSlideVars.CLAW_CLOSE);
+    }
+
+    // Exentdo controls
+    public void openExtendoClaw() {
+        extendo.setPosition(UpperSlideVars.EXTENDO_OPEN);
+    }
+
+    public void closeExtendoClaw() {
+        extendo.setPosition(UpperSlideVars.EXTENDO_CLOSE);
     }
 
     /**
