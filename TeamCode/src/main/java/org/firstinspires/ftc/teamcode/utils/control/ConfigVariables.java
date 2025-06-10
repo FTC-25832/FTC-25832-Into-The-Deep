@@ -67,6 +67,24 @@ public class ConfigVariables {
                 30.5, 33, 35, 38.5, 41,
                 42.3, 44, 45, 45.5, 50, 50
         };
+        public static double[] X_DISTANCE_MAP_X = {
+                -100,
+                -13, -12.5, -10.4, -8.6, -5.6, -3.5,
+                0,
+                2, 4.2, 6.4, 9.4, 12.4,
+                15.4, 18.4, 22.5, 25, 28.5,
+                31.4, 34.0, 35.5, 37
+                , 100
+        };
+        public static double[] X_DISTANCE_MAP_Y = {
+                -13,
+                -13, -11.5, -9.3, -6.5, -3.5, -2,
+                0,
+                2, 3.5, 4.8, 5.5, 7.5,
+                9, 10.2, 12.5, 13.5, 15.5,
+                17.3, 21, 21.8, 24.3
+                , 24.3
+        };
         public static String[] ACCEPTED_COLORS = {
                 "blue", "red", "yellow"
         };

@@ -12,9 +12,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
-import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.commands.base.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
+import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.drive.MecanumDriveCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
@@ -22,13 +22,12 @@ import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceComma
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
-import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUT;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
-import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.sensors.limelight.LimeLightImageTools;
 
-import java.util.Set;
 import org.firstinspires.ftc.teamcode.subsystems.hang.Hanging;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
@@ -59,6 +58,7 @@ public class Swerve extends LinearOpMode {
     private GamepadController gamepad2Controller;
 
     private ClawController upperClaw;
+    private ClawController upperExtendo;
     private ClawController lowerClaw;
 
     private IMU imu;
@@ -73,7 +73,7 @@ public class Swerve extends LinearOpMode {
         dashboard = FtcDashboard.getInstance();
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
-        scheduler.schedule(new MecanumDriveCommand(drive, gamepad1, imu));
+        scheduler.schedule(new MecanumDriveCommand(drive, gamepad1));
 
         setupGamepadControls();
 
@@ -158,40 +158,10 @@ public class Swerve extends LinearOpMode {
         upslideActions = new UpperSlideCommands(upSlide);
         lowslideActions = new LowerSlideCommands(lowSlide);
 
-        upperClaw = new ClawController(new ClawController.ClawActuator() {
-            @Override
-            public void openClaw() {
-                upSlide.openClaw();
-            }
+        upperClaw = new ClawController(upSlide::openClaw, upSlide::closeClaw);
+        upperExtendo = new ClawController(upSlide::openExtendoClaw, upSlide::closeExtendoClaw);
 
-            @Override
-            public void closeClaw() {
-                upSlide.closeClaw();
-            }
-        });
-        upperExtendo = new ClawController(new ClawController.ClawActuator() {
-            @Override
-            public void openClaw() {
-                upSlide.openExtendoClaw();
-            }
-
-            @Override
-            public void closeClaw() {
-                upSlide.closeExtendoClaw();
-            }
-        });
-
-        lowerClaw = new ClawController(new ClawController.ClawActuator() {
-            @Override
-            public void openClaw() {
-                lowSlide.openClaw();
-            }
-
-            @Override
-            public void closeClaw() {
-                lowSlide.closeClaw();
-            }
-        });
+        lowerClaw = new ClawController(lowSlide::openClaw, lowSlide::closeClaw);
 
         gamepad1Controller = new GamepadController(gamepad1);
         gamepad2Controller = new GamepadController(gamepad2);
@@ -203,7 +173,10 @@ public class Swerve extends LinearOpMode {
     private void setupGamepadControls() {
 
         gamepad1Controller.onPressed(ButtonType.X, () -> {
-            scheduler.schedule(new DistanceAdjustLUT(lowSlide, camera, gamepad1));
+            Command adjustCommand = new SequentialCommandGroup(
+                    new DistanceAdjustLUTY(lowSlide, camera, gamepad1),
+                    new DistanceAdjustLUTX(camera, gamepad1, drive, scheduler));
+            scheduler.schedule(adjustCommand);
         });
 
         gamepad1Controller.onPressed(ButtonType.DPAD_UP, () -> {

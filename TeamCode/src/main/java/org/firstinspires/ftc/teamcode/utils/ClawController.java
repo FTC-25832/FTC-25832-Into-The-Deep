@@ -8,16 +8,12 @@ public class ClawController {
         private boolean isOpen;
         private boolean isGrabSequenceRunning;
         private double lastButtonPressTime;
-        private final ClawActuator claw;
+        private final Runnable openClaw;
+        private final Runnable closeClaw;
 
-        public interface ClawActuator {
-                void openClaw();
-
-                void closeClaw();
-        }
-
-        public ClawController(ClawActuator claw) {
-                this.claw = claw;
+        public ClawController(Runnable openAction, Runnable closeAction) {
+                this.openClaw = openAction;
+                this.closeClaw = closeAction;
                 this.isOpen = false;
                 this.isGrabSequenceRunning = false;
                 this.lastButtonPressTime = 0;
@@ -34,9 +30,9 @@ public class ClawController {
                         if (currentTime - lastButtonPressTime > DEBOUNCE_TIME) {
                                 isOpen = !isOpen;
                                 if (isOpen) {
-                                        claw.openClaw();
+                                        openClaw.run();
                                 } else {
-                                        claw.closeClaw();
+                                        closeClaw.run();
                                 }
                         }
                         lastButtonPressTime = currentTime;
@@ -89,9 +85,9 @@ public class ClawController {
         public void setOpen(boolean open) {
                 this.isOpen = open;
                 if (open) {
-                        claw.openClaw();
+                        openClaw.run();
                 } else {
-                        claw.closeClaw();
+                        closeClaw.run();
                 }
         }
 
