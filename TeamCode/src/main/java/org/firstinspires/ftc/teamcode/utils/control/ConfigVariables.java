@@ -42,9 +42,11 @@ public class ConfigVariables {
         public static double G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S = 0.05;
         public static double H_TRANSFERCOMPLETEAFTERDELAY_S = 0.2;
 
-        public static double Z_LowerslideExtend_FIRST = 18;
-        public static double Z_LowerslideExtend_SECOND = 18;
-        public static double Z_LowerslideExtend_THIRD = 15;
+        public static double Z_LowerslideExtend_FIRST = 23;
+        public static double Z_LowerslideExtend_SECOND = 23;
+        public static double Z_LowerslideExtend_THIRD = 17;
+
+        public static double Y_PICKUPDELAY = 1;
 
     }
 
@@ -104,8 +106,8 @@ public class ConfigVariables {
         // Arm positions
         public static double FRONT_ARM_POS = 0.6;
         public static double FRONT_SWING_POS = 0.3;
-        public static double BEHIND_ARM_POS = 0.05;
-        public static double BEHIND_SWING_POS = 0.65;
+        public static double BEHIND_ARM_POS = 0.03;
+        public static double BEHIND_SWING_POS = 0.60;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;
