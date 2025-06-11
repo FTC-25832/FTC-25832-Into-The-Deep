@@ -173,6 +173,15 @@ public final class AutoSample05 extends LinearOpMode {
                                 new ParallelAction(
                                                 new LowerSlideUpdatePID(lowSlide).toAction(),
                                                 new UpperSlideUpdatePID(upSlide).toAction(),
+                                                // Add camera telemetry for debugging
+                                                new Action() {
+                                                        @Override
+                                                        public boolean run(
+                                                                        com.acmerobotics.dashboard.telemetry.TelemetryPacket packet) {
+                                                                camera.updateTelemetry(packet);
+                                                                return true; // Always continue running
+                                                        }
+                                                },
                                                 new SequentialAction(
                                                                 upperSlideCommands.scorespec(),
 

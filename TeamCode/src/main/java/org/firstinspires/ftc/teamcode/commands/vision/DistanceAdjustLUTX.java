@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
 public class DistanceAdjustLUTX extends CommandBase {
     private final InterpLUT lutx = new InterpLUT();
-//    private final InterpLUT lutratio = new InterpLUT();
+    // private final InterpLUT lutratio = new InterpLUT();
     private final MecanumDrive drive;
     private double dx, dy;
     private boolean isAdjusted = false;
@@ -25,15 +25,17 @@ public class DistanceAdjustLUTX extends CommandBase {
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
 
-    public DistanceAdjustLUTX(MecanumDrive drive, double dx, double dy, Runnable disableDriveControl, Runnable enableDriveControl) {
+    public DistanceAdjustLUTX(MecanumDrive drive, double dx, double dy, Runnable disableDriveControl,
+            Runnable enableDriveControl) {
         for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
             lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
         }
-//        for (int i = 0; i < ConfigVariables.Camera.XYRATIO_MAP_Y.length; i++) {
-//            lutratio.add(ConfigVariables.Camera.XYRATIO_MAP_X[i], ConfigVariables.Camera.XYRATIO_MAP_Y[i]);
-//        }
+        // for (int i = 0; i < ConfigVariables.Camera.XYRATIO_MAP_Y.length; i++) {
+        // lutratio.add(ConfigVariables.Camera.XYRATIO_MAP_X[i],
+        // ConfigVariables.Camera.XYRATIO_MAP_Y[i]);
+        // }
         lutx.createLUT();
-//        lutratio.createLUT();
+        // lutratio.createLUT();
         this.dx = dx;
         this.dy = dy;
         this.drive = drive;
@@ -50,12 +52,17 @@ public class DistanceAdjustLUTX extends CommandBase {
 
     @Override
     public void execute(TelemetryPacket packet) {
+        packet.put("DistanceAdjustLUTX/dx_input", dx);
+        packet.put("DistanceAdjustLUTX/dy_input", dy);
+        packet.put("DistanceAdjustLUTX/isAdjusted", isAdjusted);
+        packet.put("DistanceAdjustLUTX/hasActiveAction", moveAction != null);
         packet.put("vision/x", "running");
 
         // If we have an active movement action, run it
         if (moveAction != null) {
             // Check if action is done or timed out
             boolean actionDone = !moveAction.run(packet);
+            packet.put("DistanceAdjustLUTX/actionStatus", actionDone ? "done" : "running");
 
             if (actionDone) {
                 isAdjusted = true;
@@ -68,30 +75,33 @@ public class DistanceAdjustLUTX extends CommandBase {
         } else {
             if (dx == 0) {
                 isAdjusted = true;
+                packet.put("DistanceAdjustLUTX/status", "NO_DX_VALUE");
                 packet.put("vision/x", "no target");
                 return;
             }
-//                final double gradient = lutratio.get(dy);
-//                dx = dx - dy * gradient;
-            //Δtx = 180/pi arctan(tan(ty*pi/180)*gradientpx))
+
+            packet.put("DistanceAdjustLUTX/status", "ADJUSTING");
+            // final double gradient = lutratio.get(dy);
+            // dx = dx - dy * gradient;
+            // Δtx = 180/pi arctan(tan(ty*pi/180)*gradientpx))
 
             final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
-            final double ddx = Math.toDegrees(Math.atan(Math.tan(Math.toRadians(dy))*gradientpx));
+            final double ddx = Math.toDegrees(Math.atan(Math.tan(Math.toRadians(dy)) * gradientpx));
             packet.put("vision/ddx", ddx);
             dx = dx - ddx;
             adjustx(dx, packet);
         }
 
-//        if (gamepad1.dpad_up) {
-//            isAdjusted = true;
-//            moveAction = null;
-//            packet.put("vision/x", "completed by manual");
-//        }
+        // if (gamepad1.dpad_up) {
+        // isAdjusted = true;
+        // moveAction = null;
+        // packet.put("vision/x", "completed by manual");
+        // }
     }
 
     @Override
     public boolean isFinished() {
-        return isAdjusted && moveAction==null;
+        return isAdjusted && moveAction == null;
     }
 
     @Override
@@ -122,8 +132,7 @@ public class DistanceAdjustLUTX extends CommandBase {
             // robot centric to field centric
             Vector2d endpose = new Vector2d(
                     startpose.position.x + adjustmentNeededinch * Math.sin(heading),
-                    startpose.position.y - adjustmentNeededinch * Math.cos(heading)
-            );
+                    startpose.position.y - adjustmentNeededinch * Math.cos(heading));
 
             // Create the action
             moveAction = drive.actionBuilder(startpose)

@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 public class DistanceAdjustLUTY extends CommandBase {
     private final LowerSlide lowSlide;
     private final InterpLUT luty = new InterpLUT();
-//    private final Gamepad gamepad1;
+    // private final Gamepad gamepad1;
     private boolean isAdjusted = false;
     private double dy;
 
@@ -49,22 +49,28 @@ public class DistanceAdjustLUTY extends CommandBase {
     @Override
     public void initialize() {
         isAdjusted = false;
-//        lowSlide.setPIDEnabled(false);
+        // lowSlide.setPIDEnabled(false);
         velocityTimer.reset();
     }
 
     @Override
     public void execute(TelemetryPacket packet) {
-//        if(Math.abs(lowSlide.pidfController.lastError) > 20) return;
-        if(dy == 0){
+        packet.put("DistanceAdjustLUTY/dy_input", dy);
+        packet.put("DistanceAdjustLUTY/isAdjusted", isAdjusted);
+
+        // if(Math.abs(lowSlide.pidfController.lastError) > 20) return;
+        if (dy == 0) {
+            packet.put("DistanceAdjustLUTY/status", "NO_DY_VALUE");
             return;
         }
+
+        packet.put("DistanceAdjustLUTY/status", "ADJUSTING");
         adjusty(dy, packet);
         isAdjusted = true;
 
-//        if(gamepad1.dpad_up){
-//            isAdjusted = true;
-//        }
+        // if(gamepad1.dpad_up){
+        // isAdjusted = true;
+        // }
 
     }
 
@@ -81,7 +87,7 @@ public class DistanceAdjustLUTY extends CommandBase {
         }
     }
 
-    public void adjusty(double dy, TelemetryPacket packet){
+    public void adjusty(double dy, TelemetryPacket packet) {
         // Calculate velocity (change in dy per second)
         double dt = velocityTimer.seconds();
         velocityTimer.reset();
@@ -105,11 +111,10 @@ public class DistanceAdjustLUTY extends CommandBase {
         packet.put("vision/dycm", dycm);
         packet.put("vision/y0", luty.get(0));
 
-
         // Apply limits and set position
-        if(pos > 45){
+        if (pos > 45) {
             lowSlide.setPositionCM(45);
-        } else if (pos < 0){
+        } else if (pos < 0) {
             lowSlide.setPositionCM(0);
         } else {
             lowSlide.setPositionCM(pos);
