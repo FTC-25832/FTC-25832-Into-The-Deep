@@ -155,6 +155,7 @@ public final class AutoSample05 extends LinearOpMode {
 
                 // cam
                 camera = new Limelight();
+                camera.initialize(hardwareMap);
 
                 // Initialize drive with starting pose
                 drive = new MecanumDrive(hardwareMap, START.pose);
@@ -167,6 +168,7 @@ public final class AutoSample05 extends LinearOpMode {
                                                 upperSlideCommands.closeClaw()));
 
                 waitForStart();
+                camera.cameraStart();
                 if (isStopRequested())
                         return;
 

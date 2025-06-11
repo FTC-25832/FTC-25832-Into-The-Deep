@@ -192,9 +192,6 @@ public class Swerve extends LinearOpMode {
         gamepad1Controller.onPressed(ButtonType.DPAD_UP, () -> {
             scheduler.schedule(new ActionCommand(lowslideActions.hover()));
             scheduler.schedule(new AngleAdjustCommand(lowSlide, camera));
-            scheduler.schedule(new CameraUpdateDetectorResult(camera));
-            scheduler.schedule(new DistanceAdjustLUTY(lowSlide, camera.getTy()));
-            scheduler.schedule(new DistanceAdjustLUTX(drive, camera.getTx(), camera.getTy(), mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
 
         });
 

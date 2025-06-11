@@ -50,6 +50,7 @@ public final class AutoSample04 extends LinearOpMode {
 
         private Limelight camera;
 
+
         private Action waitSeconds(Pose2d pose, double seconds) {
                 return drive.actionBuilder(pose)
                                 .waitSeconds(seconds)
@@ -84,7 +85,7 @@ public final class AutoSample04 extends LinearOpMode {
                                                                 new ParallelAction(
                                                                                 upperSlideCommands.closeExtendoClaw(),
                                                                                 upperSlideCommands.scorespec()
-                                                                // score spec position for upperslides to go down
+                                                                // score spec position for upperslides to go downa
                                                                 ),
                                                                 upperSlideCommands.slidePos0()),
 
@@ -153,6 +154,7 @@ public final class AutoSample04 extends LinearOpMode {
 
                 // cam
                 camera = new Limelight();
+                camera.initialize(hardwareMap);
 
                 // Initialize drive with starting pose
                 drive = new MecanumDrive(hardwareMap, START.pose);
@@ -165,6 +167,7 @@ public final class AutoSample04 extends LinearOpMode {
                                                 upperSlideCommands.closeClaw()));
 
                 waitForStart();
+                camera.cameraStart();
                 if (isStopRequested())
                         return;
 

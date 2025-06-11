@@ -21,7 +21,6 @@ public class Limelight {
     public LLResultTypes.DetectorResult detectorResult;
     public double[] poseResult = {0, 0, 0, 0}; // [x, y, z, rotationAngle]
     public List<List<Double>> outerCorners;
-    private String[] ACCEPTED_COLORS = ConfigVariables.Camera.ACCEPTED_COLORS;
     public boolean available = true;
     public boolean resultAvailable = false;
     private static final Mat CAMERA_INTRINSIC_MATRIX = new Mat(3, 3, CvType.CV_64F);
@@ -69,7 +68,7 @@ public class Limelight {
             }
             // get the first result whose classname is in ConfigVariables.Camera.ACCEPTED_COLORS
             for (LLResultTypes.DetectorResult res : detectorResults){
-                if (Arrays.asList(ACCEPTED_COLORS).contains(res.getClassName())) {
+                if (Arrays.asList(ConfigVariables.Camera.ACCEPTED_COLORS).contains(res.getClassName())) {
                     detectorResult = res;
                     resultAvailable = true;
                     return true;
@@ -240,7 +239,7 @@ public class Limelight {
         if (blue) colors[i++] = "blue";
         if (red) colors[i++] = "red";
         if (yellow) colors[i++] = "yellow";
-        ACCEPTED_COLORS = Arrays.copyOf(colors, i);
+        ConfigVariables.Camera.ACCEPTED_COLORS = Arrays.copyOf(colors, i);
     }
 
     public void setColor(String classname){
