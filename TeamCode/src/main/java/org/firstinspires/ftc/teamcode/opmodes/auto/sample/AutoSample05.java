@@ -110,14 +110,20 @@ public final class AutoSample05 extends LinearOpMode {
                                                                 new CameraUpdateDetectorResult(camera).toAction(),
                                                                 new DistanceAdjustLUTY(lowSlide, camera.getTy())
                                                                                 .toAction())),
-                                new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTX(drive, camera.getTx(), camera.getTy(), () -> {
-                                }, () -> {
-                                }).toAction(),
                                 new ParallelAction(
                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                 // Grab
-                                                new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
+                                                new RaceAction(
+                                                                new SequentialAction(
+                                                                                new CameraUpdateDetectorResult(camera)
+                                                                                                .toAction(),
+                                                                                new DistanceAdjustLUTX(drive,
+                                                                                                camera.getTx(),
+                                                                                                camera.getTy(), () -> {
+                                                                                                }, () -> {
+                                                                                                }).toAction()),
+                                                                new LowerSlideGrabSequenceCommand(
+                                                                                lowSlide).toAction())),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
                                 // retract, remember to keep pos_hover() when retracting slides
