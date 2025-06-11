@@ -17,33 +17,28 @@ import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
 public class DistanceAdjustLUTX extends CommandBase {
     private final InterpLUT lutx = new InterpLUT();
+//    private final InterpLUT lutratio = new InterpLUT();
     private final MecanumDrive drive;
-    private final Gamepad gamepad1;
-    private final Limelight camera;
     private double dx, dy;
     private boolean isAdjusted = false;
     private Action moveAction = null;
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
-    private final boolean isTeleop;
 
-    public DistanceAdjustLUTX(MecanumDrive drive, Limelight camera, Runnable disableDriveControl,
-            Runnable enableDriveControl) {
-        this(null, drive, camera, disableDriveControl, enableDriveControl);
-    }
-
-    public DistanceAdjustLUTX(Gamepad gamepad1, MecanumDrive drive, Limelight camera, Runnable disableDriveControl,
-            Runnable enableDriveControl) {
+    public DistanceAdjustLUTX(MecanumDrive drive, double dx, double dy, Runnable disableDriveControl, Runnable enableDriveControl) {
         for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
             lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
         }
+//        for (int i = 0; i < ConfigVariables.Camera.XYRATIO_MAP_Y.length; i++) {
+//            lutratio.add(ConfigVariables.Camera.XYRATIO_MAP_X[i], ConfigVariables.Camera.XYRATIO_MAP_Y[i]);
+//        }
         lutx.createLUT();
-        this.camera = camera;
-        this.gamepad1 = gamepad1;
+//        lutratio.createLUT();
+        this.dx = dx;
+        this.dy = dy;
         this.drive = drive;
         this.disableDriveControl = disableDriveControl;
         this.enableDriveControl = enableDriveControl;
-        this.isTeleop = gamepad1 != null;
     }
 
     @Override
@@ -55,10 +50,6 @@ public class DistanceAdjustLUTX extends CommandBase {
 
     @Override
     public void execute(TelemetryPacket packet) {
-        camera.updateDetectorResult();
-        dx = camera.getTx();
-        dy = camera.getTy();
-
         packet.put("vision/x", "running");
 
         // If we have an active movement action, run it
@@ -77,29 +68,30 @@ public class DistanceAdjustLUTX extends CommandBase {
         } else {
             if (dx == 0) {
                 isAdjusted = true;
-                if (isTeleop) {
-                    gamepad1.rumble(100);
-                }
                 packet.put("vision/x", "no target");
                 return;
             }
-            // tx: +11.11°
-            // ty: +31.91°
-            final double gradient = 7.3 / 23.7;
-            dx = dx - dy * gradient;
+//                final double gradient = lutratio.get(dy);
+//                dx = dx - dy * gradient;
+            //Δtx = 180/pi arctan(tan(ty*pi/180)*gradientpx))
+
+            final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
+            final double ddx = Math.toDegrees(Math.atan(Math.tan(Math.toRadians(dy))*gradientpx));
+            packet.put("vision/ddx", ddx);
+            dx = dx - ddx;
             adjustx(dx, packet);
         }
 
-        if (isTeleop && gamepad1.dpad_up) {
-            isAdjusted = true;
-            moveAction = null;
-            packet.put("vision/x", "completed by manual");
-        }
+//        if (gamepad1.dpad_up) {
+//            isAdjusted = true;
+//            moveAction = null;
+//            packet.put("vision/x", "completed by manual");
+//        }
     }
 
     @Override
     public boolean isFinished() {
-        return isAdjusted && moveAction == null;
+        return isAdjusted && moveAction==null;
     }
 
     @Override
@@ -114,7 +106,7 @@ public class DistanceAdjustLUTX extends CommandBase {
     }
 
     public void adjustx(double dx, TelemetryPacket packet) {
-        packet.put("vision/rawTx", dx);
+        packet.put("vision/dx", dx);
 
         double dxcm = lutx.get(dx);
         packet.put("vision/dxcm", dxcm);
@@ -130,7 +122,8 @@ public class DistanceAdjustLUTX extends CommandBase {
             // robot centric to field centric
             Vector2d endpose = new Vector2d(
                     startpose.position.x + adjustmentNeededinch * Math.sin(heading),
-                    startpose.position.y - adjustmentNeededinch * Math.cos(heading));
+                    startpose.position.y - adjustmentNeededinch * Math.cos(heading)
+            );
 
             // Create the action
             moveAction = drive.actionBuilder(startpose)

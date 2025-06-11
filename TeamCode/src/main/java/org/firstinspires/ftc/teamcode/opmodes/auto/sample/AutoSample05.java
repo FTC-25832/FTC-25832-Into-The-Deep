@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustAutoCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
@@ -105,9 +106,10 @@ public final class AutoSample05 extends LinearOpMode {
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
                                 new RaceAction(
                                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
-                                                new DistanceAdjustLUTY(lowSlide, camera).toAction()),
-
-                                new DistanceAdjustLUTX(drive, camera, null, null).toAction(),
+                                                new CameraUpdateDetectorResult(camera).toAction(),
+                                                new DistanceAdjustLUTY(lowSlide, camera.getTy()).toAction()),
+                                 new CameraUpdateDetectorResult(camera).toAction(),
+                                new DistanceAdjustLUTX(drive,camera.getTx(), camera.getTy(), ()->{}, ()->{}).toAction(),
 
                                 new RaceAction(
                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
@@ -196,15 +198,13 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                 .strafeToConstantHeading(
                                                                                                 new Vector2d(23, 5))
                                                                                 .build(),
-
+                                                        new CameraUpdateDetectorResult(camera).toAction(),
                                                                 new ParallelAction(
-                                                                                new DistanceAdjustLUTY(lowSlide, camera)
-                                                                                                .toAction(),
-                                                                                new DistanceAdjustLUTX(drive, camera,
-                                                                                                null, null).toAction(),
+                                                                        new DistanceAdjustLUTY(lowSlide, camera.getTy()).toAction(),
+                                                        new DistanceAdjustLUTX(drive,camera.getTx(), camera.getTy(), ()->{}, ()->{}).toAction(),
                                                                                 new AngleAdjustAutoCommand(lowSlide,
                                                                                                 camera).toAction()),
-                                                                new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
+                                                                new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
 
                                                                 drive.actionBuilder(
                                                                                 new Pose2d(23, 12, Math.toRadians(180)))
@@ -218,7 +218,7 @@ public final class AutoSample05 extends LinearOpMode {
                                                 // .strafeToConstantHeading(SCORE.pos);
                                                 // .strafeToLinearHeading(SCORE.pos, SCORE.heading);
 
-                                                )));
+                                                ));
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
