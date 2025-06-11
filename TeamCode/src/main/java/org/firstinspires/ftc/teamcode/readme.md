@@ -1,6 +1,12 @@
 ### sloth
 https://github.com/Dairy-Foundation/Sloth?tab=readme-ov-file#gradle-tasks
 
+### Axes directions
+
+x+ forward
+y+ left
+angle+ anti-clockwise
+
 ### wireless code upload setup
 connect to wifi then adb commands
 

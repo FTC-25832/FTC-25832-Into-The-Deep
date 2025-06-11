@@ -22,6 +22,7 @@ public class MecanumDriveCommand implements Command {
         // Speed multipliers for fine control
         private double speedMultiplier = 1.0;
         private boolean fieldCentric = true;
+        private boolean acceptManual = true;
 
         public MecanumDriveCommand(MecanumDrive drive, Gamepad gamepad) {
                 this.drive = drive;
@@ -35,51 +36,57 @@ public class MecanumDriveCommand implements Command {
 
         @Override
         public void execute(TelemetryPacket packet) {
-                // Update pose estimate from drive
-                PoseVelocity2d velocity = drive.updatePoseEstimate();
-                Pose2d currentPose = drive.localizer.getPose();
 
-                Vector2d input = new Vector2d(
-                        -gamepad.left_stick_y * speedMultiplier,
-                        -gamepad.left_stick_x * speedMultiplier
-                );
-
-                Vector2d driveVector;
-
-                // Check for field-centric mode
-                if (fieldCentric) {
-                        // Use the robot's heading from the localizer for more accurate field-centric driving
-                        double heading = currentPose.heading.toDouble();
-
-                        // Rotate the input vector by the negative of the heading (field-centric)
-                        double cosHeading = Math.cos(-heading);
-                        double sinHeading = Math.sin(-heading);
-                        driveVector = new Vector2d(
-                                input.x * cosHeading - input.y * sinHeading,
-                                input.x * sinHeading + input.y * cosHeading
+                if(acceptManual){
+                        PoseVelocity2d velocity = drive.updatePoseEstimate();
+                        Pose2d currentPose = drive.localizer.getPose();
+                         // Update pose estimate from drive
+                        Vector2d input = new Vector2d(
+                                -gamepad.left_stick_y * speedMultiplier,
+                                -gamepad.left_stick_x * speedMultiplier
                         );
-                } else {
-                        // Robot-centric mode (no rotation of input vector)
-                        driveVector = input;
+
+                        Vector2d driveVector;
+
+                        // Check for field-centric mode
+                        if (fieldCentric) {
+                                // Use the robot's heading from the localizer for more accurate field-centric driving
+                                double heading = currentPose.heading.toDouble();
+
+                                // Rotate the input vector by the negative of the heading (field-centric)
+                                double cosHeading = Math.cos(-heading);
+                                double sinHeading = Math.sin(-heading);
+                                driveVector = new Vector2d(
+                                        input.x * cosHeading - input.y * sinHeading,
+                                        input.x * sinHeading + input.y * cosHeading
+                                );
+                        } else {
+                                // Robot-centric mode (no rotation of input vector)
+                                driveVector = input;
+                        }
+
+                        // Pass the drive vector and rotation to the drive
+                        drive.setDrivePowers(new PoseVelocity2d(
+                                driveVector,
+                                -gamepad.right_stick_x * ConfigVariables.General.DRIVE_ROTATE_FACTOR * speedMultiplier
+                        ));
+                        packet.put("X Position", currentPose.position.x);
+                        packet.put("Y Position", currentPose.position.y);
+                        packet.put("Heading (deg)", Math.toDegrees(currentPose.heading.toDouble()));
+                        packet.put("X Velocity", velocity.linearVel.x);
+                        packet.put("Y Velocity", velocity.linearVel.y);
+                        packet.put("Angular Velocity", velocity.angVel);
                 }
-
-                // Pass the drive vector and rotation to the drive
-                drive.setDrivePowers(new PoseVelocity2d(
-                        driveVector,
-                        -gamepad.right_stick_x * ConfigVariables.General.DRIVE_ROTATE_FACTOR * speedMultiplier
-                ));
-
                 // Add telemetry
                 packet.put("Drive Mode", fieldCentric ? "Field Centric" : "Robot Centric");
                 packet.put("Speed Multiplier", speedMultiplier);
-                packet.put("X Position", currentPose.position.x);
-                packet.put("Y Position", currentPose.position.y);
-                packet.put("Heading (deg)", Math.toDegrees(currentPose.heading.toDouble()));
-                packet.put("X Velocity", velocity.linearVel.x);
-                packet.put("Y Velocity", velocity.linearVel.y);
-                packet.put("Angular Velocity", velocity.angVel);
         }
-
+        public void enableControl(){
+                acceptManual = true;
+        }
+        public void disableControl(){
+                acceptManual = false;
+        }
 
         @Override
         public boolean isFinished() {

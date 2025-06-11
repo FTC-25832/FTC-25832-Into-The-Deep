@@ -16,10 +16,10 @@ import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
 public class DistanceAdjustLUTY extends CommandBase {
     private final LowerSlide lowSlide;
-    private final Limelight camera;
     private final InterpLUT luty = new InterpLUT();
     private final Gamepad gamepad1;
     private boolean isAdjusted = false;
+    private double dy;
 
     // Variables for feedforward compensation
     private static final double CAMERA_DELAY = 0.1;
@@ -36,9 +36,9 @@ public class DistanceAdjustLUTY extends CommandBase {
         }
     }
 
-    public DistanceAdjustLUTY(LowerSlide lowSlide, Limelight camera, Gamepad gamepad1) {
+    public DistanceAdjustLUTY(LowerSlide lowSlide, Gamepad gamepad1, double dy) {
         this.lowSlide = lowSlide;
-        this.camera = camera;
+        this.dy = dy;
         for (int i = 0; i < ConfigVariables.Camera.Y_DISTANCE_MAP_Y.length; i++) {
             luty.add(ConfigVariables.Camera.Y_DISTANCE_MAP_X[i], ConfigVariables.Camera.Y_DISTANCE_MAP_Y[i]);
         }
@@ -51,19 +51,13 @@ public class DistanceAdjustLUTY extends CommandBase {
     public void initialize() {
         isAdjusted = false;
 //        lowSlide.setPIDEnabled(false);
-        if (!camera.resultAvailable) {
-            isAdjusted = true; // Skip if no detection
-            return;
-        }
         velocityTimer.reset();
     }
 
     @Override
     public void execute(TelemetryPacket packet) {
 //        if(Math.abs(lowSlide.pidfController.lastError) > 20) return;
-        double dy = camera.getTy();
-        double dx = camera.getTx();
-        if(dy == 0 || dx == 0){
+        if(dy == 0){
             return;
         }
         adjusty(dy, packet);
@@ -86,8 +80,6 @@ public class DistanceAdjustLUTY extends CommandBase {
             lowSlide.stop();
             return;
         }
-
-        camera.reset();
     }
 
     public void adjusty(double dy, TelemetryPacket packet){
