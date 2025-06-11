@@ -88,6 +88,10 @@ public class UpperSlide extends SubsystemBase {
         // Configure motor modes
         slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // set current alarm
+        slide1.setCurrentAlert(5.0, CurrentUnit.AMPS);
+        slide2.setCurrentAlert(5.0, CurrentUnit.AMPS);
     }
 
     @Override
@@ -104,6 +108,10 @@ public class UpperSlide extends SubsystemBase {
         packet.put("upperslide/swing", swing.getPosition());
         packet.put("upperslide/claw", claw.getPosition());
         packet.put("upperslide/extendo", extendo.getPosition());
+
+        // current
+        packet.put("upperslide/current1", slide1.getCurrent(CurrentUnit.AMPS));
+        packet.put("upperslide/current2", slide2.getCurrent(CurrentUnit.AMPS));
     }
 
     /**
@@ -210,9 +218,10 @@ public class UpperSlide extends SubsystemBase {
         double currentPosition = getCurrentPosition();
         double power = pidfController.calculate(currentPosition) * 1;
 
-        if(pidfController.destination == 0){
-             //check if current is 0, if so then it means slides have reached bottom, so we reset encoders to prevent it from going negative
-            if (Math.abs(slide1.getCurrent(CurrentUnit.AMPS)) < 0.5 || Math.abs(slide2.getCurrent(CurrentUnit.AMPS)) < 0.5) {
+        if (pidfController.destination == 0) {
+            // check if current is 0, if so then it means slides have reached bottom, so we
+            // reset encoders to prevent it from going negative
+            if(slide1.isOverCurrent() || slide2.isOverCurrent()) {
                 slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

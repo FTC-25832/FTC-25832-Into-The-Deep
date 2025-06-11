@@ -107,13 +107,25 @@ public final class AutoSample04 extends LinearOpMode {
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
                                 new RaceAction(
                                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
-                                                new SequentialAction(new CameraUpdateDetectorResult(camera).toAction(), new DistanceAdjustLUTY(lowSlide, camera.getTy()).toAction())),
-                                new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTX(drive, camera.getTx(), camera.getTy() ,()->{}, ()->{}).toAction(),
-                                new RaceAction(
+                                                new SequentialAction(
+                                                                new CameraUpdateDetectorResult(camera).toAction(),
+                                                                new DistanceAdjustLUTY(lowSlide, camera.getTy())
+                                                                                .toAction())),
+
+                                new ParallelAction(
                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                 // Grab
-                                                new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
+                                                new RaceAction(
+                                                                new SequentialAction(
+                                                                                new CameraUpdateDetectorResult(camera)
+                                                                                                .toAction(),
+                                                                                new DistanceAdjustLUTX(drive,
+                                                                                                camera.getTx(),
+                                                                                                camera.getTy(), () -> {
+                                                                                                }, () -> {
+                                                                                                }).toAction()),
+                                                                new LowerSlideGrabSequenceCommand(
+                                                                                lowSlide).toAction())),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
                                 // retract, remember to keep pos_hover() when retracting slides
@@ -178,17 +190,27 @@ public final class AutoSample04 extends LinearOpMode {
                                                 new UpperSlideUpdatePID(upSlide).toAction(),
                                                 new SequentialAction(
                                                                 upperSlideCommands.scorespec(),
+
                                                                 scoreSequence(START,
                                                                                 ConfigVariables.AutoTesting.Z_LowerslideExtend_FIRST),
-                                                                pickupAndScoreSequence(SCORE, PICKUP1,
-                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND),
-                                                                pickupAndScoreSequence(SCORE, PICKUP2,
-                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD),
 
-                                                                lowerSlideCommands.setSpinClawDeg(
-                                                                                ConfigVariables.LowerSlideVars.ZERO
-                                                                                                + 90),
-                                                                pickupAndScoreSequence(SCORE, PICKUP3, 0),
+                                                                new ParallelAction(
+                                                                                pickupAndScoreSequence(SCORE, PICKUP1,
+                                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND),
+                                                                                lowerSlideCommands.setSpinClawDeg(
+                                                                                                ConfigVariables.LowerSlideVars.ZERO)),
+                                                                new ParallelAction(
+                                                                                pickupAndScoreSequence(SCORE, PICKUP2,
+                                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD),
+                                                                                lowerSlideCommands.setSpinClawDeg(
+                                                                                                ConfigVariables.LowerSlideVars.ZERO)),
+
+                                                                new ParallelAction(
+                                                                                pickupAndScoreSequence(SCORE, PICKUP3,
+                                                                                                0),
+                                                                                lowerSlideCommands.setSpinClawDeg(
+                                                                                                ConfigVariables.LowerSlideVars.ZERO
+                                                                                                                + 90)),
 
                                                                 // end pos for teleop
                                                                 upperSlideCommands.setSlidePos(0),
