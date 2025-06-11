@@ -36,8 +36,11 @@ public class AngleAdjustAutoCommand extends CommandBase {
         camera.updatePosition();
         // Processing angle for spinclaw
         double angle = camera.getAngle(); // -90 ~ 90
-        angle = angle + ConfigVariables.Camera.ANGLE_OFFSET;
-        lowSlide.spinclawSetPositionDeg(angle);
+        if (angle < -55) {
+            lowSlide.spinclawSetPositionDeg(45);
+        } else {
+            lowSlide.spinclawSetPositionDeg(45 + 90);
+        }
         packet.put("visionAdjust/angle", angle);
     }
 
