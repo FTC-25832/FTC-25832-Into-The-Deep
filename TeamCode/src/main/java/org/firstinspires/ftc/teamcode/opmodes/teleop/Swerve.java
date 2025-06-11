@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceComma
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
@@ -178,18 +179,23 @@ public class Swerve extends LinearOpMode {
     private void setupGamepadControls() {
 
         gamepad1Controller.onPressed(ButtonType.X, () -> {
-            scheduler.schedule(new DistanceAdjustLUTY(lowSlide, gamepad1, camera));
-            new Timeout(() -> {
-                scheduler.schedule(new DistanceAdjustLUTX(gamepad1, drive, camera, mecanumDriveCommand::disableControl,
-                        mecanumDriveCommand::enableControl));
-            }, 600);
+            scheduler.schedule(new CameraUpdateDetectorResult(camera));
+            scheduler.schedule(new DistanceAdjustLUTY(lowSlide, camera.getTy()));
+            scheduler.schedule(new DistanceAdjustLUTX(drive, camera.getTx(), camera.getTy(), mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
+//            scheduler.schedule(new SequentialCommandGroup(
+//                    new DistanceAdjustLUTY(lowSlide, camera, gamepad1),
+//                    new WaitCommand(0.5),
+//                    new DistanceAdjustLUTX(camera, gamepad1, drive, mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl)
+//            ));
         });
 
         gamepad1Controller.onPressed(ButtonType.DPAD_UP, () -> {
-            Command adjustCommand = new SequentialCommandGroup(
-                    new ActionCommand(lowslideActions.hover()),
-                    new AngleAdjustCommand(lowSlide, camera, gamepad1));
-            scheduler.schedule(adjustCommand);
+            scheduler.schedule(new ActionCommand(lowslideActions.hover()));
+            scheduler.schedule(new AngleAdjustCommand(lowSlide, camera));
+            scheduler.schedule(new CameraUpdateDetectorResult(camera));
+            scheduler.schedule(new DistanceAdjustLUTY(lowSlide, camera.getTy()));
+            scheduler.schedule(new DistanceAdjustLUTX(drive, camera.getTx(), camera.getTy(), mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
+
         });
 
         gamepad1Controller.onPressed(ButtonType.RIGHT_BUMPER, () -> {

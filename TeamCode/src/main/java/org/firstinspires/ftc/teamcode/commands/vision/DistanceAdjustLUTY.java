@@ -17,11 +17,9 @@ import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 public class DistanceAdjustLUTY extends CommandBase {
     private final LowerSlide lowSlide;
     private final InterpLUT luty = new InterpLUT();
-    private final Gamepad gamepad1;
-    private final Limelight camera;
+//    private final Gamepad gamepad1;
     private boolean isAdjusted = false;
     private double dy;
-    private final boolean isTeleop;
 
     // Variables for feedforward compensation
     private static final double CAMERA_DELAY = 0.1;
@@ -38,44 +36,36 @@ public class DistanceAdjustLUTY extends CommandBase {
         }
     }
 
-    public DistanceAdjustLUTY(LowerSlide lowSlide, Limelight camera) {
-        this(lowSlide, null, camera);
-    }
-
-    public DistanceAdjustLUTY(LowerSlide lowSlide, Gamepad gamepad1, Limelight camera) {
+    public DistanceAdjustLUTY(LowerSlide lowSlide, double dy) {
         this.lowSlide = lowSlide;
-        this.camera = camera;
+        this.dy = dy;
         for (int i = 0; i < ConfigVariables.Camera.Y_DISTANCE_MAP_Y.length; i++) {
             luty.add(ConfigVariables.Camera.Y_DISTANCE_MAP_X[i], ConfigVariables.Camera.Y_DISTANCE_MAP_Y[i]);
         }
         luty.createLUT();
-        this.gamepad1 = gamepad1;
-        this.isTeleop = gamepad1 != null;
         addRequirement(lowSlide);
     }
 
     @Override
     public void initialize() {
         isAdjusted = false;
-        // lowSlide.setPIDEnabled(false);
+//        lowSlide.setPIDEnabled(false);
         velocityTimer.reset();
     }
 
     @Override
     public void execute(TelemetryPacket packet) {
-        camera.updateDetectorResult();
-        dy = camera.getTy();
-
-        // if(Math.abs(lowSlide.pidfController.lastError) > 20) return;
-        if (dy == 0) {
+//        if(Math.abs(lowSlide.pidfController.lastError) > 20) return;
+        if(dy == 0){
             return;
         }
         adjusty(dy, packet);
         isAdjusted = true;
 
-        if (isTeleop && gamepad1.dpad_up) {
-            isAdjusted = true;
-        }
+//        if(gamepad1.dpad_up){
+//            isAdjusted = true;
+//        }
+
     }
 
     @Override
@@ -91,7 +81,7 @@ public class DistanceAdjustLUTY extends CommandBase {
         }
     }
 
-    public void adjusty(double dy, TelemetryPacket packet) {
+    public void adjusty(double dy, TelemetryPacket packet){
         // Calculate velocity (change in dy per second)
         double dt = velocityTimer.seconds();
         velocityTimer.reset();
@@ -115,10 +105,11 @@ public class DistanceAdjustLUTY extends CommandBase {
         packet.put("vision/dycm", dycm);
         packet.put("vision/y0", luty.get(0));
 
+
         // Apply limits and set position
-        if (pos > 45) {
+        if(pos > 45){
             lowSlide.setPositionCM(45);
-        } else if (pos < 0) {
+        } else if (pos < 0){
             lowSlide.setPositionCM(0);
         } else {
             lowSlide.setPositionCM(pos);

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.commands.vision;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
@@ -15,13 +14,11 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 public class AngleAdjustCommand extends CommandBase {
     private final LowerSlide lowSlide;
     private final Limelight camera;
-    private final Gamepad gamepad1;
     private boolean isAngleAdjusted = false;
 
-    public AngleAdjustCommand(LowerSlide lowSlide, Limelight camera, Gamepad gamepad1) { // Gamepad gamepad1
+    public AngleAdjustCommand(LowerSlide lowSlide, Limelight camera) { // Gamepad gamepad1
         this.lowSlide = lowSlide;
         this.camera = camera;
-        this.gamepad1 = gamepad1;
         addRequirement(lowSlide);
     }
     @Override
@@ -45,9 +42,8 @@ public class AngleAdjustCommand extends CommandBase {
             lowSlide.spinclawSetPositionDeg(45+90);
         }
         packet.put("visionAdjust/angle", angle);
-        if (gamepad1.right_trigger > 0.5) {
-            isAngleAdjusted = true;
-        }
+        isAngleAdjusted = true;
+
     }
 
     // This command must be interrupted after 500ms to stop

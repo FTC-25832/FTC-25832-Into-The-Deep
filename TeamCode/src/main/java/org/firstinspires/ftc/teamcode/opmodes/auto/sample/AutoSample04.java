@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustAutoCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
@@ -105,11 +106,14 @@ public final class AutoSample04 extends LinearOpMode {
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
                                 new RaceAction(
                                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
-                                                new DistanceAdjustLUTY(lowSlide, camera).toAction()),
-
-                                new DistanceAdjustLUTX(drive, camera, null, null).toAction(),
-
-                                new ParallelAction(
+                                                new SequentialAction(new CameraUpdateDetectorResult(camera).toAction(),
+                                                                new DistanceAdjustLUTY(lowSlide, camera.getTy())
+                                                                                .toAction())),
+                                new CameraUpdateDetectorResult(camera).toAction(),
+                                new DistanceAdjustLUTX(drive, camera.getTx(), camera.getTy(), () -> {
+                                }, () -> {
+                                }).toAction(),
+                                new RaceAction(
                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                 // Grab
                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
