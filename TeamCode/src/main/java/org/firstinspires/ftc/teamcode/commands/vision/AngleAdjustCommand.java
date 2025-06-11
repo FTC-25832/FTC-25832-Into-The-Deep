@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.commands.vision;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
@@ -8,12 +11,19 @@ import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+
 /**
  * Command to perform vision-assisted adjustments using Limelight
  */
 public class AngleAdjustCommand extends CommandBase {
     private final LowerSlide lowSlide;
     private final Limelight camera;
+    private List<Double> angles;
     private boolean isAngleAdjusted = false;
 
     public AngleAdjustCommand(LowerSlide lowSlide, Limelight camera) { // Gamepad gamepad1
@@ -36,13 +46,11 @@ public class AngleAdjustCommand extends CommandBase {
         camera.updatePosition();
         // Processing angle for spinclaw
         double angle = camera.getAngle(); // -90 ~ 90
-        if(angle < -55){
-            lowSlide.spinclawSetPositionDeg(45);
-        } else {
-            lowSlide.spinclawSetPositionDeg(45+90);
-        }
+        angles.add(angle);
         packet.put("visionAdjust/angle", angle);
-        isAngleAdjusted = true;
+        if(angles.size()>=ConfigVariables.Camera.ANGLE_MAXNUM){
+            isAngleAdjusted = true;
+        }
 
     }
 
@@ -60,6 +68,11 @@ public class AngleAdjustCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         isAngleAdjusted = true;
+        if(angles.stream().mapToDouble((a)->a).sum()/angles.size() < -45){
+            lowSlide.spinclawSetPositionDeg(ConfigVariables.Camera.CLAW_90+90);
+        } else {
+            lowSlide.spinclawSetPositionDeg(ConfigVariables.Camera.CLAW_90);
+        }
         camera.reset();
     }
 }
