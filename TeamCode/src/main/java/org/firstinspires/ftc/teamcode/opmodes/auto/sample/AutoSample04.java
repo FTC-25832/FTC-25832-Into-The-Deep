@@ -39,7 +39,7 @@ import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
 @Autonomous
-public final class AutoSample extends LinearOpMode {
+public final class AutoSample04 extends LinearOpMode {
         private MecanumDrive drive;
 
         private LowerSlide lowSlide;
