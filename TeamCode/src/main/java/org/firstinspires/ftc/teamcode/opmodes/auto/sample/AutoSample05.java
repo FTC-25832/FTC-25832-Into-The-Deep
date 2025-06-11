@@ -4,9 +4,11 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+//import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 //import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -24,6 +26,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustAutoCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
@@ -36,7 +39,7 @@ import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
 @Autonomous
-public final class AutoSampleCamera extends LinearOpMode {
+public final class AutoSample extends LinearOpMode {
         private MecanumDrive drive;
 
         private LowerSlide lowSlide;
@@ -60,39 +63,57 @@ public final class AutoSampleCamera extends LinearOpMode {
                                                                 .strafeToLinearHeading(SCORE.pos, SCORE.heading)
                                                                 .build(),
                                                 upperSlideCommands.closeClaw(),
+                                                upperSlideCommands.front(),
                                                 upperSlideCommands.slidePos3() // need scorespec or transfer pos to go
                                                                                // up safely
                                 ),
 
                                 // front pos for drop
-                                upperSlideCommands.front(),
+
+                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
+                                upperSlideCommands.openExtendoClaw(),
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
 
                                 new ParallelAction(
-                                                upperSlideCommands.openClaw(), // drop
-                                                // SCORED
+                                                new SequentialAction(
+                                                                upperSlideCommands.openClaw(), // drop
+                                                                // SCORED
+                                                                waitSeconds(SCORE.pose,
+                                                                                ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S),
+                                                                new ParallelAction(
+                                                                                upperSlideCommands.closeExtendoClaw(),
+                                                                                upperSlideCommands.scorespec()
+                                                                // score spec position for upperslides to go down
+                                                                ),
+                                                                upperSlideCommands.slidePos0()),
 
                                                 // lowerslide prepare for next cycle
-                                                lowerSlideCommands.hover(),
-                                                lowerSlideCommands.setSlidePos(lowerslideExtendLength)// EXTEND
-                                ),
-                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S),
-                                upperSlideCommands.scorespec()); // score spec position for upperslides to go down
+                                                lowerSlideCommands.hover()));
+
         }
 
         private SequentialAction pickupAndScoreSequence(RobotPosition startPOS, AutoPaths.RobotPosition pickupPos,
                         double lowerslideExtendLength) {
                 return new SequentialAction(
                                 // Drive to pickup
+
+                                upperSlideCommands.slidePos0(),
                                 drive.actionBuilder(startPOS.pose)
                                                 .strafeToLinearHeading(pickupPos.pos, pickupPos.heading)
                                                 .build(),
 
-                                new ParallelAction(
-                                                // upperslides go down
-                                                upperSlideCommands.slidePos0(),
+                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
+                                new RaceAction(
+                                                lowerSlideCommands.setSlidePos(lowerslideExtendLength),
+                                                new DistanceAdjustLUTY(lowSlide, camera).toAction()),
+
+                                new DistanceAdjustLUTX(drive, camera, null, null).toAction(),
+
+                                new RaceAction(
+                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                 // Grab
                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
+
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
                                 // retract, remember to keep pos_hover() when retracting slides
                                 lowerSlideCommands.slidePos0(),
@@ -100,16 +121,18 @@ public final class AutoSampleCamera extends LinearOpMode {
 
                                 // transfer sequence
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.D_SLIDEPOS0AFTERDELAY_S),
-                                lowerSlideCommands.up(),
+                                new ParallelAction(
+                                                lowerSlideCommands.up(),
+                                                upperSlideCommands.slidePos1()),
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.E_LOWSLIDEUPAFTERDELAY_S),
                                 upperSlideCommands.transfer(),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.F_TRANSFERAFTERDELAY_S),
-                                lowerSlideCommands.openClaw(),
+                                upperSlideCommands.closeClaw(),
 
                                 waitSeconds(pickupPos.pose,
                                                 ConfigVariables.AutoTesting.G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S),
-                                upperSlideCommands.closeClaw(),
+                                lowerSlideCommands.openClaw(),
 
                                 // Score
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.H_TRANSFERCOMPLETEAFTERDELAY_S),
@@ -128,6 +151,7 @@ public final class AutoSampleCamera extends LinearOpMode {
                 lowerSlideCommands = new LowerSlideCommands(lowSlide);
                 upperSlideCommands = new UpperSlideCommands(upSlide);
 
+                // cam
                 camera = new Limelight();
 
                 // Initialize drive with starting pose
@@ -137,7 +161,7 @@ public final class AutoSampleCamera extends LinearOpMode {
                 Actions.runBlocking(
                                 new SequentialAction(
                                                 lowerSlideCommands.up(),
-                                                upperSlideCommands.offwall(),
+                                                upperSlideCommands.scorespec(),
                                                 upperSlideCommands.closeClaw()));
 
                 waitForStart();
@@ -163,6 +187,8 @@ public final class AutoSampleCamera extends LinearOpMode {
                                                                                                 + 90),
                                                                 pickupAndScoreSequence(SCORE, PICKUP3, 0),
 
+                                                                // FULL SEND
+
                                                                 drive.actionBuilder(SCORE.pose)
                                                                                 .strafeToLinearHeading(
                                                                                                 new Vector2d(38, 5),
@@ -171,9 +197,14 @@ public final class AutoSampleCamera extends LinearOpMode {
                                                                                                 new Vector2d(23, 5))
                                                                                 .build(),
 
-                                                                new DistanceAdjustLUTY(lowSlide, camera).toAction(),
-                                                                lowerSlideCommands.hover(),
-                                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
+                                                                new ParallelAction(
+                                                                                new DistanceAdjustLUTY(lowSlide, camera)
+                                                                                                .toAction(),
+                                                                                new DistanceAdjustLUTX(drive, camera,
+                                                                                                null, null).toAction(),
+                                                                                new AngleAdjustAutoCommand(lowSlide,
+                                                                                                camera).toAction()),
+                                                                new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
                                                                 drive.actionBuilder(
                                                                                 new Pose2d(23, 12, Math.toRadians(180)))
