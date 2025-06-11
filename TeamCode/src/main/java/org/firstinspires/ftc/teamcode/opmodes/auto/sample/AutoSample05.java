@@ -40,7 +40,7 @@ import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
 @Autonomous
-public final class AutoSample05 extends LinearOpMode {
+public final class AutoSample04 extends LinearOpMode {
         private MecanumDrive drive;
 
         private LowerSlide lowSlide;
@@ -110,6 +110,7 @@ public final class AutoSample05 extends LinearOpMode {
                                                                 new CameraUpdateDetectorResult(camera).toAction(),
                                                                 new DistanceAdjustLUTY(lowSlide, camera.getTy())
                                                                                 .toAction())),
+
                                 new ParallelAction(
                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                 // Grab
@@ -186,6 +187,7 @@ public final class AutoSample05 extends LinearOpMode {
                                                 new UpperSlideUpdatePID(upSlide).toAction(),
                                                 new SequentialAction(
                                                                 upperSlideCommands.scorespec(),
+
                                                                 scoreSequence(START,
                                                                                 ConfigVariables.AutoTesting.Z_LowerslideExtend_FIRST),
 
@@ -228,21 +230,21 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                                 }).toAction(),
                                                                                 new AngleAdjustAutoCommand(lowSlide,
                                                                                                 camera).toAction()),
-                                                                new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
+                                                                new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
-                                                drive.actionBuilder(
-                                                                new Pose2d(23, 12, Math.toRadians(180)))
-                                                                .strafeToConstantHeading(
-                                                                                new Vector2d(38, 5))
-                                                                .build(),
+                                                                drive.actionBuilder(
+                                                                                new Pose2d(23, 12, Math.toRadians(180)))
+                                                                                .strafeToConstantHeading(
+                                                                                                new Vector2d(38, 5))
+                                                                                .build(),
 
-                                                scoreSequence(new RobotPosition(38, 5, 180),
-                                                                ConfigVariables.LowerSlideVars.POS_1_CM)
-                                // .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
-                                // .strafeToConstantHeading(SCORE.pos);
-                                // .strafeToLinearHeading(SCORE.pos, SCORE.heading);
+                                                                scoreSequence(new RobotPosition(38, 5, 180),
+                                                                                ConfigVariables.LowerSlideVars.POS_1_CM)
+                                                // .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
+                                                // .strafeToConstantHeading(SCORE.pos);
+                                                // .strafeToLinearHeading(SCORE.pos, SCORE.heading);
 
-                                ));
+                                                )));
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
