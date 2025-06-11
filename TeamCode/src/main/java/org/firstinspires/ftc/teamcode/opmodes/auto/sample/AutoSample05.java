@@ -106,11 +106,14 @@ public final class AutoSample05 extends LinearOpMode {
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
                                 new RaceAction(
                                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
-                                                new CameraUpdateDetectorResult(camera).toAction(),
-                                                new DistanceAdjustLUTY(lowSlide, camera.getTy()).toAction()),
-                                 new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTX(drive,camera.getTx(), camera.getTy(), ()->{}, ()->{}).toAction(),
-
+                                                new SequentialAction(
+                                                                new CameraUpdateDetectorResult(camera).toAction(),
+                                                                new DistanceAdjustLUTY(lowSlide, camera.getTy())
+                                                                                .toAction())),
+                                new CameraUpdateDetectorResult(camera).toAction(),
+                                new DistanceAdjustLUTX(drive, camera.getTx(), camera.getTy(), () -> {
+                                }, () -> {
+                                }).toAction(),
                                 new ParallelAction(
                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                 // Grab
@@ -207,27 +210,33 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                 .strafeToConstantHeading(
                                                                                                 new Vector2d(23, 5))
                                                                                 .build(),
-                                                        new CameraUpdateDetectorResult(camera).toAction(),
+                                                                new CameraUpdateDetectorResult(camera).toAction(),
                                                                 new ParallelAction(
-                                                                        new DistanceAdjustLUTY(lowSlide, camera.getTy()).toAction(),
-                                                        new DistanceAdjustLUTX(drive,camera.getTx(), camera.getTy(), ()->{}, ()->{}).toAction(),
+                                                                                new DistanceAdjustLUTY(lowSlide,
+                                                                                                camera.getTy())
+                                                                                                .toAction(),
+                                                                                new DistanceAdjustLUTX(drive,
+                                                                                                camera.getTx(),
+                                                                                                camera.getTy(), () -> {
+                                                                                                }, () -> {
+                                                                                                }).toAction(),
                                                                                 new AngleAdjustAutoCommand(lowSlide,
                                                                                                 camera).toAction()),
                                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
 
-                                                                drive.actionBuilder(
-                                                                                new Pose2d(23, 12, Math.toRadians(180)))
-                                                                                .strafeToConstantHeading(
-                                                                                                new Vector2d(38, 5))
-                                                                                .build(),
+                                                drive.actionBuilder(
+                                                                new Pose2d(23, 12, Math.toRadians(180)))
+                                                                .strafeToConstantHeading(
+                                                                                new Vector2d(38, 5))
+                                                                .build(),
 
-                                                                scoreSequence(new RobotPosition(38, 5, 180),
-                                                                                ConfigVariables.LowerSlideVars.POS_1_CM)
-                                                // .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
-                                                // .strafeToConstantHeading(SCORE.pos);
-                                                // .strafeToLinearHeading(SCORE.pos, SCORE.heading);
+                                                scoreSequence(new RobotPosition(38, 5, 180),
+                                                                ConfigVariables.LowerSlideVars.POS_1_CM)
+                                // .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
+                                // .strafeToConstantHeading(SCORE.pos);
+                                // .strafeToLinearHeading(SCORE.pos, SCORE.heading);
 
-                                                ));
+                                ));
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();

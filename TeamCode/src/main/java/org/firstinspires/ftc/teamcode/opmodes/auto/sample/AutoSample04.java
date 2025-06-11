@@ -106,14 +106,15 @@ public final class AutoSample04 extends LinearOpMode {
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
                                 new RaceAction(
                                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
-                                                new SequentialAction(new CameraUpdateDetectorResult(camera).toAction(),
+                                                new SequentialAction(
+                                                                new CameraUpdateDetectorResult(camera).toAction(),
                                                                 new DistanceAdjustLUTY(lowSlide, camera.getTy())
                                                                                 .toAction())),
                                 new CameraUpdateDetectorResult(camera).toAction(),
                                 new DistanceAdjustLUTX(drive, camera.getTx(), camera.getTy(), () -> {
                                 }, () -> {
                                 }).toAction(),
-                                new RaceAction(
+                                new ParallelAction(
                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                 // Grab
                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
