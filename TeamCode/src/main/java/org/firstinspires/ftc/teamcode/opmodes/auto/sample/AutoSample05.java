@@ -103,7 +103,7 @@ public final class AutoSample05 extends LinearOpMode {
                                 new DistanceAdjustLUTY(lowSlide, camera.getTy()).toAction(),
 
                                 // new CameraUpdateDetectorResult(camera).toAction(),
-                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
+                                // new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                 // new CameraUpdateDetectorResult(camera).toAction(),
                                 new DistanceAdjustLUTX(drive,
                                                 camera.getTx(),
