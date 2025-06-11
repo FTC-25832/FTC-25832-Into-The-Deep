@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
+import org.firstinspires.ftc.teamcode.commands.base.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
@@ -51,6 +52,7 @@ public final class AutoSample05 extends LinearOpMode {
         private UpperSlideCommands upperSlideCommands;
 
         private Limelight camera;
+        private CommandScheduler scheduler;
 
         private Action waitSeconds(Pose2d pose, double seconds) {
                 return drive.actionBuilder(pose)
@@ -90,7 +92,8 @@ public final class AutoSample05 extends LinearOpMode {
 
         }
 
-        private SequentialAction pickupAndScoreSequence(RobotPosition startPOS, AutoPaths.RobotPosition pickupPos,
+        private SequentialAction pickupAndScoreSequencePreVision(RobotPosition startPOS,
+                        AutoPaths.RobotPosition pickupPos,
                         double lowerslideExtendLength) {
                 return new SequentialAction(
                                 // Drive to pickup
@@ -101,17 +104,14 @@ public final class AutoSample05 extends LinearOpMode {
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
 
-                                new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTY(lowSlide, camera.getTy()).toAction(),
+                                // Wait for vision processing time
+                                waitSeconds(pickupPos.pose, 0.5));
+        }
 
-                                // new CameraUpdateDetectorResult(camera).toAction(),
-                                // new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
-                                // new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTX(drive,
-                                                camera.getTx(),
-                                                camera.getTy(), () -> {
-                                                }, () -> {
-                                                }).toAction(),
+        private SequentialAction pickupAndScoreSequencePostVision(RobotPosition startPOS,
+                        AutoPaths.RobotPosition pickupPos,
+                        double lowerslideExtendLength) {
+                return new SequentialAction(
                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
@@ -139,6 +139,27 @@ public final class AutoSample05 extends LinearOpMode {
                                 scoreSequence(pickupPos, lowerslideExtendLength));
         }
 
+        private void performVisionAdjustment(AutoPaths.RobotPosition pickupPos) {
+                // Update camera detection
+                camera.updateDetectorResult();
+
+                // Get current tx/ty values
+                double tx = camera.getTx();
+                double ty = camera.getTy();
+
+                telemetry.addData("Vision TX", tx);
+                telemetry.addData("Vision TY", ty);
+                telemetry.addData("Camera Available", camera.available);
+                telemetry.addData("Result Available", camera.resultAvailable);
+                telemetry.update();
+
+                scheduler.schedule(new CameraUpdateDetectorResult(camera));
+                scheduler.schedule(new DistanceAdjustLUTY(lowSlide, camera.getTy()));
+                scheduler.schedule(new DistanceAdjustLUTX(drive, camera.getTx(), camera.getTy(),
+                        ()->{}, ()->{}));
+
+        }
+
         @Override
         public void runOpMode() throws InterruptedException {
                 // Initialize subsystems
@@ -163,6 +184,10 @@ public final class AutoSample05 extends LinearOpMode {
                 // Initialize drive with starting pose
                 drive = new MecanumDrive(hardwareMap, START.pose);
 
+
+
+                scheduler = CommandScheduler.getInstance();
+
                 // Start position
                 Actions.runBlocking(
                                 new SequentialAction(
@@ -175,80 +200,106 @@ public final class AutoSample05 extends LinearOpMode {
                 if (isStopRequested())
                         return;
 
-                // Full autonomous sequence
+                // Start continuous PID updates
                 Actions.runBlocking(
                                 new ParallelAction(
                                                 new LowerSlideUpdatePID(lowSlide).toAction(),
                                                 new UpperSlideUpdatePID(upSlide).toAction(),
-                                                // Add camera telemetry for debugging
-                                                new Action() {
-                                                        @Override
-                                                        public boolean run(
-                                                                        com.acmerobotics.dashboard.telemetry.TelemetryPacket packet) {
-                                                                camera.updateTelemetry(packet);
-                                                                return true; // Always continue running
-                                                        }
-                                                },
                                                 new SequentialAction(
                                                                 upperSlideCommands.scorespec(),
-
                                                                 scoreSequence(START,
-                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_FIRST),
+                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_FIRST))));
 
-                                                                new ParallelAction(
-                                                                                pickupAndScoreSequence(SCORE, PICKUP1,
-                                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND),
-                                                                                lowerSlideCommands.setSpinClawDeg(
-                                                                                                ConfigVariables.LowerSlideVars.ZERO)),
-                                                                new ParallelAction(
-                                                                                pickupAndScoreSequence(SCORE, PICKUP2,
-                                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD),
-                                                                                lowerSlideCommands.setSpinClawDeg(
-                                                                                                ConfigVariables.LowerSlideVars.ZERO)),
+                // PICKUP 1 with vision
+                Actions.runBlocking(
+                                new ParallelAction(
+                                                new LowerSlideUpdatePID(lowSlide).toAction(),
+                                                new UpperSlideUpdatePID(upSlide).toAction(),
+                                                new ParallelAction(
+                                                                pickupAndScoreSequencePreVision(SCORE, PICKUP1,
+                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND),
+                                                                lowerSlideCommands.setSpinClawDeg(
+                                                                                ConfigVariables.LowerSlideVars.ZERO))));
 
-                                                                new ParallelAction(
-                                                                                pickupAndScoreSequence(SCORE, PICKUP3,
-                                                                                                0),
-                                                                                lowerSlideCommands.setSpinClawDeg(
-                                                                                                ConfigVariables.LowerSlideVars.ZERO
-                                                                                                                + 90)),
+                // Vision processing for PICKUP1
+                performVisionAdjustment(PICKUP1);
 
-                                                                // FULL SEND
+                Actions.runBlocking(
+                                new ParallelAction(
+                                                new LowerSlideUpdatePID(lowSlide).toAction(),
+                                                new UpperSlideUpdatePID(upSlide).toAction(),
+                                                pickupAndScoreSequencePostVision(SCORE, PICKUP1,
+                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND)));
 
-                                                                drive.actionBuilder(SCORE.pose)
-                                                                                .strafeToLinearHeading(
-                                                                                                new Vector2d(38, 5),
-                                                                                                Math.toRadians(180))
-                                                                                .strafeToConstantHeading(
-                                                                                                new Vector2d(23, 5))
-                                                                                .build(),
-                                                                new CameraUpdateDetectorResult(camera).toAction(),
-                                                                new ParallelAction(
-                                                                                new DistanceAdjustLUTY(lowSlide,
-                                                                                                camera.getTy())
-                                                                                                .toAction(),
-                                                                                new DistanceAdjustLUTX(drive,
-                                                                                                camera.getTx(),
-                                                                                                camera.getTy(), () -> {
-                                                                                                }, () -> {
-                                                                                                }).toAction(),
-                                                                                new AngleAdjustAutoCommand(lowSlide,
-                                                                                                camera).toAction()),
+                // PICKUP 2 with vision
+                Actions.runBlocking(
+                                new ParallelAction(
+                                                new LowerSlideUpdatePID(lowSlide).toAction(),
+                                                new UpperSlideUpdatePID(upSlide).toAction(),
+                                                new ParallelAction(
+                                                                pickupAndScoreSequencePreVision(SCORE, PICKUP2,
+                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD),
+                                                                lowerSlideCommands.setSpinClawDeg(
+                                                                                ConfigVariables.LowerSlideVars.ZERO))));
+
+                // Vision processing for PICKUP2
+                performVisionAdjustment(PICKUP2);
+
+                Actions.runBlocking(
+                                new ParallelAction(
+                                                new LowerSlideUpdatePID(lowSlide).toAction(),
+                                                new UpperSlideUpdatePID(upSlide).toAction(),
+                                                pickupAndScoreSequencePostVision(SCORE, PICKUP2,
+                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD)));
+
+                // PICKUP 3 with vision
+                Actions.runBlocking(
+                                new ParallelAction(
+                                                new LowerSlideUpdatePID(lowSlide).toAction(),
+                                                new UpperSlideUpdatePID(upSlide).toAction(),
+                                                new ParallelAction(
+                                                                pickupAndScoreSequencePreVision(SCORE, PICKUP3, 0),
+                                                                lowerSlideCommands.setSpinClawDeg(
+                                                                                ConfigVariables.LowerSlideVars.ZERO
+                                                                                                + 90))));
+
+                // Vision processing for PICKUP3
+                performVisionAdjustment(PICKUP3);
+
+                Actions.runBlocking(
+                                new ParallelAction(
+                                                new LowerSlideUpdatePID(lowSlide).toAction(),
+                                                new UpperSlideUpdatePID(upSlide).toAction(),
+                                                pickupAndScoreSequencePostVision(SCORE, PICKUP3, 0)));
+
+                // FULL SEND - Final pickup with vision
+                Actions.runBlocking(
+                                new ParallelAction(
+                                                new LowerSlideUpdatePID(lowSlide).toAction(),
+                                                new UpperSlideUpdatePID(upSlide).toAction(),
+                                                drive.actionBuilder(SCORE.pose)
+                                                                .strafeToLinearHeading(new Vector2d(38, 5),
+                                                                                Math.toRadians(180))
+                                                                .strafeToConstantHeading(new Vector2d(23, 5))
+                                                                .build()));
+
+
+                // Perform vision adjustments (simplified for final pickup)
+                performVisionAdjustment(new AutoPaths.RobotPosition(23, 5, 180));
+
+                Actions.runBlocking(
+                                new ParallelAction(
+                                                new LowerSlideUpdatePID(lowSlide).toAction(),
+                                                new UpperSlideUpdatePID(upSlide).toAction(),
+                                                new SequentialAction(
                                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
-
                                                                 drive.actionBuilder(
                                                                                 new Pose2d(23, 12, Math.toRadians(180)))
                                                                                 .strafeToConstantHeading(
                                                                                                 new Vector2d(38, 5))
                                                                                 .build(),
-
                                                                 scoreSequence(new RobotPosition(38, 5, 180),
-                                                                                ConfigVariables.LowerSlideVars.POS_1_CM)
-                                                // .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
-                                                // .strafeToConstantHeading(SCORE.pos);
-                                                // .strafeToLinearHeading(SCORE.pos, SCORE.heading);
-
-                                                )));
+                                                                                ConfigVariables.LowerSlideVars.POS_1_CM))));
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
