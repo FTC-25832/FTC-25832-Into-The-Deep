@@ -88,6 +88,7 @@ public final class AutoSample extends LinearOpMode {
                         double lowerslideExtendLength) {
                 return new SequentialAction(
                                 // Drive to pickup
+
                                 upperSlideCommands.slidePos0(),
                                 drive.actionBuilder(startPOS.pose)
                                                 .strafeToLinearHeading(pickupPos.pos, pickupPos.heading)
