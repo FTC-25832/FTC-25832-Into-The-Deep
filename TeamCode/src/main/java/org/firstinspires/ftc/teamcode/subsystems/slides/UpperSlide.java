@@ -216,7 +216,7 @@ public class UpperSlide extends SubsystemBase {
      */
     public double updatePID() {
         double currentPosition = getCurrentPosition();
-        double power = pidfController.calculate(currentPosition) * 0.8;
+        double power = pidfController.calculate(currentPosition) * 1;
 
         slide1.setPower(power);
         slide2.setPower(power);

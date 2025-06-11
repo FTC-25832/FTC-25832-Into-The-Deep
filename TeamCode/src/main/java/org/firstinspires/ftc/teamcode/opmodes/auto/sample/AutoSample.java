@@ -58,16 +58,18 @@ public final class AutoSample extends LinearOpMode {
                                                                 .strafeToLinearHeading(SCORE.pos, SCORE.heading)
                                                                 .build(),
                                                 upperSlideCommands.closeClaw(),
+                                                upperSlideCommands.front(),
                                                 upperSlideCommands.slidePos3() // need scorespec or transfer pos to go
                                                                                // up safely
                                 ),
 
                                 // front pos for drop
-                                upperSlideCommands.front(),
+
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
                                 upperSlideCommands.openExtendoClaw(),
 
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
+
                                 new ParallelAction(
                                                 upperSlideCommands.openClaw(), // drop
 
@@ -86,15 +88,15 @@ public final class AutoSample extends LinearOpMode {
                         double lowerslideExtendLength) {
                 return new SequentialAction(
                                 // Drive to pickup
+                                upperSlideCommands.slidePos0(),
                                 drive.actionBuilder(startPOS.pose)
                                                 .strafeToLinearHeading(pickupPos.pos, pickupPos.heading)
                                                 .build(),
 
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
 
                                 new ParallelAction(
                                                 // upperslides go down
-                                                upperSlideCommands.slidePos0(),
+                                                //upperSlideCommands.slidePos1(),
                                                 // Grab
                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
@@ -167,7 +169,7 @@ public final class AutoSample extends LinearOpMode {
                                                                                 ConfigVariables.LowerSlideVars.ZERO
                                                                                                 + 90),
                                                                 pickupAndScoreSequence(SCORE, PICKUP3, 0),
-                                                                upperSlideCommands.setSlidePos(0),
+
                                                                 lowerSlideCommands.up(),
                                                                 upperSlideCommands.front(),
 

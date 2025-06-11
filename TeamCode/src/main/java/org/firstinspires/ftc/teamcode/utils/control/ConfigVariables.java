@@ -15,6 +15,7 @@ public class ConfigVariables {
 
         public static long DASHBOARD_UPDATE_INTERVAL_MS = 1;
         public static double DRIVE_ROTATE_FACTOR = 0.5;
+
         public static double HANGING_SERVOS_SPEED = 0.8; // pwm unit
         public static double DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT = 1;
         public static int DISTANCE_THRESHOLD_ENCODER = 50;
@@ -32,7 +33,7 @@ public class ConfigVariables {
 
     @Config
     public static class AutoTesting {
-        public static double A_DROPDELAY_S = 0.7;
+        public static double A_DROPDELAY_S = 0.4;
 
         public static double B_DROPPEDAFTERDELAY_S = 0.1;
         public static double C_AFTERGRABDELAY_S = 0.1;
@@ -44,7 +45,7 @@ public class ConfigVariables {
 
         public static double Z_LowerslideExtend_FIRST = 23;
         public static double Z_LowerslideExtend_SECOND = 23;
-        public static double Z_LowerslideExtend_THIRD = 17;
+        public static double Z_LowerslideExtend_THIRD = 18;
 
         public static double Y_PICKUPDELAY = 1;
 
@@ -140,10 +141,10 @@ public class ConfigVariables {
     @Config
     // @Configurable
     public static class LowerSlideVars {
+        public static final double UP_BIG = 0.57;
         // Arm positions
         public static double GRAB_BIG = 0.93;
         public static double GRAB_SMALL = 0;
-        public static double UP_BIG = 0.57;
         public static double UP_SMALL = 1.0;
         public static double HOVER_BIG = 0.7;
         public static double HOVER_SMALL = 0.1;
