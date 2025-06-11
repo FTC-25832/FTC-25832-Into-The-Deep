@@ -6,7 +6,6 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
-import org.firstinspires.ftc.teamcode.utils.control.TimingConstants;
 
 import java.util.Collections;
 import java.util.HashSet;

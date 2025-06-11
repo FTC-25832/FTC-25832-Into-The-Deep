@@ -60,13 +60,9 @@ public final class AutoPaths {
         public static final double NEUTRAL_PITCH = 0.15;
         public static final double NEUTRAL_YAW = 1;
 
-        // Drive constraints
+        // Drive constraints, not used in actual auto rn
         public static final double MAX_VEL = 90;
         public static final double MAX_ACCEL = 70;
         public static final double MAX_ANG_VEL = 55;
         public static final double MAX_ANG_ACCEL = 60;
-
-        // Robot control parameters
-        public static final double NEUTRAL_PITCH = 0.15;
-        public static final double NEUTRAL_YAW = 1;
 }
