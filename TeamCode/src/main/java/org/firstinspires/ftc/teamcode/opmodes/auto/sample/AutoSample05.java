@@ -40,7 +40,7 @@ import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
 @Autonomous
-public final class AutoSample04 extends LinearOpMode {
+public final class AutoSample05 extends LinearOpMode {
         private MecanumDrive drive;
 
         private LowerSlide lowSlide;
@@ -74,22 +74,17 @@ public final class AutoSample04 extends LinearOpMode {
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
                                 upperSlideCommands.openExtendoClaw(),
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
-
-                                new ParallelAction(
-                                                new SequentialAction(
-                                                                upperSlideCommands.openClaw(), // drop
-                                                                // SCORED
-                                                                waitSeconds(SCORE.pose,
-                                                                                ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S),
-                                                                new ParallelAction(
-                                                                                upperSlideCommands.closeExtendoClaw(),
-                                                                                upperSlideCommands.scorespec()
-                                                                // score spec position for upperslides to go down
-                                                                ),
-                                                                upperSlideCommands.slidePos0()),
-
-                                                // lowerslide prepare for next cycle
-                                                lowerSlideCommands.hover()));
+                                new SequentialAction(
+                                                upperSlideCommands.openClaw(), // drop
+                                                // SCORED
+                                                waitSeconds(SCORE.pose,
+                                                                ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S),
+                                                new ParallelAction(
+                                                                upperSlideCommands.closeExtendoClaw(),
+                                                                upperSlideCommands.scorespec()
+                                                // score spec position for upperslides to go down
+                                                ),
+                                                upperSlideCommands.slidePos0()));
 
         }
 
@@ -97,15 +92,13 @@ public final class AutoSample04 extends LinearOpMode {
                         double lowerslideExtendLength) {
                 return new SequentialAction(
                                 // Drive to pickup
-
-                                upperSlideCommands.slidePos0(),
                                 drive.actionBuilder(startPOS.pose)
                                                 .strafeToLinearHeading(pickupPos.pos, pickupPos.heading)
                                                 .build(),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
+                                lowerSlideCommands.setSlidePos(lowerslideExtendLength),
                                 new RaceAction(
-                                                lowerSlideCommands.setSlidePos(lowerslideExtendLength),
                                                 new SequentialAction(
                                                                 new CameraUpdateDetectorResult(camera).toAction(),
                                                                 new DistanceAdjustLUTY(lowSlide, camera.getTy())
