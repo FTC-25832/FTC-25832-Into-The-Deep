@@ -109,7 +109,7 @@ public final class AutoSample05 extends LinearOpMode {
 
                                 new DistanceAdjustLUTX(drive, camera, null, null).toAction(),
 
-                                new RaceAction(
+                                new ParallelAction(
                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                 // Grab
                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
@@ -177,15 +177,24 @@ public final class AutoSample05 extends LinearOpMode {
                                                                 upperSlideCommands.scorespec(),
                                                                 scoreSequence(START,
                                                                                 ConfigVariables.AutoTesting.Z_LowerslideExtend_FIRST),
-                                                                pickupAndScoreSequence(SCORE, PICKUP1,
-                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND),
-                                                                pickupAndScoreSequence(SCORE, PICKUP2,
-                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD),
 
-                                                                lowerSlideCommands.setSpinClawDeg(
-                                                                                ConfigVariables.LowerSlideVars.ZERO
-                                                                                                + 90),
-                                                                pickupAndScoreSequence(SCORE, PICKUP3, 0),
+                                                                new ParallelAction(
+                                                                                pickupAndScoreSequence(SCORE, PICKUP1,
+                                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND),
+                                                                                lowerSlideCommands.setSpinClawDeg(
+                                                                                                ConfigVariables.LowerSlideVars.ZERO)),
+                                                                new ParallelAction(
+                                                                                pickupAndScoreSequence(SCORE, PICKUP2,
+                                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD),
+                                                                                lowerSlideCommands.setSpinClawDeg(
+                                                                                                ConfigVariables.LowerSlideVars.ZERO)),
+
+                                                                new ParallelAction(
+                                                                                pickupAndScoreSequence(SCORE, PICKUP3,
+                                                                                                0),
+                                                                                lowerSlideCommands.setSpinClawDeg(
+                                                                                                ConfigVariables.LowerSlideVars.ZERO
+                                                                                                                + 90)),
 
                                                                 // FULL SEND
 
