@@ -63,15 +63,17 @@ public final class AutoSample extends LinearOpMode {
                                                                 .strafeToLinearHeading(SCORE.pos, SCORE.heading)
                                                                 .build(),
                                                 upperSlideCommands.closeClaw(),
+                                                upperSlideCommands.front(),
                                                 upperSlideCommands.slidePos3() // need scorespec or transfer pos to go
                                                                                // up safely
                                 ),
 
                                 // front pos for drop
-                                upperSlideCommands.front(),
+
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
                                 upperSlideCommands.openExtendoClaw(),
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
+
                                 new ParallelAction(
                                                 new SequentialAction(
                                                                 upperSlideCommands.openClaw(), // drop
@@ -94,6 +96,8 @@ public final class AutoSample extends LinearOpMode {
                         double lowerslideExtendLength) {
                 return new SequentialAction(
                                 // Drive to pickup
+
+                                upperSlideCommands.slidePos0(),
                                 drive.actionBuilder(startPOS.pose)
                                                 .strafeToLinearHeading(pickupPos.pos, pickupPos.heading)
                                                 .build(),
@@ -103,7 +107,7 @@ public final class AutoSample extends LinearOpMode {
                                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
                                                 new DistanceAdjustLUTY(lowSlide, camera).toAction()),
 
-                                new DistanceAdjustLUTX( drive, camera, null, null).toAction(),
+                                new DistanceAdjustLUTX(drive, camera, null, null).toAction(),
 
                                 new RaceAction(
                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
@@ -147,12 +151,11 @@ public final class AutoSample extends LinearOpMode {
                 lowerSlideCommands = new LowerSlideCommands(lowSlide);
                 upperSlideCommands = new UpperSlideCommands(upSlide);
 
-                //cam
+                // cam
                 camera = new Limelight();
 
                 // Initialize drive with starting pose
                 drive = new MecanumDrive(hardwareMap, START.pose);
-
 
                 // Start position
                 Actions.runBlocking(
@@ -184,8 +187,7 @@ public final class AutoSample extends LinearOpMode {
                                                                                                 + 90),
                                                                 pickupAndScoreSequence(SCORE, PICKUP3, 0),
 
-
-                                                        // end pos for teleop
+                                                                // end pos for teleop
                                                                 upperSlideCommands.setSlidePos(0),
                                                                 lowerSlideCommands.up(),
                                                                 upperSlideCommands.front(),
