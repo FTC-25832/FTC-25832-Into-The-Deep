@@ -98,24 +98,38 @@ public final class AutoSample05 extends LinearOpMode {
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
-                                new RaceAction(
-                                                new SequentialAction(
-                                                                new CameraUpdateDetectorResult(camera).toAction(),
-                                                                new DistanceAdjustLUTY(lowSlide, camera.getTy())
-                                                                                .toAction())),
+                                // new RaceAction(
+                                // new SequentialAction(
+                                // new CameraUpdateDetectorResult(camera).toAction(),
+                                // new DistanceAdjustLUTY(lowSlide, camera.getTy())
+                                // .toAction())),
+                                new SequentialAction(
+                                                new CameraUpdateDetectorResult(camera).toAction(),
+                                                new DistanceAdjustLUTY(lowSlide, camera.getTy())
+                                                                .toAction()),
 
                                 new ParallelAction(
                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
-                                                // Grab
-                                                new RaceAction(
-                                                                new SequentialAction(
-                                                                                new CameraUpdateDetectorResult(camera)
-                                                                                                .toAction(),
-                                                                                new DistanceAdjustLUTX(drive,
-                                                                                                camera.getTx(),
-                                                                                                camera.getTy(), () -> {
-                                                                                                }, () -> {
-                                                                                                }).toAction()),
+                                                // // Grab
+                                                // new RaceAction(
+                                                // new SequentialAction(
+                                                // new CameraUpdateDetectorResult(camera)
+                                                // .toAction(),
+                                                // new DistanceAdjustLUTX(drive,
+                                                // camera.getTx(),
+                                                // camera.getTy(), () -> {
+                                                // }, () -> {
+                                                // }).toAction()),
+                                                // new LowerSlideGrabSequenceCommand(
+                                                // lowSlide).toAction())
+                                                new SequentialAction(
+                                                                new CameraUpdateDetectorResult(camera)
+                                                                                .toAction(),
+                                                                new DistanceAdjustLUTX(drive,
+                                                                                camera.getTx(),
+                                                                                camera.getTy(), () -> {
+                                                                                }, () -> {
+                                                                                }).toAction(),
                                                                 new LowerSlideGrabSequenceCommand(
                                                                                 lowSlide).toAction())),
 
