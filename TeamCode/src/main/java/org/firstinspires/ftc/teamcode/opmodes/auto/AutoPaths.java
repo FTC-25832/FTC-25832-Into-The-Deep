@@ -28,16 +28,14 @@ public final class AutoPaths {
                 }
         }
 
-        // Sample autonomous positions
+        // Standardized robot positions
         public static final RobotPosition START = new RobotPosition(40.1, 62, 270);
-        public static final RobotPosition PREPLACED = new RobotPosition(47, 46, -90); // ?
+        public static final RobotPosition PREPLACED = new RobotPosition(47, 46, -90);
         public static final RobotPosition PICKUP1 = new RobotPosition(48.5, 47, -90);
         public static final RobotPosition PICKUP2 = new RobotPosition(58.5, 47, -90);
         public static final RobotPosition PICKUP3 = new RobotPosition(55.4, 40.1, -45);
         public static final RobotPosition SCORE = new RobotPosition(57, 57, 225);
-
         public static final RobotPosition TANK = new RobotPosition(23, 12, 180);
-
 
         // vvvv these mostly arent used rn vvvv
         // Primary autonomous path points
@@ -62,7 +60,7 @@ public final class AutoPaths {
         public static final double NEUTRAL_PITCH = 0.15;
         public static final double NEUTRAL_YAW = 1;
 
-        // Drive constraints
+        // Drive constraints, not used in actual auto rn
         public static final double MAX_VEL = 90;
         public static final double MAX_ACCEL = 70;
         public static final double MAX_ANG_VEL = 55;

@@ -107,9 +107,8 @@ public final class AutoSample extends LinearOpMode {
                                 // transfer sequence
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.D_SLIDEPOS0AFTERDELAY_S),
                                 new ParallelAction(
-                                        lowerSlideCommands.up(),
-                                        upperSlideCommands.slidePos1()
-                                ),
+                                                lowerSlideCommands.up(),
+                                                upperSlideCommands.slidePos1()),
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.E_LOWSLIDEUPAFTERDELAY_S),
                                 upperSlideCommands.transfer(),
 

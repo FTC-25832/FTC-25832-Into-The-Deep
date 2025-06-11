@@ -44,77 +44,28 @@ public final class SplineTest extends LinearOpMode {
                 lowSlide.initialize(hardwareMap);
                 upSlide.initialize(hardwareMap);
 
-                // Build actions using AutoSample paths
-                Action moveToScore = drive.actionBuilder(START.pose)
-                                .strafeToLinearHeading(SCORE.pos, SCORE.heading)
-                                .build();
-
-                Action moveToPickup1 = drive.actionBuilder(SCORE.pose)
-                                .strafeToLinearHeading(PICKUP1.pos, PICKUP1.heading)
-                                .build();
-
-                Action moveBackToScore = drive.actionBuilder(PICKUP1.pose)
-                                .strafeToLinearHeading(SCORE.pos, SCORE.heading)
-                                .build();
-
-                Action moveToPickup2 = drive.actionBuilder(SCORE.pose)
-                                .strafeToLinearHeading(PICKUP2.pos, PICKUP2.heading)
-                                .build();
-
-                Action moveBackToScore2 = drive.actionBuilder(PICKUP2.pose)
-                                .strafeToLinearHeading(SCORE.pos, SCORE.heading)
-                                .build();
-
-                Action moveToPickup3 = drive.actionBuilder(SCORE.pose)
-                                .strafeToLinearHeading(PICKUP3.pos, PICKUP3.heading)
-                                .build();
-
-                Action moveBackToScore3 = drive.actionBuilder(PICKUP3.pose)
-                                .strafeToLinearHeading(SCORE.pos, SCORE.heading)
-                                .build();
-
-                Action moveToStart = drive.actionBuilder(SCORE.pose)
-                                .strafeToLinearHeading(START.pos, START.heading)
-                                .build();
-
                 waitForStart();
 
                 while (opModeIsActive()) {
-
-                        Actions.runBlocking(moveToScore);
-
-                        waitSeconds(SCORE.pose, 1);
-
-                        Actions.runBlocking(moveToPickup1);
-
-                        waitSeconds(PICKUP1.pose, 1);
-
-                        Actions.runBlocking(moveBackToScore);
-
-                        waitSeconds(SCORE.pose, 1);
-
-                        Actions.runBlocking(moveToPickup2);
-
-                        waitSeconds(PICKUP2.pose, 1);
-
-                        Actions.runBlocking(moveBackToScore2);
-
-                        waitSeconds(SCORE.pose, 1);
-
-                        Actions.runBlocking(moveToPickup3);
-
-                        waitSeconds(PICKUP3.pose, 1);
-
-                        Actions.runBlocking(moveBackToScore3);
-
-                        waitSeconds(SCORE.pose, 1);
-
-                        Actions.runBlocking(moveToStart);
-
-                        waitSeconds(START.pose, 1);
+                        Actions.runBlocking(
+                                        drive.actionBuilder(START.pose)
+                                                        .strafeToLinearHeading(SCORE.pos, SCORE.heading)
+                                                        .waitSeconds(1)
+                                                        .strafeToLinearHeading(PICKUP1.pos, PICKUP1.heading)
+                                                        .waitSeconds(1)
+                                                        .strafeToLinearHeading(SCORE.pos, SCORE.heading)
+                                                        .waitSeconds(1)
+                                                        .strafeToLinearHeading(PICKUP2.pos, PICKUP2.heading)
+                                                        .waitSeconds(1)
+                                                        .strafeToLinearHeading(SCORE.pos, SCORE.heading)
+                                                        .waitSeconds(1)
+                                                        .strafeToLinearHeading(PICKUP3.pos, PICKUP3.heading)
+                                                        .waitSeconds(1)
+                                                        .strafeToLinearHeading(SCORE.pos, SCORE.heading)
+                                                        .waitSeconds(1)
+                                                        .strafeToLinearHeading(START.pos, START.heading)
+                                                        .waitSeconds(1)
+                                                        .build());
                 }
-
-
-                telemetry.update();
         }
 }
