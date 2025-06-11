@@ -109,7 +109,11 @@ public final class AutoSample05 extends LinearOpMode {
                                                                 .toAction()),
 
                                 new ParallelAction(
-                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
+                                                new SequentialAction(
+                                                                new CameraUpdateDetectorResult(camera).toAction(),
+                                                                new AngleAdjustAutoCommand(lowSlide, camera)
+                                                                                .toAction()),
+
                                                 // // Grab
                                                 // new RaceAction(
                                                 // new SequentialAction(
