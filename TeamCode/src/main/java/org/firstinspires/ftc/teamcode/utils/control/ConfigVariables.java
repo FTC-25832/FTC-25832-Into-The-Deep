@@ -32,9 +32,9 @@ public class ConfigVariables {
 
         @Config
         public static class AutoTesting {
-                public static double A_DROPDELAY_S = 0.7;
+                public static double A_DROPDELAY_S = 0.35;
 
-                public static double B_DROPPEDAFTERDELAY_S = 0.1;
+                public static double B_AFTERSCOREDELAY_S = 0.1;
                 public static double C_AFTERGRABDELAY_S = 0.1;
                 public static double D_SLIDEPOS0AFTERDELAY_S = 0.1;
                 public static double E_LOWSLIDEUPAFTERDELAY_S = 0.35;
@@ -60,9 +60,6 @@ public class ConfigVariables {
                 public static final double AFTER_GRAB_DELAY = 0.5;
                 public static final double AFTER_SCORE_DELAY = 0.5;
 
-
-
-
         }
 
         @Config
@@ -71,37 +68,37 @@ public class ConfigVariables {
                 public static double CLAW_90 = 90;
                 public static double CAMERA_DISTANCE = 27; // cm, y distance between camera and sample
                 public static double[] Y_DISTANCE_MAP_X = {
-                        -100,
-                        -7, -5.4, -4.3, -3.5, -2,
-                        1, 2.1, 5.5, 8.7, 10,
-                        12.4, 14.2, 16.5, 19.7, 21,
-                        22.3, 23.0, 23.5, 24.1, 27.1, 100
+                                -100,
+                                -7, -5.4, -4.3, -3.5, -2,
+                                1, 2.1, 5.5, 8.7, 10,
+                                12.4, 14.2, 16.5, 19.7, 21,
+                                22.3, 23.0, 23.5, 24.1, 27.1, 100
                 };
                 public static double[] Y_DISTANCE_MAP_Y = {
-                        12.5,
-                        12.5, 14.5, 15.5, 16, 18.5,
-                        21.5, 23.5, 25.5, 27.5, 28.5,
-                        30.5, 33, 35, 38.5, 41,
-                        42.3, 44, 45, 45.5, 50, 50
+                                12.5,
+                                12.5, 14.5, 15.5, 16, 18.5,
+                                21.5, 23.5, 25.5, 27.5, 28.5,
+                                30.5, 33, 35, 38.5, 41,
+                                42.3, 44, 45, 45.5, 50, 50
                 };
                 public static double[] X_DISTANCE_MAP_X = {
-                        -100,
-                        -13, -12.5, -10.4, -8.6, -5.6, -3.5,
-                        0,
-                        2, 4.2, 6.4, 9.4, 12.4,
-                        15.4, 18.4, 22.5, 25, 28.5,
-                        31.4, 34.0, 35.5, 37, 100
+                                -100,
+                                -13, -12.5, -10.4, -8.6, -5.6, -3.5,
+                                0,
+                                2, 4.2, 6.4, 9.4, 12.4,
+                                15.4, 18.4, 22.5, 25, 28.5,
+                                31.4, 34.0, 35.5, 37, 100
                 };
                 public static double[] X_DISTANCE_MAP_Y = {
-                        -13,
-                        -13, -11.5, -9.3, -6.5, -3.5, -2,
-                        0,
-                        2, 3.5, 4.8, 5.5, 7.5,
-                        9, 10.2, 12.5, 13.5, 15.5,
-                        17.3, 21, 21.8, 24.3, 24.3
+                                -13,
+                                -13, -11.5, -9.3, -6.5, -3.5, -2,
+                                0,
+                                2, 3.5, 4.8, 5.5, 7.5,
+                                9, 10.2, 12.5, 13.5, 15.5,
+                                17.3, 21, 21.8, 24.3, 24.3
                 };
                 public static String[] ACCEPTED_COLORS = {
-                        "blue", "red", "yellow"
+                                "blue", "red", "yellow"
                 };
                 public static int ANGLE_MAXNUM = 15;
                 // public static int PID_UPDATE_TIMEOUT = 500;

@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustAutoCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
@@ -75,7 +76,7 @@ public final class AutoSampleCamera extends LinearOpMode {
                                                 lowerSlideCommands.hover(),
                                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength)// EXTEND
                                 ),
-                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.B_DROPPEDAFTERDELAY_S),
+                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S),
                                 upperSlideCommands.scorespec()); // score spec position for upperslides to go down
         }
 
@@ -170,7 +171,7 @@ public final class AutoSampleCamera extends LinearOpMode {
                                                                                                 new Vector2d(23, 5))
                                                                                 .build(),
 
-                                                                new DistanceAdjustCommand(lowSlide, camera).toAction(),
+                                                                new DistanceAdjustLUTY(lowSlide, camera).toAction(),
                                                                 lowerSlideCommands.hover(),
                                                                 new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
 

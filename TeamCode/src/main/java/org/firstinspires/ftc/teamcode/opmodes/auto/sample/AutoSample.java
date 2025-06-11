@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -25,6 +26,8 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustAutoCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
@@ -43,6 +46,8 @@ public final class AutoSample extends LinearOpMode {
         private LowerSlideCommands lowerSlideCommands;
         private UpperSlide upSlide;
         private UpperSlideCommands upperSlideCommands;
+
+        private Limelight camera;
 
         private Action waitSeconds(Pose2d pose, double seconds) {
                 return drive.actionBuilder(pose)
@@ -66,20 +71,23 @@ public final class AutoSample extends LinearOpMode {
                                 upperSlideCommands.front(),
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
                                 upperSlideCommands.openExtendoClaw(),
-
                                 waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
                                 new ParallelAction(
-                                                upperSlideCommands.openClaw(), // drop
-
-                                                // SCORED
+                                                new SequentialAction(
+                                                                upperSlideCommands.openClaw(), // drop
+                                                                // SCORED
+                                                                waitSeconds(SCORE.pose,
+                                                                                ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S),
+                                                                new ParallelAction(
+                                                                                upperSlideCommands.closeExtendoClaw(),
+                                                                                upperSlideCommands.scorespec()
+                                                                // score spec position for upperslides to go down
+                                                                ),
+                                                                upperSlideCommands.slidePos0()),
 
                                                 // lowerslide prepare for next cycle
-                                                lowerSlideCommands.hover(),
-                                                lowerSlideCommands.setSlidePos(lowerslideExtendLength)// EXTEND
-                                ),
-                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.B_DROPPEDAFTERDELAY_S),
-                                upperSlideCommands.closeExtendoClaw(),
-                                upperSlideCommands.scorespec()); // score spec position for upperslides to go down
+                                                lowerSlideCommands.hover()));
+
         }
 
         private SequentialAction pickupAndScoreSequence(RobotPosition startPOS, AutoPaths.RobotPosition pickupPos,
@@ -91,12 +99,17 @@ public final class AutoSample extends LinearOpMode {
                                                 .build(),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
+                                new RaceAction(
+                                                lowerSlideCommands.setSlidePos(lowerslideExtendLength),
+                                                new DistanceAdjustLUTY(lowSlide, camera).toAction()),
 
-                                new ParallelAction(
-                                                // upperslides go down
-                                                upperSlideCommands.slidePos0(),
+                                new DistanceAdjustLUTX( drive, camera, null, null).toAction(),
+
+                                new RaceAction(
+                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                 // Grab
                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction()),
+
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
                                 // retract, remember to keep pos_hover() when retracting slides
                                 lowerSlideCommands.slidePos0(),
@@ -134,8 +147,12 @@ public final class AutoSample extends LinearOpMode {
                 lowerSlideCommands = new LowerSlideCommands(lowSlide);
                 upperSlideCommands = new UpperSlideCommands(upSlide);
 
+                //cam
+                camera = new Limelight();
+
                 // Initialize drive with starting pose
                 drive = new MecanumDrive(hardwareMap, START.pose);
+
 
                 // Start position
                 Actions.runBlocking(
@@ -166,11 +183,12 @@ public final class AutoSample extends LinearOpMode {
                                                                                 ConfigVariables.LowerSlideVars.ZERO
                                                                                                 + 90),
                                                                 pickupAndScoreSequence(SCORE, PICKUP3, 0),
+
+
+                                                        // end pos for teleop
                                                                 upperSlideCommands.setSlidePos(0),
                                                                 lowerSlideCommands.up(),
                                                                 upperSlideCommands.front(),
-
-                                                                // end pos for teleop
                                                                 lowerSlideCommands.slidePos0(),
                                                                 upperSlideCommands.slidePos0()
                                                 // ,drive.actionBuilder(SCORE.pose)
