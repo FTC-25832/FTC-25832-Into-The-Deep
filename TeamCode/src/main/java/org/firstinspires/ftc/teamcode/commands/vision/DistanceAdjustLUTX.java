@@ -19,23 +19,31 @@ public class DistanceAdjustLUTX extends CommandBase {
     private final InterpLUT lutx = new InterpLUT();
     private final MecanumDrive drive;
     private final Gamepad gamepad1;
+    private final Limelight camera;
     private double dx, dy;
     private boolean isAdjusted = false;
     private Action moveAction = null;
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
+    private final boolean isTeleop;
 
-    public DistanceAdjustLUTX(Gamepad gamepad1, MecanumDrive drive, double dx, double dy, Runnable disableDriveControl, Runnable enableDriveControl) {
+    public DistanceAdjustLUTX(MecanumDrive drive, Limelight camera, Runnable disableDriveControl,
+            Runnable enableDriveControl) {
+        this(null, drive, camera, disableDriveControl, enableDriveControl);
+    }
+
+    public DistanceAdjustLUTX(Gamepad gamepad1, MecanumDrive drive, Limelight camera, Runnable disableDriveControl,
+            Runnable enableDriveControl) {
         for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
             lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
         }
         lutx.createLUT();
-        this.dx = dx;
-        this.dy = dy;
+        this.camera = camera;
         this.gamepad1 = gamepad1;
         this.drive = drive;
         this.disableDriveControl = disableDriveControl;
         this.enableDriveControl = enableDriveControl;
+        this.isTeleop = gamepad1 != null;
     }
 
     @Override
@@ -47,6 +55,10 @@ public class DistanceAdjustLUTX extends CommandBase {
 
     @Override
     public void execute(TelemetryPacket packet) {
+        camera.updateDetectorResult();
+        dx = camera.getTx();
+        dy = camera.getTy();
+
         packet.put("vision/x", "running");
 
         // If we have an active movement action, run it
@@ -65,18 +77,20 @@ public class DistanceAdjustLUTX extends CommandBase {
         } else {
             if (dx == 0) {
                 isAdjusted = true;
-                gamepad1.rumble(100);
+                if (isTeleop) {
+                    gamepad1.rumble(100);
+                }
                 packet.put("vision/x", "no target");
                 return;
             }
-//                tx: +11.11°
-//                ty: +31.91°
-                final double gradient = 7.3/23.7;
-                dx = dx - dy * gradient;
-                adjustx(dx, packet);
+            // tx: +11.11°
+            // ty: +31.91°
+            final double gradient = 7.3 / 23.7;
+            dx = dx - dy * gradient;
+            adjustx(dx, packet);
         }
 
-        if (gamepad1.dpad_up) {
+        if (isTeleop && gamepad1.dpad_up) {
             isAdjusted = true;
             moveAction = null;
             packet.put("vision/x", "completed by manual");
@@ -85,7 +99,7 @@ public class DistanceAdjustLUTX extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return isAdjusted && moveAction==null;
+        return isAdjusted && moveAction == null;
     }
 
     @Override
@@ -116,8 +130,7 @@ public class DistanceAdjustLUTX extends CommandBase {
             // robot centric to field centric
             Vector2d endpose = new Vector2d(
                     startpose.position.x + adjustmentNeededinch * Math.sin(heading),
-                    startpose.position.y - adjustmentNeededinch * Math.cos(heading)
-            );
+                    startpose.position.y - adjustmentNeededinch * Math.cos(heading));
 
             // Create the action
             moveAction = drive.actionBuilder(startpose)
