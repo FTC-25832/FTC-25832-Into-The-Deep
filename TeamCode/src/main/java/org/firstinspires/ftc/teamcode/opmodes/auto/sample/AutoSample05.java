@@ -98,44 +98,19 @@ public final class AutoSample05 extends LinearOpMode {
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
-                                // new RaceAction(
-                                // new SequentialAction(
+
+                                new CameraUpdateDetectorResult(camera).toAction(),
+                                new DistanceAdjustLUTY(lowSlide, camera.getTy()).toAction(),
+
                                 // new CameraUpdateDetectorResult(camera).toAction(),
-                                // new DistanceAdjustLUTY(lowSlide, camera.getTy())
-                                // .toAction())),
-                                new SequentialAction(
-                                                new CameraUpdateDetectorResult(camera).toAction(),
-                                                new DistanceAdjustLUTY(lowSlide, camera.getTy())
-                                                                .toAction()),
-
-                                new ParallelAction(
-                                                new SequentialAction(
-                                                                new CameraUpdateDetectorResult(camera).toAction(),
-                                                                new AngleAdjustAutoCommand(lowSlide, camera)
-                                                                                .toAction()),
-
-                                                // // Grab
-                                                // new RaceAction(
-                                                // new SequentialAction(
-                                                // new CameraUpdateDetectorResult(camera)
-                                                // .toAction(),
-                                                // new DistanceAdjustLUTX(drive,
-                                                // camera.getTx(),
-                                                // camera.getTy(), () -> {
-                                                // }, () -> {
-                                                // }).toAction()),
-                                                // new LowerSlideGrabSequenceCommand(
-                                                // lowSlide).toAction())
-                                                new SequentialAction(
-                                                                new CameraUpdateDetectorResult(camera)
-                                                                                .toAction(),
-                                                                new DistanceAdjustLUTX(drive,
-                                                                                camera.getTx(),
-                                                                                camera.getTy(), () -> {
-                                                                                }, () -> {
-                                                                                }).toAction(),
-                                                                new LowerSlideGrabSequenceCommand(
-                                                                                lowSlide).toAction())),
+                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
+                                // new CameraUpdateDetectorResult(camera).toAction(),
+                                new DistanceAdjustLUTX(drive,
+                                                camera.getTx(),
+                                                camera.getTy(), () -> {
+                                                }, () -> {
+                                                }).toAction(),
+                                new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
                                 // retract, remember to keep pos_hover() when retracting slides
