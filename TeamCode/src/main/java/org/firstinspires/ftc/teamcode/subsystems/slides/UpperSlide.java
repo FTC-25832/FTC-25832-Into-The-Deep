@@ -218,16 +218,16 @@ public class UpperSlide extends SubsystemBase {
         double currentPosition = getCurrentPosition();
         double power = pidfController.calculate(currentPosition) * 1;
 
-        if (pidfController.destination == 0) {
-            // check if current is 0, if so then it means slides have reached bottom, so we
-            // reset encoders to prevent it from going negative
-            if(slide1.isOverCurrent() || slide2.isOverCurrent()) {
-                slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            }
-        }
+//        if (pidfController.destination == 0) {
+//            // check if current is 0, if so then it means slides have reached bottom, so we
+//            // reset encoders to prevent it from going negative
+//            if(slide1.isOverCurrent() || slide2.isOverCurrent()) {
+//                slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//                slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//            }
+//        }
 
         slide1.setPower(power);
         slide2.setPower(power);
