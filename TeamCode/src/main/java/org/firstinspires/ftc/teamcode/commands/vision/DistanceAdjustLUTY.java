@@ -110,7 +110,7 @@ public class DistanceAdjustLUTY extends CommandBase {
 
         // Use the predicted position instead of current position
         double dycm = luty.get(dy);
-        double pos = lowSlide.getCurrentPositionCM() + dycm - luty.get(0);
+        double pos = lowSlide.getCurrentPositionCM() + dycm - luty.get(0) + ConfigVariables.Camera.Y_OFFSET;
         packet.put("vision/position set", pos);
         packet.put("vision/dycm", dycm);
         packet.put("vision/y0", luty.get(0));

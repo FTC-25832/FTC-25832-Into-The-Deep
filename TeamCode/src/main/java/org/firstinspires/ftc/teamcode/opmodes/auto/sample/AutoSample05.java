@@ -239,7 +239,6 @@ public final class AutoSample05 extends LinearOpMode {
                                                                 new WaitCommand(0.4).toAction(),
                                                                 new CameraUpdateDetectorResult(camera).toAction(),
                                                                 adjustSequence(),
-                                                                new WaitCommand(0.4).toAction(),
                                                                 new AngleAdjustCommand(lowSlide, camera).toAction(),
                                                                 pickupSequence(),
                                                                 transferSequence(new RobotPosition(23, 5, 180)),
