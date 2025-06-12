@@ -65,6 +65,7 @@ public class ConfigVariables {
     @Config
     public static class Camera {
         public static double CLAW_DISTANCE = 22; // cm
+        public static double CAMERA_DELAY = 0.4; //s
         public static double CLAW_90 = 90;
         public static double XYPIXELRATIO = 225.0/672.0;
         public static double CAMERA_DISTANCE = 27; // cm, y distance between camera and sample
