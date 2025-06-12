@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.math.InterpLUT;
 import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
+import java.util.function.Supplier;
+
 public class DistanceAdjustLUTY extends CommandBase {
     private final LowerSlide lowSlide;
     private final InterpLUT luty = new InterpLUT();
@@ -36,9 +38,9 @@ public class DistanceAdjustLUTY extends CommandBase {
         }
     }
 
-    public DistanceAdjustLUTY(LowerSlide lowSlide, double dy) {
+    public DistanceAdjustLUTY(LowerSlide lowSlide, Supplier<Double> tySupplier) {
         this.lowSlide = lowSlide;
-        this.dy = dy;
+        this.dy = tySupplier.get();
         for (int i = 0; i < ConfigVariables.Camera.Y_DISTANCE_MAP_Y.length; i++) {
             luty.add(ConfigVariables.Camera.Y_DISTANCE_MAP_X[i], ConfigVariables.Camera.Y_DISTANCE_MAP_Y[i]);
         }

@@ -102,14 +102,14 @@ public final class AutoSample05 extends LinearOpMode {
                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
 
                                 new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTY(lowSlide, camera.getTy()).toAction(),
+                                new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction(),
 
                                 // new CameraUpdateDetectorResult(camera).toAction(),
                                 // new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                 // new CameraUpdateDetectorResult(camera).toAction(),
                                 new DistanceAdjustLUTX(drive,
-                                                camera.getTx(),
-                                                camera.getTy(), () -> {
+                                                camera::getTx,
+                                                camera::getTy, () -> {
                                                 }, () -> {
                                                 }).toAction(),
                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
@@ -225,15 +225,14 @@ public final class AutoSample05 extends LinearOpMode {
                                                                 new CameraUpdateDetectorResult(camera).toAction(),
                                                                 new ParallelAction(
                                                                                 new DistanceAdjustLUTY(lowSlide,
-                                                                                                camera.getTy())
+                                                                                                camera::getTy)
                                                                                                 .toAction(),
                                                                                 new DistanceAdjustLUTX(drive,
-                                                                                                camera.getTx(),
-                                                                                                camera.getTy(), () -> {
+                                                                                                camera::getTx,
+                                                                                                camera::getTy, () -> {
                                                                                                 }, () -> {
-                                                                                                }).toAction(),
-                                                                                new AngleAdjustAutoCommand(lowSlide,
-                                                                                                camera).toAction()),
+                                                                                                }).toAction()),
+                                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
                                                                 drive.actionBuilder(

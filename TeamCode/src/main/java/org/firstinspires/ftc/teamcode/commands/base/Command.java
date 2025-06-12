@@ -61,7 +61,10 @@ public interface Command extends ActionConvertable {
                                         initialize();
                                         initialized = true;
                                 }
-
+                                if (isFinished()) {
+                                        end(false);
+                                        return false;
+                                }
                                 execute(packet);
 
                                 if (!isFinished()) {

@@ -15,6 +15,8 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.math.InterpLUT;
 import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
+import java.util.function.Supplier;
+
 public class DistanceAdjustLUTX extends CommandBase {
     private final InterpLUT lutx = new InterpLUT();
     // private final InterpLUT lutratio = new InterpLUT();
@@ -25,7 +27,7 @@ public class DistanceAdjustLUTX extends CommandBase {
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
 
-    public DistanceAdjustLUTX(MecanumDrive drive, double dx, double dy, Runnable disableDriveControl,
+    public DistanceAdjustLUTX(MecanumDrive drive, Supplier<Double> txSupplier, Supplier<Double> tySupplier, Runnable disableDriveControl,
             Runnable enableDriveControl) {
         for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
             lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
@@ -36,8 +38,8 @@ public class DistanceAdjustLUTX extends CommandBase {
         // }
         lutx.createLUT();
         // lutratio.createLUT();
-        this.dx = dx;
-        this.dy = dy;
+        this.dx = txSupplier.get();
+        this.dy = tySupplier.get();
         this.drive = drive;
         this.disableDriveControl = disableDriveControl;
         this.enableDriveControl = enableDriveControl;

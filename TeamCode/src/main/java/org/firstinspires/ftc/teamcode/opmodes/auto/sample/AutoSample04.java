@@ -109,7 +109,7 @@ public final class AutoSample04 extends LinearOpMode {
                                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength),
                                                 new SequentialAction(
                                                                 new CameraUpdateDetectorResult(camera).toAction(),
-                                                                new DistanceAdjustLUTY(lowSlide, camera.getTy())
+                                                                new DistanceAdjustLUTY(lowSlide, camera::getTy)
                                                                                 .toAction())),
 
                                 new ParallelAction(
@@ -120,8 +120,8 @@ public final class AutoSample04 extends LinearOpMode {
                                                                                 new CameraUpdateDetectorResult(camera)
                                                                                                 .toAction(),
                                                                                 new DistanceAdjustLUTX(drive,
-                                                                                                camera.getTx(),
-                                                                                                camera.getTy(), () -> {
+                                                                                                camera::getTx,
+                                                                                                camera::getTy, () -> {
                                                                                                 }, () -> {
                                                                                                 }).toAction()),
                                                                 new LowerSlideGrabSequenceCommand(
