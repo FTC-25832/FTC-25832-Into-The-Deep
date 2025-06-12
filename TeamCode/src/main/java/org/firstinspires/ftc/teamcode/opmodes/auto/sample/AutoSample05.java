@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
+import org.firstinspires.ftc.teamcode.commands.vision.AdjustUntilClose;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
@@ -86,7 +87,7 @@ public final class AutoSample05 extends LinearOpMode {
         }
 
         private SequentialAction pickupAndScoreSequence(RobotPosition startPOS, AutoPaths.RobotPosition pickupPos,
-                        double lowerslideExtendLength) {
+                        double lowerslideExtendLength, boolean adjustMultipleTimes) {
                 return new SequentialAction(
                                 // Drive to pickup
                                 new SetDriveSpeedCommand(40).toAction(),
@@ -95,7 +96,10 @@ public final class AutoSample05 extends LinearOpMode {
                                                 .build(),
 
                                 new WaitCommand(ConfigVariables.AutoTesting.Y_PICKUPDELAY).toAction(),
-                                adjustSequence(),
+                                adjustMultipleTimes?adjustMultipleSequence():new SequentialAction(
+                                        adjustSequence(),
+                                        new WaitCommand(0.4).toAction()
+                                ),
                                 // lowerSlideCommands.setSlidePos(lowerslideExtendLength),
                                 pickupSequence(),
                                 // waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
@@ -138,17 +142,18 @@ public final class AutoSample05 extends LinearOpMode {
                         new ActionCommand(new LowerSlideCommands(lowSlide).hover())
                 ).toAction();
         }
-        private SequentialAction adjustSequence() {
+        private Action adjustSequence() {
                 return new SequentialAction(
-                                new CameraUpdateDetectorResult(camera).toAction(),
-                                // new WaitCommand(0.5).toAction(),
-                                new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction(),
-                                new DistanceAdjustLUTX(drive,
-                                                camera::getTx,
-                                                camera::getTy, () -> {
-                                                }, () -> {
-                                                }).toAction(),
-                                new WaitCommand(ConfigVariables.Camera.CAMERA_DELAY).toAction());
+                        new CameraUpdateDetectorResult(camera).toAction(),
+                        new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy, ()->{}, ()->{}).toAction(),
+                        new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction()
+                );
+        }
+
+        private Action adjustMultipleSequence() {
+                return new AdjustUntilClose(drive, lowSlide, camera::getTx, camera::getTy, ()->{}, ()->{},
+                                                camera::updateDetectorResult)
+                                                .toAction();
         }
 
         @Override
@@ -209,20 +214,20 @@ public final class AutoSample05 extends LinearOpMode {
 
                                                                 new ParallelAction(
                                                                                 pickupAndScoreSequence(SCORE, PICKUP1,
-                                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND),
+                                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND, false),
                                                                                 lowerSlideCommands.setSpinClawDeg(
                                                                                                 ConfigVariables.LowerSlideVars.ZERO
                                                                                                                 + 45)),
                                                                 new ParallelAction(
                                                                                 pickupAndScoreSequence(SCORE, PICKUP2,
-                                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD),
+                                                                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD, false),
                                                                                 lowerSlideCommands.setSpinClawDeg(
                                                                                                 ConfigVariables.LowerSlideVars.ZERO
                                                                                                                 + 45)),
 
                                                                 new ParallelAction(
                                                                                 pickupAndScoreSequence(SCORE, PICKUP3,
-                                                                                                0),
+                                                                                                0, true),
                                                                                 lowerSlideCommands.setSpinClawDeg(
                                                                                                 ConfigVariables.LowerSlideVars.ZERO
                                                                                                                 + 90)),
@@ -237,9 +242,10 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                                 new Vector2d(23, 5))
                                                                                 .build(),
                                                                 new WaitCommand(0.4).toAction(),
-                                                                new CameraUpdateDetectorResult(camera).toAction(),
-                                                                adjustSequence(),
+                                                                adjustMultipleSequence(),
+                                                                new WaitCommand(0.4).toAction(),
                                                                 new AngleAdjustCommand(lowSlide, camera).toAction(),
+                                                                new WaitCommand(0.4).toAction(),
                                                                 pickupSequence(),
                                                                 transferSequence(new RobotPosition(23, 5, 180)),
 

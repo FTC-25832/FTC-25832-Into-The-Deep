@@ -127,25 +127,21 @@ public class DistanceAdjustLUTX extends CommandBase {
         double adjustmentNeeded = dxcm - lutx.get(0);
         packet.put("vision/adjustmentNeeded", adjustmentNeeded);
 
-        if (Math.abs(adjustmentNeeded) > 0.25) { // Only move if adjustment is significant
-            double adjustmentNeededinch = adjustmentNeeded / 2.54;
-            Pose2d startpose = drive.localizer.getPose();
-            double heading = startpose.heading.toDouble();
-            // robot centric to field centric
-            Vector2d endpose = new Vector2d(
-                    startpose.position.x + adjustmentNeededinch * Math.sin(heading),
-                    startpose.position.y - adjustmentNeededinch * Math.cos(heading));
+        double adjustmentNeededinch = adjustmentNeeded / 2.54;
+        Pose2d startpose = drive.localizer.getPose();
+        double heading = startpose.heading.toDouble();
+        // robot centric to field centric
+        Vector2d endpose = new Vector2d(
+                startpose.position.x + adjustmentNeededinch * Math.sin(heading),
+                startpose.position.y - adjustmentNeededinch * Math.cos(heading));
 
-            // Create the action
-            moveAction = drive.actionBuilder(startpose)
-                    .strafeToConstantHeading(endpose)
-                    .build();
+        // Create the action
+        moveAction = drive.actionBuilder(startpose)
+                .strafeToConstantHeading(endpose)
+                .build();
 
-            // Run the action first time
-            drive.updatePoseEstimate();
-            moveAction.run(packet);
-        } else {
-            isAdjusted = true; // No significant adjustment needed
-        }
+        // Run the action first time
+        drive.updatePoseEstimate();
+        moveAction.run(packet);
     }
 }

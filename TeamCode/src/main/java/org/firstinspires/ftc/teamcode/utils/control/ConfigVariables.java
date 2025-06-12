@@ -65,8 +65,12 @@ public class ConfigVariables {
         @Config
         public static class Camera {
                 public static double CLAW_DISTANCE = 22; // cm
-                public static double Y_OFFSET = 1; //cm
-                public static double CAMERA_DELAY = 0.4; // s
+                public static double CROSSHAIR_X = -0.42578125;
+                public static final double ADJUSTMENT_DELAY = 0.65; // 500ms between adjustments
+                public static double CROSSHAIR_Y = -0.4791666567325592;
+                public static double TOLERANCE = 2.5;
+                public static double Y_OFFSET = 0; //cm
+                public static double CAMERA_DELAY = 0.5; // s
                 public static double CLAW_90 = 90;
                 public static double XYPIXELRATIO = 225.0 / 672.0;
                 public static double CAMERA_DISTANCE = 27; // cm, y distance between camera and sample
@@ -103,7 +107,7 @@ public class ConfigVariables {
                 public static String[] ACCEPTED_COLORS = {
                                 "blue", "red", "yellow"
                 };
-                public static int ANGLE_MAXNUM = 15;
+                public static int ANGLE_MAXNUM = 5;
                 // public static int PID_UPDATE_TIMEOUT = 500;
                 public static int ANGLE_OFFSET = 100;
                 public static double PID_KP = 0.008;
