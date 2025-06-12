@@ -95,8 +95,8 @@ public final class AutoSample05 extends LinearOpMode {
                                                 .build(),
 
                                 new WaitCommand(ConfigVariables.AutoTesting.Y_PICKUPDELAY).toAction(),
+                                adjustSequence(),
                                 // lowerSlideCommands.setSlidePos(lowerslideExtendLength),
-
                                 pickupSequence(),
                                 // waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
 
@@ -126,8 +126,19 @@ public final class AutoSample05 extends LinearOpMode {
                                                 ConfigVariables.AutoTesting.G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S),
                                 lowerSlideCommands.openClaw());
         }
-
-        private SequentialAction pickupSequence() {
+        private  Action pickupSequence(){
+                // new WaitCommand(3).toAction(),
+                return new SequentialCommandGroup(
+                        new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
+                        new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
+                        new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
+                        new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT/1000.0),
+                        new ActionCommand(new LowerSlideCommands(lowSlide).closeClaw()),
+                        new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT/1000.0),
+                        new ActionCommand(new LowerSlideCommands(lowSlide).hover())
+                ).toAction();
+        }
+        private SequentialAction adjustSequence() {
                 return new SequentialAction(
                                 new CameraUpdateDetectorResult(camera).toAction(),
                                 // new WaitCommand(0.5).toAction(),
@@ -137,18 +148,6 @@ public final class AutoSample05 extends LinearOpMode {
                                                 camera::getTy, () -> {
                                                 }, () -> {
                                                 }).toAction(),
-
-                                // new WaitCommand(3).toAction(),
-                                new SequentialCommandGroup(
-                                        new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
-                                        new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
-                                        new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
-                                        new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT/1000.0),
-                                        new ActionCommand(new LowerSlideCommands(lowSlide).closeClaw()),
-                                        new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT/1000.0),
-                                        new ActionCommand(new LowerSlideCommands(lowSlide).hover())
-                                ).toAction(),
-
                                 new WaitCommand(ConfigVariables.Camera.CAMERA_DELAY).toAction());
         }
 
@@ -237,11 +236,11 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                 .strafeToConstantHeading(
                                                                                                 new Vector2d(23, 5))
                                                                                 .build(),
-
+                                                                new WaitCommand(0.4).toAction(),
                                                                 new CameraUpdateDetectorResult(camera).toAction(),
-                                                                new WaitCommand(0.5).toAction(),
+                                                                adjustSequence(),
+                                                                new WaitCommand(0.4).toAction(),
                                                                 new AngleAdjustCommand(lowSlide, camera).toAction(),
-                                                                pickupSequence(),
                                                                 pickupSequence(),
                                                                 transferSequence(new RobotPosition(23, 5, 180)),
 

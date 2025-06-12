@@ -46,7 +46,7 @@ public class ConfigVariables {
                 public static double Z_LowerslideExtend_SECOND = 23;
                 public static double Z_LowerslideExtend_THIRD = 18;
 
-                public static double Y_PICKUPDELAY = 0;
+                public static double Y_PICKUPDELAY = 0.4;
 
                 // State machine timeouts
                 public static final double STATE_TIMEOUT = 5.0;
@@ -65,7 +65,7 @@ public class ConfigVariables {
         @Config
         public static class Camera {
                 public static double CLAW_DISTANCE = 22; // cm
-                public static double CAMERA_DELAY = 0.4; // s
+                public static double CAMERA_DELAY = 0.7; // s
                 public static double CLAW_90 = 90;
                 public static double XYPIXELRATIO = 225.0 / 672.0;
                 public static double CAMERA_DISTANCE = 27; // cm, y distance between camera and sample
@@ -171,7 +171,7 @@ public class ConfigVariables {
                 public static double CLAW_OPEN = 1.0;
                 public static double CLAW_CLOSE = 0.0;
 
-                public static int POS_GRAB_TIMEOUT = 200;
+                public static int POS_GRAB_TIMEOUT = 400;
                 public static int CLAW_CLOSE_TIMEOUT = General.CLAW_OPERATION_TIMEOUT;
                 public static int POS_HOVER_TIMEOUT = 200;
 
