@@ -232,7 +232,8 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                                 camera::getTy, () -> {
                                                                                                 }, () -> {
                                                                                                 }).toAction()),
-                                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
+                                                                // new AngleAdjustAutoCommand(lowSlide,
+                                                                // camera).toAction(),
                                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
                                                                 drive.actionBuilder(
