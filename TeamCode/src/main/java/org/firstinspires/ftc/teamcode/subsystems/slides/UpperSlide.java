@@ -90,8 +90,8 @@ public class UpperSlide extends SubsystemBase {
         slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // set current alarm
-        slide1.setCurrentAlert(5.0, CurrentUnit.AMPS);
-        slide2.setCurrentAlert(5.0, CurrentUnit.AMPS);
+        slide1.setCurrentAlert(6.0, CurrentUnit.AMPS);
+        slide2.setCurrentAlert(6.0, CurrentUnit.AMPS);
     }
 
     @Override
