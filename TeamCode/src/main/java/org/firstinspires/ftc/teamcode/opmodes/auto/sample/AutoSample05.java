@@ -116,14 +116,14 @@ public final class AutoSample05 extends LinearOpMode {
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
                                 // retract, remember to keep pos_hover() when retracting slides
-                                lowerSlideCommands.slidePos0(),
+                                lowerSlideCommands.slidePos2(),
                                 // lowerSlideCommands.zero(hardwareMap),
 
                                 // transfer sequence
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.D_SLIDEPOS0AFTERDELAY_S),
                                 new ParallelAction(
                                                 lowerSlideCommands.up(),
-                                                upperSlideCommands.slidePos1()),
+                                                upperSlideCommands.slidePos0()),
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.E_LOWSLIDEUPAFTERDELAY_S),
                                 upperSlideCommands.transfer(),
 
