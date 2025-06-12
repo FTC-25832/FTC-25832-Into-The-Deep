@@ -18,7 +18,7 @@ public class ConfigVariables {
                 public static double HANGING_SERVOS_SPEED = 0.8; // pwm unit
                 public static double DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT = 1;
                 public static int DISTANCE_THRESHOLD_ENCODER = 50;
-                public static int CLAW_OPERATION_TIMEOUT = 400;
+                public static int CLAW_OPERATION_TIMEOUT = 200;
                 public static int ARM_OPERATION_TIMEOUT = 400;
         }
 
@@ -120,7 +120,7 @@ public class ConfigVariables {
                 // Arm positions
                 public static double FRONT_ARM_POS = 0.7;
                 public static double FRONT_SWING_POS = 0.3;
-                public static double BEHIND_ARM_POS = 0.24;
+                public static double BEHIND_ARM_POS = 0.26;
                 public static double BEHIND_SWING_POS = 1.0;
 
                 // Claw positions

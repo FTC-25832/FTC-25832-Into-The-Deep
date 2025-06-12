@@ -1,32 +1,25 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto.sample;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 //import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 //import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
-import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
+import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
-import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustAutoCommand;
-import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
-import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -124,8 +117,14 @@ public final class AutoSample04 extends LinearOpMode {
                                                                                                 camera::getTy, () -> {
                                                                                                 }, () -> {
                                                                                                 }).toAction()),
-                                                                new LowerSlideGrabSequenceCommand(
-                                                                                lowSlide).toAction())),
+                                                        new SequentialCommandGroup(
+                                                        new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
+                                                        new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
+                                                        new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
+                                                        new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT/1000.0),
+                                                        new ActionCommand(new LowerSlideCommands(lowSlide).closeClaw()),
+                                                        new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT/1000.0),
+                                                        new ActionCommand(new LowerSlideCommands(lowSlide).hover())).toAction())),
 
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
                                 // retract, remember to keep pos_hover() when retracting slides

@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
-import androidx.appcompat.app.WindowDecorActionBar;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -20,7 +18,6 @@ import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.drive.MecanumDriveCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
-import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
@@ -38,7 +35,6 @@ import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.utils.GamepadController;
 import org.firstinspires.ftc.teamcode.utils.GamepadController.ButtonType;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
-import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
 @TeleOp(group = "TeleOp")
 public class Swerve extends LinearOpMode {
@@ -260,31 +256,36 @@ public class Swerve extends LinearOpMode {
     }
 
     private void handleContinuousControls() {
-        // Gamepad 1 trigger controls
-        if (gamepad1.right_trigger > 0 && lowerClaw.canStartGrabSequence()) {
-            Command grabCommand = new LowerSlideGrabSequenceCommand(lowSlide, lowerClaw);
-            lowerClaw.startGrabSequence();
+        gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), ()->{
+            Command grabCommand = new SequentialCommandGroup(
+                    new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
+                    new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
+                    new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
+                    new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT/1000.0),
+                    new ActionCommand(new LowerSlideCommands(lowSlide).closeClaw()),
+                    new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT/1000.0),
+                    new ActionCommand(new LowerSlideCommands(lowSlide).hover()));
             scheduler.schedule(grabCommand);
-        }
-
-        if (gamepad1.left_trigger > 0) {
+        });
+        gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), ()->{
             scheduler.schedule(new ActionCommand(lowslideActions.up()));
-        }
+        });
 
-        // Gamepad 2 trigger controls
-        if (gamepad2.right_trigger > 0 && upperClaw.canStartGrabSequence()) {
-            Command grabCommand = new UpperSlideGrabSequenceCommand(upSlide, upperClaw);
-            upperClaw.startGrabSequence();
-            scheduler.schedule(grabCommand);
-        }
+        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), ()->{
+            if (upperClaw.canStartGrabSequence()) {
+                Command grabCommand = new UpperSlideGrabSequenceCommand(upSlide, upperClaw);
+                upperClaw.startGrabSequence();
+                scheduler.schedule(grabCommand);
+            }
+        });
 
-        if (gamepad2.right_trigger > 0) {
+        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), ()->{
             scheduler.schedule(new HangingCommand(hangingServos, HangingCommand.Direction.FORWARD));
-        }
+        });
 
-        if (gamepad2.left_trigger > 0) {
+        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), ()->{
             scheduler.schedule(new HangingCommand(hangingServos, HangingCommand.Direction.BACKWARD));
-        }
+        });
     }
 
     private void handleClawControls() {

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto.specimen;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -11,25 +10,17 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 //import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
-import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
+import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
-import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
-import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustAutoCommand;
-import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
-import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
-import org.firstinspires.ftc.teamcode.opmodes.auto.AutoPathSpecimenTemp;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 
@@ -87,9 +78,17 @@ public final class AutoSpecimenPush extends LinearOpMode {
 
                                                 lowerSlideCommands.setSlidePos(lowerslideExtendLength)),
 
-                                new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
+                        new SequentialCommandGroup(
+                                new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
+                                new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
+                                new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
+                                new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT/1000.0),
+                                new ActionCommand(new LowerSlideCommands(lowSlide).closeClaw()),
+                                new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT/1000.0),
+                                new ActionCommand(new LowerSlideCommands(lowSlide).hover())
+                        ).toAction(),
                                 waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
-                                // retract, remember to keep pos_hover() when retracting slides
+                        // retract, remember to keep pos_hover() when retracting slides
                                 // lowerSlideCommands.slidePos0(),
 
                                 // drop to teambox
