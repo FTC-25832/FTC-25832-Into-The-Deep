@@ -40,6 +40,7 @@ import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.PoseStorage;
+import org.firstinspires.ftc.teamcode.commands.drive.SetDriveSpeedCommand;
 
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
@@ -62,6 +63,7 @@ public final class AutoSample05 extends LinearOpMode {
 
         private SequentialAction scoreSequence(RobotPosition startPOS, double lowerslideExtendLength) {
                 return new SequentialAction(
+                                new SetDriveSpeedCommand(75).toAction(),
                                 new ParallelAction(
                                                 // Drive to score
                                                 drive.actionBuilder(startPOS.pose)
@@ -96,6 +98,7 @@ public final class AutoSample05 extends LinearOpMode {
                         double lowerslideExtendLength) {
                 return new SequentialAction(
                                 // Drive to pickup
+                                new SetDriveSpeedCommand(40).toAction(),
                                 drive.actionBuilder(startPOS.pose)
                                                 .strafeToLinearHeading(pickupPos.pos, pickupPos.heading)
                                                 .build(),
@@ -144,7 +147,7 @@ public final class AutoSample05 extends LinearOpMode {
                                                 }, () -> {
                                                 }).toAction(),
 
-//                                new WaitCommand(3).toAction(),
+                                // new WaitCommand(3).toAction(),
                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
                                 new WaitCommand(ConfigVariables.Camera.CAMERA_DELAY).toAction());
