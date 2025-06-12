@@ -46,7 +46,7 @@ public class ConfigVariables {
         public static double Z_LowerslideExtend_SECOND = 23;
         public static double Z_LowerslideExtend_THIRD = 18;
 
-        public static double Y_PICKUPDELAY = 1;
+        public static double Y_PICKUPDELAY = 0;
 
         // State machine timeouts
         public static final double STATE_TIMEOUT = 5.0;
@@ -119,8 +119,8 @@ public class ConfigVariables {
         // Arm positions
         public static double FRONT_ARM_POS = 0.7;
         public static double FRONT_SWING_POS = 0.3;
-        public static double BEHIND_ARM_POS = 0.24;
-        public static double BEHIND_SWING_POS = 0.80;
+        public static double BEHIND_ARM_POS = 0.26;
+        public static double BEHIND_SWING_POS = 0.90;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;
@@ -156,7 +156,7 @@ public class ConfigVariables {
         // Arm positions
         public static double GRAB_BIG = 0.93;
         public static double GRAB_SMALL = 0;
-        public static double UP_BIG = 0.57;
+        public static double UP_BIG = 0.53;
         public static double UP_SMALL = 1.0;
         public static double HOVER_BIG = 0.7;
         public static double HOVER_SMALL = 0.1;

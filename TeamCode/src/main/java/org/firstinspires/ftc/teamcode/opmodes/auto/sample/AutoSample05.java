@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.robot.Robot;
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
+import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideUpdatePID;
@@ -54,7 +55,7 @@ public final class AutoSample05 extends LinearOpMode {
 
         private Action waitSeconds(Pose2d pose, double seconds) {
                 return drive.actionBuilder(pose)
-                                .waitSeconds(seconds)
+                        .waitSeconds(seconds)
                                 .build();
         }
 
@@ -73,14 +74,13 @@ public final class AutoSample05 extends LinearOpMode {
 
                                 // front pos for drop
 
-                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
+                                new WaitCommand(ConfigVariables.AutoTesting.A_DROPDELAY_S).toAction(),
                                 upperSlideCommands.openExtendoClaw(),
-                                waitSeconds(SCORE.pose, ConfigVariables.AutoTesting.A_DROPDELAY_S),
+                                new WaitCommand(ConfigVariables.AutoTesting.A_DROPDELAY_S).toAction(),
                                 new SequentialAction(
                                                 upperSlideCommands.openClaw(), // drop
                                                 // SCORED
-                                                waitSeconds(SCORE.pose,
-                                                                ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S),
+                                                new WaitCommand(ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S).toAction(),
                                                 new ParallelAction(
                                                                 upperSlideCommands.closeExtendoClaw(),
                                                                 upperSlideCommands.scorespec()
@@ -98,8 +98,8 @@ public final class AutoSample05 extends LinearOpMode {
                                                 .strafeToLinearHeading(pickupPos.pos, pickupPos.heading)
                                                 .build(),
 
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.Y_PICKUPDELAY),
-                                lowerSlideCommands.setSlidePos(lowerslideExtendLength),
+                                new WaitCommand( ConfigVariables.AutoTesting.Y_PICKUPDELAY).toAction(),
+//                                lowerSlideCommands.setSlidePos(lowerslideExtendLength),
 
                                 new CameraUpdateDetectorResult(camera).toAction(),
                                 new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction(),
@@ -112,30 +112,31 @@ public final class AutoSample05 extends LinearOpMode {
                                                 camera::getTy, () -> {
                                                 }, () -> {
                                                 }).toAction(),
+                                
                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
+                                new WaitCommand( ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S).toAction(),
                                 // retract, remember to keep pos_hover() when retracting slides
                                 lowerSlideCommands.slidePos2(),
                                 // lowerSlideCommands.zero(hardwareMap),
 
                                 // transfer sequence
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.D_SLIDEPOS0AFTERDELAY_S),
-                                new ParallelAction(
+                                new WaitCommand( ConfigVariables.AutoTesting.D_SLIDEPOS0AFTERDELAY_S).toAction(),
+                                
+                        new ParallelAction(
                                                 lowerSlideCommands.up(),
                                                 upperSlideCommands.slidePos0()),
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.E_LOWSLIDEUPAFTERDELAY_S),
+                                new WaitCommand( ConfigVariables.AutoTesting.E_LOWSLIDEUPAFTERDELAY_S).toAction(),
                                 upperSlideCommands.transfer(),
 
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.F_TRANSFERAFTERDELAY_S),
+                                new WaitCommand( ConfigVariables.AutoTesting.F_TRANSFERAFTERDELAY_S).toAction(),
                                 upperSlideCommands.closeClaw(),
 
-                                waitSeconds(pickupPos.pose,
-                                                ConfigVariables.AutoTesting.G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S),
+                                new WaitCommand(ConfigVariables.AutoTesting.G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S).toAction(),
                                 lowerSlideCommands.openClaw(),
 
                                 // Score
-                                waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.H_TRANSFERCOMPLETEAFTERDELAY_S),
+                                new WaitCommand( ConfigVariables.AutoTesting.H_TRANSFERCOMPLETEAFTERDELAY_S).toAction(),
                                 scoreSequence(pickupPos, lowerslideExtendLength));
         }
 
@@ -232,7 +233,7 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                                 camera::getTy, () -> {
                                                                                                 }, () -> {
                                                                                                 }).toAction()),
-                                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
+//                                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
                                                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
                                                                 drive.actionBuilder(
