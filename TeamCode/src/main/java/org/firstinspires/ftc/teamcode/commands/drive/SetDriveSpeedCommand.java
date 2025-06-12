@@ -31,7 +31,10 @@ public class SetDriveSpeedCommand implements Command {
 
         @Override
         public void execute(TelemetryPacket packet) {
-                // Nothing to do, runs instantly
+                // Always report the current drive speed for dashboard and driver station
+                // visibility
+                packet.put("drivespeed/maxWheelVel", MecanumDrive.PARAMS.maxWheelVel);
+                packet.put("drivespeed/maxProfileAccel", MecanumDrive.PARAMS.maxProfileAccel);
         }
 
         @Override

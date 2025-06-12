@@ -29,7 +29,7 @@ public final class AutoPaths {
         }
 
         // Standardized robot positions
-        public static final RobotPosition START = new RobotPosition(40.1, 62, 270);
+        public static final RobotPosition START = new RobotPosition(39.5, 65, 180);
         public static final RobotPosition PREPLACED = new RobotPosition(47, 46, -90);
         public static final RobotPosition PICKUP1 = new RobotPosition(48.5, 47, -90);
         public static final RobotPosition PICKUP2 = new RobotPosition(58.5, 47, -90);

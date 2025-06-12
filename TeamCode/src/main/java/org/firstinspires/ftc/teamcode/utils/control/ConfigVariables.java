@@ -32,9 +32,9 @@ public class ConfigVariables {
 
         @Config
         public static class AutoTesting {
-                public static double A_DROPDELAY_S = 0.35;
+                public static double A_DROPDELAY_S = 0.25;
 
-                public static double B_AFTERSCOREDELAY_S = 0.1;
+                public static double B_AFTERSCOREDELAY_S = 0.05;
                 public static double C_AFTERGRABDELAY_S = 0.1;
                 public static double D_SLIDEPOS0AFTERDELAY_S = 0.1;
                 public static double E_LOWSLIDEUPAFTERDELAY_S = 0.35;
@@ -42,11 +42,17 @@ public class ConfigVariables {
                 public static double G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S = 0.05;
                 public static double H_TRANSFERCOMPLETEAFTERDELAY_S = 0.2;
 
-                public static double Z_LowerslideExtend_FIRST = 23;
-                public static double Z_LowerslideExtend_SECOND = 23;
-                public static double Z_LowerslideExtend_THIRD = 18;
+                public static double I_SUBDELAY_S = 0.4;
+                public static double J_AFTERSUBDELAY_S = 0.4;
+
+                public static double Z_LowerslideExtend_FIRST = 20;
+                public static double Z_LowerslideExtend_SECOND = 20;
+                public static double Z_LowerslideExtend_THIRD = 17;
 
                 public static double Y_PICKUPDELAY = Camera.CAMERA_DELAY;
+
+                public static double X_TRANSFERWHILEDRIVEAFTERTRANSFERDELAY_S = 0.1;
+                public static double W_AFTEREXTENDOOPEN_S = 0.2;
 
                 // State machine timeouts
                 public static final double STATE_TIMEOUT = 5.0;
@@ -70,7 +76,7 @@ public class ConfigVariables {
                 public static double CROSSHAIR_Y = -0.4791666567325592;
                 public static double TOLERANCE = 2.5;
                 public static double Y_OFFSET = 0; //cm
-                public static double CAMERA_DELAY = 0.5; // s
+                public static double CAMERA_DELAY = 0.2; // s
                 public static double CLAW_90 = 90;
                 public static double XYPIXELRATIO = 225.0 / 672.0;
                 public static double CAMERA_DISTANCE = 27; // cm, y distance between camera and sample
@@ -125,7 +131,7 @@ public class ConfigVariables {
                 // Arm positions
                 public static double FRONT_ARM_POS = 0.7;
                 public static double FRONT_SWING_POS = 0.3;
-                public static double BEHIND_ARM_POS = 0.26;
+                public static double BEHIND_ARM_POS = 0.24;
                 public static double BEHIND_SWING_POS = 1.0;
 
                 // Claw positions
