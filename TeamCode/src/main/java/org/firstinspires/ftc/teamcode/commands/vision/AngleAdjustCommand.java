@@ -23,7 +23,7 @@ import java.util.ListIterator;
 public class AngleAdjustCommand extends CommandBase {
     private final LowerSlide lowSlide;
     private final Limelight camera;
-    private List<Double> angles;
+    private List<Double> angles = Collections.synchronizedList(new java.util.ArrayList<>());
     private boolean isAngleAdjusted = false;
 
     public AngleAdjustCommand(LowerSlide lowSlide, Limelight camera) { // Gamepad gamepad1

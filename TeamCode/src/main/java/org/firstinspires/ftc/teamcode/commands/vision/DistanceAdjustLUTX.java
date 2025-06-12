@@ -56,18 +56,16 @@ public class DistanceAdjustLUTX extends CommandBase {
         packet.put("DistanceAdjustLUTX/dy_input", dy);
         packet.put("DistanceAdjustLUTX/isAdjusted", isAdjusted);
         packet.put("DistanceAdjustLUTX/hasActiveAction", moveAction != null);
-        packet.put("vision/x", "running");
 
         // If we have an active movement action, run it
         if (moveAction != null) {
             // Check if action is done or timed out
             boolean actionDone = !moveAction.run(packet);
-            packet.put("DistanceAdjustLUTX/actionStatus", actionDone ? "done" : "running");
 
             if (actionDone) {
                 isAdjusted = true;
                 moveAction = null;
-                packet.put("vision/x", actionDone ? "completed" : "timed out");
+                packet.put("DistanceAdjustLUTX/actionStatus", actionDone ? "completed" : "timed out");
             } else {
                 drive.updatePoseEstimate();
                 return; // Continue running current action
@@ -76,7 +74,6 @@ public class DistanceAdjustLUTX extends CommandBase {
             if (dx == 0) {
                 isAdjusted = true;
                 packet.put("DistanceAdjustLUTX/status", "NO_DX_VALUE");
-                packet.put("vision/x", "no target");
                 return;
             }
 
