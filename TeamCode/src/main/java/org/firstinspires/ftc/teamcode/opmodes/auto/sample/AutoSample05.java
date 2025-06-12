@@ -144,7 +144,7 @@ public final class AutoSample05 extends LinearOpMode {
                                                 }, () -> {
                                                 }).toAction(),
 
-                                new WaitCommand(3).toAction(),
+//                                new WaitCommand(3).toAction(),
                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
                                 new WaitCommand(ConfigVariables.Camera.CAMERA_DELAY).toAction());
