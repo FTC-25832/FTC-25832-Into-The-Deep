@@ -117,10 +117,10 @@ public class ConfigVariables {
     // @Configurable
     public static class UpperSlideVars {
         // Arm positions
-        public static double FRONT_ARM_POS = 0.6;
+        public static double FRONT_ARM_POS = 0.7;
         public static double FRONT_SWING_POS = 0.3;
-        public static double BEHIND_ARM_POS = 0.03;
-        public static double BEHIND_SWING_POS = 0.60;
+        public static double BEHIND_ARM_POS = 0.24;
+        public static double BEHIND_SWING_POS = 0.80;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;
@@ -136,11 +136,11 @@ public class ConfigVariables {
         public static double POS_3_CM = 65.0;
 
         // offwall positions
-        public static double OFFWALL_FRONT_ARM_POS = 0.95;
+        public static double OFFWALL_FRONT_ARM_POS = 1;
         public static double OFFWALL_FRONT_SWING_POS = 0.65;
 
         // scorespec positions
-        public static double SCORESPEC_FRONT_ARM_POS = 0.18;
+        public static double SCORESPEC_FRONT_ARM_POS = 0.35;
         public static double SCORESPEC_FRONT_SWING_POS = 0.65;
 
         public static double PID_KP = 0.01;
@@ -164,7 +164,7 @@ public class ConfigVariables {
         // slide positions
         public static double POS_0_CM = 0;
         public static double POS_1_CM = 35;
-        public static double POS_2_CM = 23;
+        public static double POS_2_CM = 6;
 
         // Claw positions
         public static double CLAW_OPEN = 1.0;
