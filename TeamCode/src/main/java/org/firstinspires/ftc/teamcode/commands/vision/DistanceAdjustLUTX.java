@@ -24,6 +24,7 @@ public class DistanceAdjustLUTX extends CommandBase {
     private double dx, dy;
     private boolean isAdjusted = false;
     private Action moveAction = null;
+    Supplier<Double> txSupplier, tySupplier;
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
 
@@ -38,8 +39,8 @@ public class DistanceAdjustLUTX extends CommandBase {
         // }
         lutx.createLUT();
         // lutratio.createLUT();
-        this.dx = txSupplier.get();
-        this.dy = tySupplier.get();
+        this.tySupplier = tySupplier;
+        this.txSupplier = txSupplier;
         this.drive = drive;
         this.disableDriveControl = disableDriveControl;
         this.enableDriveControl = enableDriveControl;
@@ -47,6 +48,8 @@ public class DistanceAdjustLUTX extends CommandBase {
 
     @Override
     public void initialize() {
+        this.dx = txSupplier.get();
+        this.dy = tySupplier.get();
         isAdjusted = false;
         moveAction = null;
         disableDriveControl.run();

@@ -22,6 +22,7 @@ public class DistanceAdjustLUTY extends CommandBase {
     // private final Gamepad gamepad1;
     private boolean isAdjusted = false;
     private double dy;
+    Supplier<Double> tySupplier;
 
     // Variables for feedforward compensation
     private static final double CAMERA_DELAY = 0.1;
@@ -40,7 +41,7 @@ public class DistanceAdjustLUTY extends CommandBase {
 
     public DistanceAdjustLUTY(LowerSlide lowSlide, Supplier<Double> tySupplier) {
         this.lowSlide = lowSlide;
-        this.dy = tySupplier.get();
+        this.tySupplier = tySupplier;
         for (int i = 0; i < ConfigVariables.Camera.Y_DISTANCE_MAP_Y.length; i++) {
             luty.add(ConfigVariables.Camera.Y_DISTANCE_MAP_X[i], ConfigVariables.Camera.Y_DISTANCE_MAP_Y[i]);
         }
@@ -50,6 +51,7 @@ public class DistanceAdjustLUTY extends CommandBase {
 
     @Override
     public void initialize() {
+        this.dy = tySupplier.get();
         isAdjusted = false;
         // lowSlide.setPIDEnabled(false);
         velocityTimer.reset();
