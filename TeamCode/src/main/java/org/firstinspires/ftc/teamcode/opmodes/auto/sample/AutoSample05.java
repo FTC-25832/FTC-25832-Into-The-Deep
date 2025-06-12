@@ -60,18 +60,6 @@ public final class AutoSample05 extends LinearOpMode {
                                 .build();
         }
 
-        private SequentialAction adjustSequence() {
-                return new SequentialAction(
-                                new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction(),
-                                new DistanceAdjustLUTX(drive,
-                                                camera::getTx,
-                                                camera::getTy, () -> {
-                                                }, () -> {
-                                                }).toAction(),
-                                new WaitCommand(ConfigVariables.Camera.CAMERA_DELAY).toAction());
-        }
-
         private SequentialAction scoreSequence(RobotPosition startPOS, double lowerslideExtendLength) {
                 return new SequentialAction(
                                 new ParallelAction(
@@ -148,7 +136,7 @@ public final class AutoSample05 extends LinearOpMode {
         private SequentialAction pickupSequence() {
                 return new SequentialAction(
                                 new CameraUpdateDetectorResult(camera).toAction(),
-                                new WaitCommand(0.5).toAction(),
+                                // new WaitCommand(0.5).toAction(),
                                 new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction(),
                                 new DistanceAdjustLUTX(drive,
                                                 camera::getTx,
@@ -159,7 +147,7 @@ public final class AutoSample05 extends LinearOpMode {
                                 new WaitCommand(3).toAction(),
                                 new LowerSlideGrabSequenceCommand(lowSlide).toAction(),
 
-                                new WaitCommand(2).toAction());
+                                new WaitCommand(ConfigVariables.Camera.CAMERA_DELAY).toAction());
         }
 
         @Override
@@ -251,6 +239,7 @@ public final class AutoSample05 extends LinearOpMode {
                                                                 new CameraUpdateDetectorResult(camera).toAction(),
                                                                 new WaitCommand(0.5).toAction(),
                                                                 new AngleAdjustCommand(lowSlide, camera).toAction(),
+                                                                pickupSequence(),
                                                                 pickupSequence(),
                                                                 transferSequence(new RobotPosition(23, 5, 180)),
 
