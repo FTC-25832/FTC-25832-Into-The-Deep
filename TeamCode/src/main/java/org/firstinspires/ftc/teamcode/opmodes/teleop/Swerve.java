@@ -37,6 +37,7 @@ import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.utils.GamepadController;
 import org.firstinspires.ftc.teamcode.utils.GamepadController.ButtonType;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
+import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
 
 @TeleOp(group = "TeleOp")
 public class Swerve extends LinearOpMode {
@@ -78,6 +79,9 @@ public class Swerve extends LinearOpMode {
         mecanumDriveCommand = new MecanumDriveCommand(drive, gamepad1);
 
         scheduler.schedule(mecanumDriveCommand);
+
+        // Schedule loop timing telemetry command
+        scheduler.schedule(new LoopTimeTelemetryCommand());
 
         setupGamepadControls();
 
@@ -179,12 +183,14 @@ public class Swerve extends LinearOpMode {
         gamepad1Controller.onPressed(ButtonType.X, () -> {
             scheduler.schedule(new CameraUpdateDetectorResult(camera));
             scheduler.schedule(new DistanceAdjustLUTY(lowSlide, camera::getTy));
-            scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getPy, camera::getTy, mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
-//            scheduler.schedule(new SequentialCommandGroup(
-//                    new DistanceAdjustLUTY(lowSlide, camera, gamepad1),
-//                    new WaitCommand(0.5),
-//                    new DistanceAdjustLUTX(camera, gamepad1, drive, mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl)
-//            ));
+            scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getPy, camera::getTy,
+                    mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
+            // scheduler.schedule(new SequentialCommandGroup(
+            // new DistanceAdjustLUTY(lowSlide, camera, gamepad1),
+            // new WaitCommand(0.5),
+            // new DistanceAdjustLUTX(camera, gamepad1, drive,
+            // mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl)
+            // ));
         });
 
         gamepad1Controller.onPressed(ButtonType.DPAD_UP, () -> {
@@ -204,7 +210,8 @@ public class Swerve extends LinearOpMode {
         gamepad1Controller.onPressed(ButtonType.B, () -> {
             scheduler.schedule(new CameraUpdateDetectorResult(camera));
             scheduler.schedule(new DistanceAdjustCalculatedY(lowSlide, camera::getDy));
-            scheduler.schedule(new DistanceAdjustCalculatedX(drive, camera::getDx, camera::getDy, mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
+            scheduler.schedule(new DistanceAdjustCalculatedX(drive, camera::getDx, camera::getDy,
+                    mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
         });
 
         gamepad1Controller.onPressed(ButtonType.Y, () -> {
@@ -260,22 +267,22 @@ public class Swerve extends LinearOpMode {
     }
 
     private void handleContinuousControls() {
-        gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), ()->{
+        gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
             Command grabCommand = new SequentialCommandGroup(
                     new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
                     new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
                     new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
-                    new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT/1000.0),
+                    new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT / 1000.0),
                     new ActionCommand(new LowerSlideCommands(lowSlide).closeClaw()),
-                    new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT/1000.0),
+                    new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT / 1000.0),
                     new ActionCommand(new LowerSlideCommands(lowSlide).hover()));
             scheduler.schedule(grabCommand);
         });
-        gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), ()->{
+        gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), () -> {
             scheduler.schedule(new ActionCommand(lowslideActions.up()));
         });
 
-        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), ()->{
+        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
             if (upperClaw.canStartGrabSequence()) {
                 Command grabCommand = new UpperSlideGrabSequenceCommand(upSlide, upperClaw);
                 upperClaw.startGrabSequence();
@@ -283,11 +290,11 @@ public class Swerve extends LinearOpMode {
             }
         });
 
-        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), ()->{
+        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
             scheduler.schedule(new HangingCommand(hangingServos, HangingCommand.Direction.FORWARD));
         });
 
-        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), ()->{
+        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), () -> {
             scheduler.schedule(new HangingCommand(hangingServos, HangingCommand.Direction.BACKWARD));
         });
     }

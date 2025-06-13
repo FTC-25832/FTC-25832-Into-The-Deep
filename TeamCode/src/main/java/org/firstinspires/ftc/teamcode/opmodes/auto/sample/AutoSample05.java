@@ -53,87 +53,83 @@ public final class AutoSample05 extends LinearOpMode {
                                 .build();
         }
 
+        // --- Helper for repeated drop/reset sequence ---
+        private SequentialAction dropAndResetUpperSlides() {
+                return new SequentialAction(
+                                upperSlideCommands.openClaw(), // drop
+                                // SCORED
+                                new WaitCommand(ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S).toAction(),
+                                new ParallelAction(
+                                                // upperSlideCommands.closeExtendoClaw(),
+                                                upperSlideCommands.scorespec()
+                                // score spec position for upperslides to go down
+                                ),
+                                upperSlideCommands.slidePos0());
+        }
+
+        // --- Helper for repeated front-for-drop sequence ---
+        private SequentialAction frontForDrop() {
+                return new SequentialAction(
+                                upperSlideCommands.front(),
+                                new WaitCommand(ConfigVariables.AutoTesting.A_DROPDELAY_S).toAction());
+        }
+
+        // --- Helper for repeated drive-to-score and prep upper slides ---
+        private ParallelAction driveToScoreAndPrepUpperSlides(RobotPosition startPOS) {
+                return new ParallelAction(
+                                // Drive to score
+                                drive.actionBuilder(startPOS.pose)
+                                                .strafeToSplineHeading(SCORE.pos, SCORE.heading)
+                                                .build(),
+                                upperSlideCommands.closeClaw(),
+                                upperSlideCommands.front(),
+                                upperSlideCommands.slidePos3() // need scorespec or transfer pos to go up safely
+                );
+        }
+
+        // --- Helper for repeated transfer-while-driving sequence ---
+        private SequentialAction transferWhileDriving() {
+                return new SequentialAction(
+                                transferSequence(),
+                                // upperSlideCommands.closeClaw(),
+                                new WaitCommand(ConfigVariables.AutoTesting.X_TRANSFERWHILEDRIVEAFTERTRANSFERDELAY_S)
+                                                .toAction(),
+                                upperSlideCommands.inter(),
+                                upperSlideCommands.slidePos3() // need scorespec or inter or transfer pos to go up
+                                                               // safely
+                );
+        }
+
         private SequentialAction scoreSequence(RobotPosition startPOS, double lowerslideExtendLength) {
                 return new SequentialAction(
-
-//                                new SetDriveSpeedCommand(75).toAction(),
-                                new ParallelAction(
-                                                // Drive to score
-                                                drive.actionBuilder(startPOS.pose)
-                                                                .strafeToSplineHeading(SCORE.pos, SCORE.heading)
-                                                                .build(),
-
-                                                upperSlideCommands.closeClaw(),
-                                                upperSlideCommands.front(),
-                                                upperSlideCommands.slidePos3() // need scorespec or transfer pos to go
-                                // up safely
-
-                                ),
-
+                                driveToScoreAndPrepUpperSlides(startPOS),
                                 // front pos for drop
-
                                 // new WaitCommand(ConfigVariables.AutoTesting.A_DROPDELAY_S).toAction(),
                                 // upperSlideCommands.openExtendoClaw(),
                                 // new WaitCommand(ConfigVariables.AutoTesting.W_AFTEREXTENDOOPEN_S).toAction(),
-                                new SequentialAction(
-                                                upperSlideCommands.openClaw(), // drop
-                                                // SCORED
-                                                new WaitCommand(ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S)
-                                                                .toAction(),
-                                                new ParallelAction(
-                                                                // upperSlideCommands.closeExtendoClaw(),
-                                                                upperSlideCommands.scorespec()
-                                                // score spec position for upperslides to go down
-                                                ),
-                                                upperSlideCommands.slidePos0()));
-
+                                dropAndResetUpperSlides());
         }
 
         private SequentialAction transferAndScoreSequence(RobotPosition startPOS, AutoPaths.RobotPosition pickupPos,
                         double lowerslideExtendLength) {
                 return new SequentialAction(
-
-//                                new SetDriveSpeedCommand(75).toAction(),
                                 new ParallelAction(
-                                                // Drive to score
                                                 drive.actionBuilder(startPOS.pose)
                                                                 .strafeToSplineHeading(SCORE.pos, SCORE.heading)
                                                                 .build(),
-
-                                                new SequentialAction(
-                                                                transferSequence(),
-                                                                // upperSlideCommands.closeClaw(),
-                                                                new WaitCommand(ConfigVariables.AutoTesting.X_TRANSFERWHILEDRIVEAFTERTRANSFERDELAY_S)
-                                                                                .toAction(),
-                                                                upperSlideCommands.inter(),
-                                                                upperSlideCommands.slidePos3() // need scorespec or inter or
-                                                                                               // transfer pos to go up safely
-                                                )),
-
+                                                transferWhileDriving()),
                                 // front pos for drop
-                                upperSlideCommands.front(),
-                                new WaitCommand(ConfigVariables.AutoTesting.A_DROPDELAY_S).toAction(),
                                 // upperSlideCommands.openExtendoClaw(),
                                 // new WaitCommand(ConfigVariables.AutoTesting.W_AFTEREXTENDOOPEN_S).toAction(),
-                                new SequentialAction(
-                                                upperSlideCommands.openClaw(), // drop
-                                                // SCORED
-                                                new WaitCommand(ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S)
-                                                                .toAction(),
-                                                new ParallelAction(
-                                                                // upperSlideCommands.closeExtendoClaw(),
-                                                                upperSlideCommands.scorespec()
-                                                // score spec position for upperslides to go down
-                                                ),
-                                                upperSlideCommands.slidePos0()));
-
+                                frontForDrop(),
+                                dropAndResetUpperSlides());
         }
 
         private SequentialAction pickupAndScoreSequence(RobotPosition startPOS, AutoPaths.RobotPosition pickupPos,
                         double lowerslideExtendLength, boolean adjustMultipleTimes) {
                 return new SequentialAction(
                                 // Drive to pickup
-//                                new SetDriveSpeedCommand(40).toAction(),
+                                // new SetDriveSpeedCommand(40).toAction(),
 
                                 new ParallelAction(
                                                 drive.actionBuilder(startPOS.pose)
@@ -172,7 +168,8 @@ public final class AutoSample05 extends LinearOpMode {
                                 new WaitCommand(ConfigVariables.AutoTesting.F_TRANSFERAFTERDELAY_S).toAction(),
                                 upperSlideCommands.closeClaw(),
 
-                                new WaitCommand(ConfigVariables.AutoTesting.G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S).toAction(),
+                                new WaitCommand(ConfigVariables.AutoTesting.G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S)
+                                                .toAction(),
                                 lowerSlideCommands.openClaw());
         }
 
@@ -190,7 +187,7 @@ public final class AutoSample05 extends LinearOpMode {
         private Action adjustSequence() {
                 return new SequentialAction(
                                 new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTX(drive, camera::getTx, camera::getPy, camera::getTy, ()-> {
+                                new DistanceAdjustLUTX(drive, camera::getTx, camera::getPy, camera::getTy, () -> {
                                 }, () -> {
                                 }).toAction(),
                                 new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction());
@@ -245,6 +242,7 @@ public final class AutoSample05 extends LinearOpMode {
                                 new ParallelAction(
                                                 new LowerSlideUpdatePID(lowSlide).toAction(),
                                                 new UpperSlideUpdatePID(upSlide).toAction(),
+                                                new LoopTimeTelemetryCommand().toAction(),
                                                 // Add camera telemetry for debugging
                                                 new Action() {
                                                         @Override
@@ -256,10 +254,8 @@ public final class AutoSample05 extends LinearOpMode {
                                                 },
                                                 new SequentialAction(
                                                                 upperSlideCommands.scorespec(),
-
                                                                 scoreSequence(START,
                                                                                 ConfigVariables.AutoTesting.Z_LowerslideExtend_FIRST),
-
                                                                 new ParallelAction(
                                                                                 pickupAndScoreSequence(SCORE, PICKUP1,
                                                                                                 ConfigVariables.AutoTesting.Z_LowerslideExtend_FIRST,
@@ -274,7 +270,6 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                 lowerSlideCommands.setSpinClawDeg(
                                                                                                 ConfigVariables.LowerSlideVars.ZERO
                                                                                                                 + 45)),
-
                                                                 new ParallelAction(
                                                                                 pickupAndScoreSequence(SCORE, PICKUP3,
                                                                                                 ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD,
@@ -282,69 +277,41 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                 lowerSlideCommands.setSpinClawDeg(
                                                                                                 ConfigVariables.LowerSlideVars.ZERO
                                                                                                                 + 90)),
-
                                                                 // FULL SEND
-
                                                                 new ParallelAction(
-                                                                        drive.actionBuilder(SCORE.pose)
-                                                                                .strafeTo(new Vector2d(39,28))
-                                                                                .splineTo(new Vector2d(30,15), Math.toRadians(205))
-                                                                                .build(),
-                                                                        lowerSlideCommands.slidePos1()
-                                                                ),
-
+                                                                                drive.actionBuilder(SCORE.pose)
+                                                                                                .strafeTo(new Vector2d(
+                                                                                                                39, 28))
+                                                                                                .splineTo(new Vector2d(
+                                                                                                                30, 15),
+                                                                                                                Math.toRadians(205))
+                                                                                                .build(),
+                                                                                lowerSlideCommands.slidePos1()),
                                                                 new WaitCommand(ConfigVariables.AutoTesting.I_SUBDELAY_S)
                                                                                 .toAction(),
                                                                 new ParallelAction(
                                                                                 adjustMultipleSequence(),
                                                                                 new AngleAdjustCommand(lowSlide, camera)
                                                                                                 .toAction()),
-                                                                // adjustMultipleSequence(),
-                                                                // new WaitCommand(0.4).toAction(),
-                                                                // new AngleAdjustCommand(lowSlide, camera).toAction(),
                                                                 new WaitCommand(ConfigVariables.AutoTesting.J_AFTERSUBDELAY_S)
                                                                                 .toAction(),
                                                                 pickupSequence(),
-
-
-
-
                                                                 new ParallelAction(
-                                                                        // Drive to score
-                                                                        drive.actionBuilder(SCORE.pose)
-                                                                                .setReversed(true)
-                                                                                .splineTo(new Vector2d(39,28), SCORE.heading-Math.toRadians(180))
-                                                                                .splineTo(SCORE.pos, SCORE.heading-Math.toRadians(180))
-                                                                                .build(),
-
-                                                                        new SequentialAction(
-                                                                                transferSequence(),
-                                                                                // upperSlideCommands.closeClaw(),
-                                                                                new WaitCommand(ConfigVariables.AutoTesting.X_TRANSFERWHILEDRIVEAFTERTRANSFERDELAY_S)
-                                                                                        .toAction(),
-                                                                                upperSlideCommands.inter(),
-                                                                                upperSlideCommands.slidePos3() // need scorespec or inter or
-                                                                                // transfer pos to go up safely
-                                                                        )),
-
-                                                                // front pos for drop
-                                                                upperSlideCommands.front(),
-                                                                new WaitCommand(ConfigVariables.AutoTesting.A_DROPDELAY_S).toAction(),
-                                                                // upperSlideCommands.openExtendoClaw(),
-                                                                // new WaitCommand(ConfigVariables.AutoTesting.W_AFTEREXTENDOOPEN_S).toAction(),
-                                                                new SequentialAction(
-                                                                        upperSlideCommands.openClaw(), // drop
-                                                                        // SCORED
-                                                                        new WaitCommand(ConfigVariables.AutoTesting.B_AFTERSCOREDELAY_S)
-                                                                                .toAction(),
-                                                                        new ParallelAction(
-                                                                                // upperSlideCommands.closeExtendoClaw(),
-                                                                                upperSlideCommands.scorespec()
-                                                                                // score spec position for upperslides to go down
-                                                                        ),
-                                                                        upperSlideCommands.slidePos0())
-
-                                                )));
+                                                                                // Drive to score
+                                                                                drive.actionBuilder(SCORE.pose)
+                                                                                                .setReversed(true)
+                                                                                                .splineTo(new Vector2d(
+                                                                                                                39, 28),
+                                                                                                                SCORE.heading - Math
+                                                                                                                                .toRadians(180))
+                                                                                                .setReversed(true)
+                                                                                                .splineTo(SCORE.pos,
+                                                                                                                SCORE.heading - Math
+                                                                                                                                .toRadians(180))
+                                                                                                .build(),
+                                                                                transferWhileDriving()),
+                                                                frontForDrop(),
+                                                                dropAndResetUpperSlides())));
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
