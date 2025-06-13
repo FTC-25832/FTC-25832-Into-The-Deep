@@ -70,15 +70,24 @@ public class ConfigVariables {
 
         @Config
         public static class Camera {
+                public static double CAMERA_HEIGHT = 27; // cm, height of camera from ground
                 public static double CLAW_DISTANCE = 22; // cm
                 public static double CROSSHAIR_X = -0.42578125;
                 public static final double ADJUSTMENT_DELAY = 0.65; // 500ms between adjustments
                 public static double CROSSHAIR_Y = -0.4791666567325592;
+                public static double TILT_ANGLE = 45.0;
+                public static double[][] CAMERA_MATRIX = {
+                        {1221.445, 0, 637.226},
+                        {0, 1223.398, 502.549},
+                        {0, 0, 1}
+                };
+                public static double[] DISTORTION_COEFFS = {0.177168, -0.457341, 0.000360, 0.002753, 0.178259};
                 public static double TOLERANCE = 2.5;
                 public static double Y_OFFSET = 0; //cm
                 public static double CAMERA_DELAY = 0.2; // s
                 public static double CLAW_90 = 90;
                 public static double XYPIXELRATIO = 225.0 / 672.0;
+                public static double XYDISTANCERATIO = 2.2/6.7;
                 public static double CAMERA_DISTANCE = 27; // cm, y distance between camera and sample
                 public static double[] Y_DISTANCE_MAP_X = {
                                 -100,
