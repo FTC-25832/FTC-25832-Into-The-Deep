@@ -143,6 +143,9 @@ public class ConfigVariables {
                 public static double BEHIND_ARM_POS = 0.24;
                 public static double BEHIND_SWING_POS = 1.0;
 
+                public static double INTER_ARM_POS = 0.5;
+                public static double INTER_SWING_POS = 0.8;
+
                 // Claw positions
                 public static double CLAW_OPEN = 1.0;
                 public static double CLAW_CLOSE = 0.0;

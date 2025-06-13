@@ -170,6 +170,12 @@ public class UpperSlide extends SubsystemBase {
         setSwingPosition(UpperSlideVars.SCORESPEC_FRONT_SWING_POS);
     }
 
+    public void inter() {
+        setArmPosition(UpperSlideVars.INTER_ARM_POS);
+        setSwingPosition(UpperSlideVars.INTER_SWING_POS);
+    }
+
+
     public void keepPosExceptArms(double pos) {
         arm1.setPosition(0);
         arm2.setPosition(0);
