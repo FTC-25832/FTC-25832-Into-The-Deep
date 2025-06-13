@@ -89,7 +89,7 @@ public class ConfigVariables {
                 public static double[] DISTORTION_COEFFS = {0.177168, -0.457341, 0.000360, 0.002753, 0.178259};
                 public static double TOLERANCE = 2.5;
                 public static double Y_OFFSET = 0; //cm
-                public static double CAMERA_DELAY = 0.2; // s
+                public static double CAMERA_DELAY = 0.5; // s
                 public static double CLAW_90 = 90;
                 public static double XYPIXELRATIO = 225.0 / 672.0;
                 public static double XYDISTANCERATIO = 2.2/6.7;
@@ -199,7 +199,7 @@ public class ConfigVariables {
                 public static double CLAW_OPEN = 1.0;
                 public static double CLAW_CLOSE = 0.0;
 
-                public static int POS_GRAB_TIMEOUT = 200;
+                public static int POS_GRAB_TIMEOUT = 400;
                 public static int CLAW_CLOSE_TIMEOUT = General.CLAW_OPERATION_TIMEOUT;
                 public static int POS_HOVER_TIMEOUT = 200;
 
