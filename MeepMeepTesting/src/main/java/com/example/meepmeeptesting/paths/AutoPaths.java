@@ -93,10 +93,10 @@ public final class AutoPaths {
                 //tank path
                 .strafeTo(new Vector2d(39,28))
                 .splineTo(new Vector2d(30,15), Math.toRadians(205))
+
                 .setReversed(true)
                 .splineTo(new Vector2d(39,28), SCORE.heading-Math.toRadians(180))
-                .setReversed(true)
-                .splineTo(SCORE.pos, SCORE.heading-Math.toRadians(180));
+                .strafeTo(SCORE.pos);
 
     }
 
