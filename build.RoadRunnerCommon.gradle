@@ -1,0 +1,11 @@
+repositories {
+    maven { url = 'https://maven.brott.dev/' }
+}
+dependencies {
+    implementation ("com.acmerobotics.roadrunner:core:1.0.1"){
+        exclude group: "com.acmerobotics.dashboard"
+    }
+    implementation ("com.acmerobotics.roadrunner:actions:1.0.1"){
+        exclude group: "com.acmerobotics.dashboard"
+    }
+}

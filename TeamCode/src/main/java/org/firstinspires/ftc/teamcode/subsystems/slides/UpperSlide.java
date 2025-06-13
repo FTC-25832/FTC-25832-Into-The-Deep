@@ -2,11 +2,14 @@ package org.firstinspires.ftc.teamcode.subsystems.slides;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
+//import com.qualcomm.robotcore.hardware.CurrentUnit;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
@@ -20,11 +23,16 @@ public class UpperSlide extends SubsystemBase {
     public ServoImplEx arm2;
     public ServoImplEx swing;
     public ServoImplEx claw;
-    private DcMotor slide1, slide2;
+    private DcMotorEx slide1, slide2;
+    public ServoImplEx extendo;
+
+    PwmControl.PwmRange v4range = new PwmControl.PwmRange(500, 2500);
+
     // Control ranges
     private final PwmControl.PwmRange swingRange = new PwmControl.PwmRange(500, 2500);
     private final PwmControl.PwmRange armRange = new PwmControl.PwmRange(500, 2500);
     private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1270);
+    private final PwmControl.PwmRange extendoRange = new PwmControl.PwmRange(500, 1270);
 
     // Position control
     public final PIDFController pidfController;
@@ -49,14 +57,15 @@ public class UpperSlide extends SubsystemBase {
     @Override
     public void initialize(HardwareMap hardwareMap) {
         // Initialize slide motors for power
-        slide1 = hardwareMap.get(DcMotor.class, ExpansionHub.motor(0));
-        slide2 = hardwareMap.get(DcMotor.class, ExpansionHub.motor(3));
+        slide1 = hardwareMap.get(DcMotorEx.class, ExpansionHub.motor(0));
+        slide2 = hardwareMap.get(DcMotorEx.class, ExpansionHub.motor(3));
 
         // Initialize servos
         arm1 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(2));
         arm2 = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(1));
         swing = hardwareMap.get(ServoImplEx.class, ControlHub.servo(1));
         claw = hardwareMap.get(ServoImplEx.class, ControlHub.servo(3));
+        extendo = hardwareMap.get(ServoImplEx.class, ControlHub.servo(4));
 
         // Configure directions
         slide2.setDirection(DcMotor.Direction.REVERSE);
@@ -71,6 +80,7 @@ public class UpperSlide extends SubsystemBase {
         arm2.setPwmRange(armRange);
         swing.setPwmRange(swingRange);
         claw.setPwmRange(clawRange);
+        extendo.setPwmRange(extendoRange);
 
         slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -78,6 +88,10 @@ public class UpperSlide extends SubsystemBase {
         // Configure motor modes
         slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // set current alarm
+        slide1.setCurrentAlert(6.0, CurrentUnit.AMPS);
+        slide2.setCurrentAlert(6.0, CurrentUnit.AMPS);
     }
 
     @Override
@@ -93,6 +107,11 @@ public class UpperSlide extends SubsystemBase {
         packet.put("upperslide/arm2", arm2.getPosition());
         packet.put("upperslide/swing", swing.getPosition());
         packet.put("upperslide/claw", claw.getPosition());
+        packet.put("upperslide/extendo", extendo.getPosition());
+
+        // current
+        packet.put("upperslide/current1", slide1.getCurrent(CurrentUnit.AMPS));
+        packet.put("upperslide/current2", slide2.getCurrent(CurrentUnit.AMPS));
     }
 
     /**
@@ -151,6 +170,12 @@ public class UpperSlide extends SubsystemBase {
         setSwingPosition(UpperSlideVars.SCORESPEC_FRONT_SWING_POS);
     }
 
+    public void inter() {
+        setArmPosition(UpperSlideVars.INTER_ARM_POS);
+        setSwingPosition(UpperSlideVars.INTER_SWING_POS);
+    }
+
+
     public void keepPosExceptArms(double pos) {
         arm1.setPosition(0);
         arm2.setPosition(0);
@@ -183,12 +208,32 @@ public class UpperSlide extends SubsystemBase {
         claw.setPosition(UpperSlideVars.CLAW_CLOSE);
     }
 
+    // Exentdo controls
+    public void openExtendoClaw() {
+        extendo.setPosition(UpperSlideVars.EXTENDO_OPEN);
+    }
+
+    public void closeExtendoClaw() {
+        extendo.setPosition(UpperSlideVars.EXTENDO_CLOSE);
+    }
+
     /**
      * Update PID control and return the calculated power
      */
     public double updatePID() {
         double currentPosition = getCurrentPosition();
-        double power = pidfController.calculate(currentPosition) * 0.8;
+        double power = pidfController.calculate(currentPosition) * 1;
+
+//        if (pidfController.destination == 0) {
+//            // check if current is 0, if so then it means slides have reached bottom, so we
+//            // reset encoders to prevent it from going negative
+//            if(slide1.isOverCurrent() || slide2.isOverCurrent()) {
+//                slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//                slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//            }
+//        }
 
         slide1.setPower(power);
         slide2.setPower(power);

@@ -1,0 +1,3 @@
+[submodule "BeepBeep"]
+	path = BeepBeep
+	url = https://github.com/codeShareFTC/BeepBeep.git

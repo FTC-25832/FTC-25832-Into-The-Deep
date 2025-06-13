@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.commands.vision;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
@@ -33,7 +32,6 @@ public class DistanceAdjustCommand extends CommandBase {
         isAdjusted = false;
         pidY.reset();
          lowSlide.setPIDEnabled(false);
-        camera.switchtoNeural();
         if (!camera.updateDetectorResult()) {
             isAdjusted = true; // Skip if no detection
             return;
@@ -45,7 +43,7 @@ public class DistanceAdjustCommand extends CommandBase {
     public void execute(TelemetryPacket packet) {
         // Adjust slide position using PID
         camera.updateDetectorResult();
-        double dy = camera.getY();
+        double dy = camera.getTy();
         double yPower = pidY.calculate(-dy);
         lowSlide.setSlidePower(yPower);
 

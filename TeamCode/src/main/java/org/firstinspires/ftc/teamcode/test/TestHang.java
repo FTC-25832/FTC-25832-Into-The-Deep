@@ -11,7 +11,9 @@ public class TestHang extends LinearOpMode {
     private Hanging hangingServos;
     @Override
     public void runOpMode() throws InterruptedException {
+        hangingServos = new Hanging();
         hangingServos.initialize(hardwareMap);
+        waitForStart();
         while (opModeIsActive()){
             if(gamepad1.a){
                 hangingServos.setPwm(ConfigVariables.HangingTesting.pos1);

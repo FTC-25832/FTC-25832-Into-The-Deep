@@ -33,11 +33,11 @@ public final class AutoPaths {
     }
 
     // Sample autonomous positions
-    public static final RobotPosition START = new RobotPosition(40.1, 62, 270);
+    public static final RobotPosition START = new RobotPosition(39.5, 65, 180);
     public static final RobotPosition PREPLACED = new RobotPosition(47, 46, -90); //?
 
-    public static final RobotPosition PICKUP1 = new RobotPosition(47.1, 47.1, -90);
-    public static final RobotPosition PICKUP2 = new RobotPosition(58, 47, -90);
+    public static final RobotPosition PICKUP1 = new RobotPosition(56, 52, -110);
+    public static final RobotPosition PICKUP2 = new RobotPosition(58, 55, -90);
     public static final RobotPosition PICKUP3 = new RobotPosition(47.1, 47.1, -45);
     public static final RobotPosition SCORE = new RobotPosition(57, 57, 225);
 
@@ -81,31 +81,22 @@ public final class AutoPaths {
 
     public static TrajectoryActionBuilder autosamplepath(DriveShim drive) {
         return drive.actionBuilder(START.pose)
-                    .strafeToLinearHeading(SCORE.pos, SCORE.heading)
-                    .strafeToLinearHeading(PICKUP1.pos, PICKUP1.heading)
-                    .strafeToLinearHeading(SCORE.pos, SCORE.heading)
-                    .strafeToLinearHeading(PICKUP2.pos, PICKUP2.heading)
-                    .strafeToLinearHeading(SCORE.pos, SCORE.heading)
-                    .strafeToLinearHeading(PICKUP3.pos, PICKUP3.heading)
-                    .strafeToLinearHeading(SCORE.pos, SCORE.heading)
+                .strafeToSplineHeading(SCORE.pos, SCORE.heading-Math.toRadians(10))
+                .strafeToSplineHeading(PICKUP1.pos, PICKUP1.heading)
+                .strafeToSplineHeading(SCORE.pos, SCORE.heading+Math.toRadians(20))
+                .strafeToSplineHeading(PICKUP2.pos, PICKUP2.heading)
+                .strafeToSplineHeading(SCORE.pos, SCORE.heading-Math.toRadians(10))
+                .strafeToSplineHeading(PICKUP3.pos, PICKUP3.heading)
+                .strafeToSplineHeading(SCORE.pos, SCORE.heading+Math.toRadians(20))
 
 
                 //tank path
-                    .strafeToLinearHeading(new Vector2d(38,5), Math.toRadians(180))
-                    .strafeToConstantHeading(new Vector2d(23,5));
-
-//                    .strafeToConstantHeading(new Vector2d(38,12))
-//                    .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(225))
-//                    .strafeToConstantHeading(SCORE.pos);
-//                    .strafeToLinearHeading(SCORE.pos, SCORE.heading);
-
-
-        //park path
-                //park path
-//                .strafeToLinearHeading(new Vector2d(38,0), Math.toRadians(0))
-//                .strafeToConstantHeading(new Vector2d(23,0));
-
-
+                .strafeTo(new Vector2d(39,28))
+                .splineTo(new Vector2d(30,15), Math.toRadians(205))
+                .setReversed(true)
+                .splineTo(new Vector2d(39,28), SCORE.heading-Math.toRadians(180))
+                .setReversed(true)
+                .splineTo(SCORE.pos, SCORE.heading-Math.toRadians(180));
 
     }
 
