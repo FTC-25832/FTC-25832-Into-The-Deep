@@ -22,6 +22,8 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceComma
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCalculatedX;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCalculatedY;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
@@ -177,7 +179,7 @@ public class Swerve extends LinearOpMode {
         gamepad1Controller.onPressed(ButtonType.X, () -> {
             scheduler.schedule(new CameraUpdateDetectorResult(camera));
             scheduler.schedule(new DistanceAdjustLUTY(lowSlide, camera::getTy));
-            scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy, mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
+            scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getPy, mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
 //            scheduler.schedule(new SequentialCommandGroup(
 //                    new DistanceAdjustLUTY(lowSlide, camera, gamepad1),
 //                    new WaitCommand(0.5),
@@ -200,7 +202,9 @@ public class Swerve extends LinearOpMode {
         });
 
         gamepad1Controller.onPressed(ButtonType.B, () -> {
-            imu.resetYaw();
+            scheduler.schedule(new CameraUpdateDetectorResult(camera));
+            scheduler.schedule(new DistanceAdjustCalculatedY(lowSlide, camera::getDy));
+            scheduler.schedule(new DistanceAdjustCalculatedX(drive, camera::getDx, camera::getDy, mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
         });
 
         gamepad1Controller.onPressed(ButtonType.Y, () -> {

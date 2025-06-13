@@ -114,7 +114,7 @@ public final class AutoSample04 extends LinearOpMode {
                                                                                                 .toAction(),
                                                                                 new DistanceAdjustLUTX(drive,
                                                                                                 camera::getTx,
-                                                                                                camera::getTy, () -> {
+                                                                                                camera::getPy, () -> {
                                                                                                 }, () -> {
                                                                                                 }).toAction()),
                                                         new SequentialCommandGroup(
