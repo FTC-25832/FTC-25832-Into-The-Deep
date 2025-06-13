@@ -45,8 +45,8 @@ public class ConfigVariables {
                 public static double I_SUBDELAY_S = 0.4;
                 public static double J_AFTERSUBDELAY_S = 0.4;
 
-                public static double Z_LowerslideExtend_FIRST = 20;
-                public static double Z_LowerslideExtend_SECOND = 20;
+                public static double Z_LowerslideExtend_FIRST = 39; //was 20
+                public static double Z_LowerslideExtend_SECOND = 39;
                 public static double Z_LowerslideExtend_THIRD = 17;
 
                 public static double Y_PICKUPDELAY = Camera.CAMERA_DELAY;
@@ -175,14 +175,14 @@ public class ConfigVariables {
 
                 // slide positions
                 public static double POS_0_CM = 0;
-                public static double POS_1_CM = 35;
+                public static double POS_1_CM = 35; //max is 45
                 public static double POS_2_CM = 10;
 
                 // Claw positions
                 public static double CLAW_OPEN = 1.0;
                 public static double CLAW_CLOSE = 0.0;
 
-                public static int POS_GRAB_TIMEOUT = 500;
+                public static int POS_GRAB_TIMEOUT = 200;
                 public static int CLAW_CLOSE_TIMEOUT = General.CLAW_OPERATION_TIMEOUT;
                 public static int POS_HOVER_TIMEOUT = 200;
 
