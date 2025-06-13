@@ -26,13 +26,14 @@ public class Limelight {
     public List<List<Double>> outerCorners;
     public boolean available = true;
     public boolean resultAvailable = false;
-    private static final MatOfDouble CAMERA_INTRINSIC_MATRIX = new MatOfDouble(3, 3, CvType.CV_64F);
+    private static final Mat CAMERA_INTRINSIC_MATRIX = new Mat(3, 3, CvType.CV_64F);
     private static final MatOfDouble DISTORTION_COEFFICIENTS = new MatOfDouble(Mat.zeros(5, 1, CvType.CV_64F));
     static {
-        for (int i = 0; i < 3; i++) {
-        CAMERA_INTRINSIC_MATRIX.put(i, 0, ConfigVariables.Camera.CAMERA_MATRIX[i]);
-        }
-        DISTORTION_COEFFICIENTS.fromArray(ConfigVariables.Camera.DISTORTION_COEFFS);
+        CAMERA_INTRINSIC_MATRIX.put(0, 0,
+                1221.445, 0, 637.226,
+                0, 1223.398, 502.549,
+                0, 0, 1);
+        DISTORTION_COEFFICIENTS.put(0, 0, 0.177168, -0.457341, 0.000360, 0.002753, 0.178259);
     }
     private static final double PRISM_LENGTH = 8.5; // cm
     private static final double PRISM_WIDTH = 3.5; // cm
@@ -63,6 +64,7 @@ public class Limelight {
      * return true if the result is valid (detected)
      */
     public boolean updateDetectorResult() {
+        if(!available) return false;
         result = limelight.getLatestResult();
         if (result.isValid()) {
             detectorResults = result.getDetectorResults();
@@ -87,7 +89,7 @@ public class Limelight {
     }
 
     public void updatePosition() {
-        if (!resultAvailable)
+        if (!resultAvailable || !available)
             return;
 
         outerCorners = detectorResult.getTargetCorners();
@@ -314,6 +316,8 @@ public class Limelight {
         //Dx = sintx h / cos (tx-acx) / sin(90-acx)
         double angle = Math.toRadians(tx - dcx);
         double h = ConfigVariables.Camera.CAMERA_HEIGHT;
+        // division by zero check
+        if( Math.cos(angle)==0 || Math.sin(Math.toRadians(90 - dcx))==0) return 0;
         double dx = Math.sin(Math.toRadians(tx)) * h / Math.cos(angle) / Math.sin(Math.toRadians(90 - dcx));
         return dx;
     }
@@ -325,6 +329,7 @@ public class Limelight {
         // Dy = sinty*h/cos(90-tilt-ty+acy)/sin(90-tilt-ty+acy-ty)
         double angle = Math.toRadians(90 - ConfigVariables.Camera.TILT_ANGLE - ty + dcy);
         double h = ConfigVariables.Camera.CAMERA_HEIGHT;
+        if( Math.cos(angle)==0|| Math.sin(Math.toRadians(90 - ConfigVariables.Camera.TILT_ANGLE - ty + dcy - ty))==0) return 0;
         double dy = Math.sin(Math.toRadians(ty)) * h / Math.cos(angle) / Math.sin(Math.toRadians(90 - ConfigVariables.Camera.TILT_ANGLE - ty + dcy - ty));
         return dy;
     }

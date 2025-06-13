@@ -41,7 +41,7 @@ public class LimelightPoseDetectionTest extends LinearOpMode {
     {
         limelight.initialize(hardwareMap);
         Telemetry telemetry = FtcDashboard.getInstance().getTelemetry();
-
+        limelight.cameraStart();
         telemetry.addData(">", "Robot Ready.  Press Play.");
         telemetry.update();
 
@@ -68,7 +68,6 @@ public class LimelightPoseDetectionTest extends LinearOpMode {
         FtcDashboard.getInstance().startCameraStream(llIt.getStreamSource(),10);
 
         waitForStart();
-        limelight.cameraStart();
 
 
         /*  *** below here shows how to access a single image and send it to dashboard *** */
@@ -79,20 +78,19 @@ public class LimelightPoseDetectionTest extends LinearOpMode {
         while (opModeIsActive()) {
            limelight.updateDetectorResult();
            limelight.updatePosition();
-           if(limelight.resultAvailable){
+           if(limelight.resultAvailable&&limelight.available){
                telemetry.addData("Corners", limelight.outerCorners);
+               telemetry.addData("X", limelight.getWorldx());
+               telemetry.addData("Y", limelight.getWorldy());
+               telemetry.addData("Angle", limelight.getAngle());
+               telemetry.addData("TX", limelight.getTx());
+               telemetry.addData("TY", limelight.getTy());
+               telemetry.addData("DX", limelight.getDx());
+               telemetry.addData("DY", limelight.getDy());
+               telemetry.addData("PX", limelight.getPx());
+               telemetry.addData("PY", limelight.getPy());
+               telemetry.update();
            }
-           telemetry.addData("X", limelight.getWorldx());
-           telemetry.addData("Y", limelight.getWorldy());
-           telemetry.addData("Angle", limelight.getAngle());
-            telemetry.addData("TX", limelight.getTx());
-            telemetry.addData("TY", limelight.getTy());
-            telemetry.addData("DX", limelight.getDx());
-            telemetry.addData("DY", limelight.getDy());
-            telemetry.addData("PX", limelight.getPx());
-            telemetry.addData("PY", limelight.getPy());
-           telemetry.update();
-
             // Get the latest image from the limelight
             Bitmap bitmap = llIt.getProcessedBMP();
 
