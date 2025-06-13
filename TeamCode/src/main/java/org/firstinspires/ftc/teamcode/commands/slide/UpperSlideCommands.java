@@ -206,4 +206,10 @@ public class UpperSlideCommands {
                                 setArmPos(UpperSlideVars.SCORESPEC_FRONT_ARM_POS),
                                 setSwingPos(UpperSlideVars.SCORESPEC_FRONT_SWING_POS));
         }
+
+        public Action inter() {
+                return new SequentialAction(
+                        setArmPos(UpperSlideVars.INTER_ARM_POS),
+                        setSwingPos(UpperSlideVars.INTER_SWING_POS));
+        }
 }
