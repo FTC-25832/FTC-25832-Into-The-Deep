@@ -89,9 +89,11 @@ public class DistanceAdjustLUTX extends CommandBase {
             // dx = dx - dy * gradient;
             // Δtx = 180/pi arctan(tan(ty*pi/180)*gradientpx))
 
+//            final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
+//            final double pixelToAnglex = ConfigVariables.Camera.FOV[0]/ConfigVariables.Camera.RESOLUTION[0];
+//            final double ddx = py*gradientpx*pixelToAnglex;
             final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
-            final double pixelToAnglex = ConfigVariables.Camera.FOV[0]/ConfigVariables.Camera.RESOLUTION[0];
-            final double ddx = py*gradientpx*pixelToAnglex;
+            final double ddx = Math.toDegrees(Math.atan(Math.tan(Math.toRadians(ty)) * gradientpx));
             packet.put("vision/ddx", ddx);
             dx = dx - ddx;
             adjustx(dx, packet);
