@@ -39,7 +39,7 @@ public final class AutoPaths {
     public static final RobotPosition PICKUP1 = new RobotPosition(47.1, 47.1, -90);
     public static final RobotPosition PICKUP2 = new RobotPosition(58, 47, -90);
     public static final RobotPosition PICKUP3 = new RobotPosition(47.1, 47.1, -45);
-    public static final RobotPosition SCORE = new RobotPosition(57, 57, 225);
+    public static final RobotPosition SCORE = new RobotPosition(57, 57, 245);
 
 
 
@@ -81,19 +81,26 @@ public final class AutoPaths {
 
     public static TrajectoryActionBuilder autosamplepath(DriveShim drive) {
         return drive.actionBuilder(START.pose)
-                    .strafeToSplineHeading(SCORE.pos, SCORE.heading)
-                    .strafeToLinearHeading(PICKUP1.pos, PICKUP1.heading)
-                    .strafeToSplineHeading(SCORE.pos, SCORE.heading)
-                    .strafeToLinearHeading(PICKUP2.pos, PICKUP2.heading)
-                    .strafeToSplineHeading(SCORE.pos, SCORE.heading)
-                    .strafeToLinearHeading(PICKUP3.pos, PICKUP3.heading)
-                    .strafeToSplineHeading(SCORE.pos, SCORE.heading)
+                .strafeToSplineHeading(SCORE.pos, SCORE.heading)
+                .strafeToLinearHeading(PICKUP1.pos, PICKUP1.heading)
+                .strafeToSplineHeading(SCORE.pos, SCORE.heading)
+                .strafeToLinearHeading(PICKUP2.pos, PICKUP2.heading)
+                .strafeToSplineHeading(SCORE.pos, SCORE.heading)
+                .strafeToLinearHeading(PICKUP3.pos, PICKUP3.heading)
+                .strafeToSplineHeading(SCORE.pos, SCORE.heading)
 
 
                 //tank path
-                    .strafeToSplineHeading(new Vector2d(24,3), Math.toRadians(180))
-//                    .strafeToConstantHeading(new Vector2d(23,12))
-                .strafeToSplineHeading(SCORE.pos, SCORE.heading);
+
+                .strafeTo(new Vector2d(38,25))
+                .splineTo(new Vector2d(30,12), Math.toRadians(-180))
+                .setReversed(true)
+                .splineTo(new Vector2d(38,25), SCORE.heading-Math.toRadians(180))
+//                    .setReversed(false)
+//                    .strafeToConstantHeading(SCORE.pos);
+//                    .setTangent(SCORE.heading)
+                .splineTo(SCORE.pos, SCORE.heading-Math.toRadians(180));
+//                    .setReversed(false);
 
     }
 
