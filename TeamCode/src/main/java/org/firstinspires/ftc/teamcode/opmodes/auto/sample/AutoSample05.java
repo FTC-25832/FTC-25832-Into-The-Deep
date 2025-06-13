@@ -199,7 +199,7 @@ public final class AutoSample05 extends LinearOpMode {
         }
 
         private Action adjustMultipleSequence() {
-                return new AdjustUntilClose(drive, lowSlide, camera::getTx, camera::getTy, () -> {
+                return new AdjustUntilClose(drive, lowSlide, camera::getTx, camera::getTy, camera::getPy, () -> {
                 }, () -> {
                 },
                                 camera::updateDetectorResult)
