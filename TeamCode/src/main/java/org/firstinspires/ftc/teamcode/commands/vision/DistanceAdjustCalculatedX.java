@@ -17,30 +17,19 @@ import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
 import java.util.function.Supplier;
 
-public class DistanceAdjustLUTX extends CommandBase {
-    private final InterpLUT lutx = new InterpLUT();
-    // private final InterpLUT lutratio = new InterpLUT();
+public class DistanceAdjustCalculatedX extends CommandBase {
     private final MecanumDrive drive;
-    private double dx, py;
+    private double dy, dx;
     private boolean isAdjusted = false;
     private Action moveAction = null;
-    Supplier<Double> txSupplier, pySupplier;
+    Supplier<Double> dxSupplier, dySupplier;
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
 
-    public DistanceAdjustLUTX(MecanumDrive drive, Supplier<Double> txSupplier, Supplier<Double> pySupplier, Runnable disableDriveControl,
-            Runnable enableDriveControl) {
-        for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
-            lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
-        }
-        // for (int i = 0; i < ConfigVariables.Camera.XYRATIO_MAP_Y.length; i++) {
-        // lutratio.add(ConfigVariables.Camera.XYRATIO_MAP_X[i],
-        // ConfigVariables.Camera.XYRATIO_MAP_Y[i]);
-        // }
-        lutx.createLUT();
-        // lutratio.createLUT();
-        this.pySupplier = pySupplier;
-        this.txSupplier = txSupplier;
+    public DistanceAdjustCalculatedX(MecanumDrive drive, Supplier<Double> dxSupplier, Supplier<Double> dySupplier, Runnable disableDriveControl,
+                              Runnable enableDriveControl) {
+        this.dySupplier = dySupplier;
+        this.dxSupplier = dxSupplier;
         this.drive = drive;
         this.disableDriveControl = disableDriveControl;
         this.enableDriveControl = enableDriveControl;
@@ -48,8 +37,8 @@ public class DistanceAdjustLUTX extends CommandBase {
 
     @Override
     public void initialize() {
-        this.dx = txSupplier.get();
-        this.py = pySupplier.get();
+        this.dx = dxSupplier.get();
+        this.dy = dySupplier.get();
         isAdjusted = false;
         moveAction = null;
         disableDriveControl.run();
@@ -57,10 +46,10 @@ public class DistanceAdjustLUTX extends CommandBase {
 
     @Override
     public void execute(TelemetryPacket packet) {
-        packet.put("DistanceAdjustLUTX/dx_input", dx);
-        packet.put("DistanceAdjustLUTX/py_input", py);
-        packet.put("DistanceAdjustLUTX/isAdjusted", isAdjusted);
-        packet.put("DistanceAdjustLUTX/hasActiveAction", moveAction != null);
+        packet.put("DistanceAdjustCalcuatedX/dx_input", dx);
+        packet.put("DistanceAdjustCalcuatedX/dy_input", dy);
+        packet.put("DistanceAdjustCalcuatedX/isAdjusted", isAdjusted);
+        packet.put("DistanceAdjustCalcuatedX/hasActiveAction", moveAction != null);
 
         // If we have an active movement action, run it
         if (moveAction != null) {
@@ -70,7 +59,7 @@ public class DistanceAdjustLUTX extends CommandBase {
             if (actionDone) {
                 isAdjusted = true;
                 moveAction = null;
-                packet.put("DistanceAdjustLUTX/actionStatus", actionDone ? "completed" : "timed out");
+                packet.put("DistanceAdjustCalcuatedX/actionStatus", actionDone ? "completed" : "timed out");
             } else {
                 drive.updatePoseEstimate();
                 return; // Continue running current action
@@ -78,17 +67,17 @@ public class DistanceAdjustLUTX extends CommandBase {
         } else {
             if (dx == 0) {
                 isAdjusted = true;
-                packet.put("DistanceAdjustLUTX/status", "NO_DX_VALUE");
+                packet.put("DistanceAdjustCalcuatedX/status", "NO_DX_VALUE");
                 return;
             }
 
-            packet.put("DistanceAdjustLUTX/status", "ADJUSTING");
+            packet.put("DistanceAdjustCalcuatedX/status", "ADJUSTING");
             // final double gradient = lutratio.get(dy);
             // dx = dx - dy * gradient;
             // Δtx = 180/pi arctan(tan(ty*pi/180)*gradientpx))
 
-            final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
-            final double ddx = Math.toDegrees(Math.atan2(py * gradientpx, 1));
+            final double gradientpx = ConfigVariables.Camera.XYDISTANCERATIO;
+            final double ddx = dy*gradientpx;
             packet.put("vision/ddx", ddx);
             dx = dx - ddx;
             adjustx(dx, packet);
@@ -119,15 +108,7 @@ public class DistanceAdjustLUTX extends CommandBase {
 
     public void adjustx(double dx, TelemetryPacket packet) {
         packet.put("vision/dx", dx);
-
-        double dxcm = lutx.get(dx);
-        packet.put("vision/dxcm", dxcm);
-
-        // Calculate how much we need to adjust
-        double adjustmentNeeded = dxcm - lutx.get(0);
-        packet.put("vision/adjustmentNeeded", adjustmentNeeded);
-
-        double adjustmentNeededinch = adjustmentNeeded / 2.54;
+        double adjustmentNeededinch = dx / 2.54;
         Pose2d startpose = drive.localizer.getPose();
         double heading = startpose.heading.toDouble();
         // robot centric to field centric

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.sensors.limelight;
 
+import android.graphics.Bitmap;
+
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -24,19 +26,18 @@ public class Limelight {
     public List<List<Double>> outerCorners;
     public boolean available = true;
     public boolean resultAvailable = false;
-    private static final Mat CAMERA_INTRINSIC_MATRIX = new Mat(3, 3, CvType.CV_64F);
+    private static final MatOfDouble CAMERA_INTRINSIC_MATRIX = new MatOfDouble(3, 3, CvType.CV_64F);
     private static final MatOfDouble DISTORTION_COEFFICIENTS = new MatOfDouble(Mat.zeros(5, 1, CvType.CV_64F));
     static {
-        CAMERA_INTRINSIC_MATRIX.put(0, 0,
-                1221.445, 0, 637.226,
-                0, 1223.398, 502.549,
-                0, 0, 1);
-        DISTORTION_COEFFICIENTS.put(0, 0, 0.177168, -0.457341, 0.000360, 0.002753, 0.178259);
+        for (int i = 0; i < 3; i++) {
+        CAMERA_INTRINSIC_MATRIX.put(i, 0, ConfigVariables.Camera.CAMERA_MATRIX[i]);
+        }
+        DISTORTION_COEFFICIENTS.fromArray(ConfigVariables.Camera.DISTORTION_COEFFS);
     }
     private static final double PRISM_LENGTH = 8.5; // cm
     private static final double PRISM_WIDTH = 3.5; // cm
-    private static final double CAMERA_HEIGHT = 27; // cm
-    private static final double CAMERA_TILT_ANGLE = 45.0; // degrees
+    private static final double CAMERA_HEIGHT = ConfigVariables.Camera.CAMERA_HEIGHT; // cm
+    private static final double CAMERA_TILT_ANGLE = ConfigVariables.Camera.TILT_ANGLE; // degrees
     private static final double WIDTH_RATIO = PRISM_LENGTH;
     private static final double HEIGHT_RATIO = PRISM_WIDTH;
 
@@ -288,7 +289,45 @@ public class Limelight {
             return 0;
         return result.getTy();
     }
+    public double getPx() {
+        if (!available || !resultAvailable)
+            return 0;
+        return detectorResult.getTargetXPixels();
+    }
 
+    public double getPy() {
+        if (!available || !resultAvailable)
+            return 0;
+        return detectorResult.getTargetYPixels();
+    }
+
+    public double getTl(){ // target latency
+        if (!available || !resultAvailable)
+            return 0;
+        return result.getTargetingLatency() + result.getParseLatency();
+    }
+    public double getDx() {
+        if (!available || !resultAvailable)
+            return 0;
+        double dcx = detectorResult.getTargetXDegreesNoCrosshair();
+        double tx = detectorResult.getTargetXDegrees();
+        //Dx = sintx h / cos (tx-acx) / sin(90-acx)
+        double angle = Math.toRadians(tx - dcx);
+        double h = ConfigVariables.Camera.CAMERA_HEIGHT;
+        double dx = Math.sin(Math.toRadians(tx)) * h / Math.cos(angle) / Math.sin(Math.toRadians(90 - dcx));
+        return dx;
+    }
+    public double getDy(){
+        if (!available || !resultAvailable)
+            return 0;
+        double dcy = detectorResult.getTargetYDegreesNoCrosshair();
+        double ty = detectorResult.getTargetYDegrees();
+        // Dy = sinty*h/cos(90-tilt-ty+acy)/sin(90-tilt-ty+acy-ty)
+        double angle = Math.toRadians(90 - ConfigVariables.Camera.TILT_ANGLE - ty + dcy);
+        double h = ConfigVariables.Camera.CAMERA_HEIGHT;
+        double dy = Math.sin(Math.toRadians(ty)) * h / Math.cos(angle) / Math.sin(Math.toRadians(90 - ConfigVariables.Camera.TILT_ANGLE - ty + dcy - ty));
+        return dy;
+    }
     public double getWorldx() {
         return poseResult[0];
     }
