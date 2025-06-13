@@ -190,7 +190,7 @@ public final class AutoSample05 extends LinearOpMode {
         private Action adjustSequence() {
                 return new SequentialAction(
                                 new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTX(drive, camera::getPx, camera::getTy, () -> {
+                                new DistanceAdjustLUTX(drive, camera::getTx, camera::getPy, camera::getTy, ()-> {
                                 }, () -> {
                                 }).toAction(),
                                 new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction());

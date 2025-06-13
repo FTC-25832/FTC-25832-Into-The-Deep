@@ -49,7 +49,7 @@ private  boolean firstTime = true;
         this.updateDetectorResult = UpdateDetectorResult;
 
         // Create the adjustment commands
-        this.xAdjustCommand = new DistanceAdjustLUTX(drive, txSupplier, pySupplier, disableDriveControl, enableDriveControl);
+        this.xAdjustCommand = new DistanceAdjustLUTX(drive, txSupplier, pySupplier, tySupplier, disableDriveControl, enableDriveControl);
         this.yAdjustCommand = new DistanceAdjustLUTY(lowSlide, tySupplier);
 
         this.timeBetweenAdjustments = new ElapsedTime(ElapsedTime.Resolution.SECONDS);

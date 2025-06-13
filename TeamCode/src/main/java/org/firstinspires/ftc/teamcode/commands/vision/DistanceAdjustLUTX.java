@@ -21,14 +21,14 @@ public class DistanceAdjustLUTX extends CommandBase {
     private final InterpLUT lutx = new InterpLUT();
     // private final InterpLUT lutratio = new InterpLUT();
     private final MecanumDrive drive;
-    private double dx, py;
+    private double dx, py, ty;
     private boolean isAdjusted = false;
     private Action moveAction = null;
-    Supplier<Double> txSupplier, pySupplier;
+    Supplier<Double> txSupplier, pySupplier, tySupplier;
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
 
-    public DistanceAdjustLUTX(MecanumDrive drive, Supplier<Double> txSupplier, Supplier<Double> pySupplier, Runnable disableDriveControl,
+    public DistanceAdjustLUTX(MecanumDrive drive, Supplier<Double> txSupplier, Supplier<Double> pySupplier, Supplier<Double> tySuplier, Runnable disableDriveControl,
             Runnable enableDriveControl) {
         for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
             lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
@@ -40,6 +40,7 @@ public class DistanceAdjustLUTX extends CommandBase {
         lutx.createLUT();
         // lutratio.createLUT();
         this.pySupplier = pySupplier;
+        this.tySupplier = tySuplier;
         this.txSupplier = txSupplier;
         this.drive = drive;
         this.disableDriveControl = disableDriveControl;
@@ -50,6 +51,7 @@ public class DistanceAdjustLUTX extends CommandBase {
     public void initialize() {
         this.dx = txSupplier.get();
         this.py = pySupplier.get();
+        this.ty = tySupplier.get();
         isAdjusted = false;
         moveAction = null;
         disableDriveControl.run();
@@ -76,7 +78,7 @@ public class DistanceAdjustLUTX extends CommandBase {
                 return; // Continue running current action
             }
         } else {
-            if (dx == 0) {
+            if (dx == 0 || ty == 0) {
                 isAdjusted = true;
                 packet.put("DistanceAdjustLUTX/status", "NO_DX_VALUE");
                 return;
@@ -88,7 +90,8 @@ public class DistanceAdjustLUTX extends CommandBase {
             // Δtx = 180/pi arctan(tan(ty*pi/180)*gradientpx))
 
             final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
-            final double ddx = Math.toDegrees(Math.atan2(py * gradientpx, 1));
+            final double pixelToAnglex = ConfigVariables.Camera.FOV[0]/ConfigVariables.Camera.RESOLUTION[0];
+            final double ddx = py*gradientpx*pixelToAnglex;
             packet.put("vision/ddx", ddx);
             dx = dx - ddx;
             adjustx(dx, packet);

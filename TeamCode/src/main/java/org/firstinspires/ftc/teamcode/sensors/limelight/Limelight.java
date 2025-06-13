@@ -294,13 +294,13 @@ public class Limelight {
     public double getPx() {
         if (!available || !resultAvailable)
             return 0;
-        return detectorResult.getTargetXPixels();
+        return detectorResult.getTargetXPixels() - ConfigVariables.Camera.CROSSHAIR_X_PX;
     }
 
     public double getPy() {
         if (!available || !resultAvailable)
             return 0;
-        return detectorResult.getTargetYPixels();
+        return detectorResult.getTargetYPixels() - ConfigVariables.Camera.CROSSHAIR_Y_PX;
     }
 
     public double getTl(){ // target latency

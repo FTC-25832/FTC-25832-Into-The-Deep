@@ -70,11 +70,16 @@ public class ConfigVariables {
 
         @Config
         public static class Camera {
+                public static double[] RESOLUTION = {1280, 960}; // pixels, width and height of camera resolution
+                public static double[] FOV = {54, 41}; // degrees, horizontal and vertical field of view of camera
                 public static double CAMERA_HEIGHT = 27; // cm, height of camera from ground
                 public static double CLAW_DISTANCE = 22; // cm
                 public static double CROSSHAIR_X = -0.42578125;
-                public static final double ADJUSTMENT_DELAY = 0.65; // 500ms between adjustments
                 public static double CROSSHAIR_Y = -0.4791666567325592;
+                public static double CROSSHAIR_X_PX = RESOLUTION[0] * CROSSHAIR_X + RESOLUTION[0] / 2;
+                public static double CROSSHAIR_Y_PX = RESOLUTION[1] - (RESOLUTION[1] * CROSSHAIR_Y + RESOLUTION[1] / 2);
+                public static final double ADJUSTMENT_DELAY = 0.65; // 500ms between adjustments
+
                 public static double TILT_ANGLE = 45.0;
                 public static double[][] CAMERA_MATRIX = {
                         {1221.445, 0, 637.226},
@@ -88,7 +93,7 @@ public class ConfigVariables {
                 public static double CLAW_90 = 90;
                 public static double XYPIXELRATIO = 225.0 / 672.0;
                 public static double XYDISTANCERATIO = 2.2/6.7;
-                public static double CAMERA_DISTANCE = 27; // cm, y distance between camera and sample
+                public static double CAMERA_DISTANCE = 0;        // cm, y distance between camera and sample
                 public static double[] Y_DISTANCE_MAP_X = {
                                 -100,
                                 -7, -5.4, -4.3, -3.5, -2,

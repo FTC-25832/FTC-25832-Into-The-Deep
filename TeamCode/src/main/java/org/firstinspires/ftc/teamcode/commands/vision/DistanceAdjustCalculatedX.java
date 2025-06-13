@@ -79,7 +79,7 @@ public class DistanceAdjustCalculatedX extends CommandBase {
             final double gradientpx = ConfigVariables.Camera.XYDISTANCERATIO;
             final double ddx = dy*gradientpx;
             packet.put("vision/ddx", ddx);
-            dx = dx - ddx;
+            dx = dx + ddx;
             adjustx(dx, packet);
         }
 
