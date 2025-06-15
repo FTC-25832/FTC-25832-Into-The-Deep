@@ -71,13 +71,14 @@ public class ConfigVariables {
         @Config
         public static class Camera {
                 public static double[] RESOLUTION = {1280, 960}; // pixels, width and height of camera resolution
+                public static double[] VANISHING_POINT = {818.9, -991.4}; // +y down, +x right
                 public static double[] FOV = {54, 41}; // degrees, horizontal and vertical field of view of camera
                 public static double CAMERA_HEIGHT = 27; // cm, height of camera from ground
                 public static double CLAW_DISTANCE = 22; // cm
                 public static double CROSSHAIR_X = -0.42578125;
                 public static double CROSSHAIR_Y = -0.4791666567325592;
-                public static double CROSSHAIR_X_PX = RESOLUTION[0] * CROSSHAIR_X + RESOLUTION[0] / 2;
-                public static double CROSSHAIR_Y_PX = RESOLUTION[1] - (RESOLUTION[1] * CROSSHAIR_Y + RESOLUTION[1] / 2);
+                public static double CROSSHAIR_X_PX = RESOLUTION[0] * CROSSHAIR_X / 2.0 + RESOLUTION[0] / 2.0;
+                public static double CROSSHAIR_Y_PX = RESOLUTION[1] - (RESOLUTION[1] * CROSSHAIR_Y / 2.0 + RESOLUTION[1] / 2.0);
                 public static final double ADJUSTMENT_DELAY = 0.65; // 500ms between adjustments
 
                 public static double TILT_ANGLE = 45.0;
@@ -109,21 +110,57 @@ public class ConfigVariables {
                                 42.3, 44, 45, 45.5, 50, 50
                 };
                 public static double[] X_DISTANCE_MAP_X = {
-                                -100,
-                                -11.6, -11, -9.4, -4.5, -2.3,
-                                0,
-                                3.2, 5, 7, 11.8, 15.4, 20.1,
-                                25.4, 30.55, 35, 36,
-                                100
+                        -100,
+                        -11.37, -9.5, -8.6, -6.5, -3.8, -1,
+                        0,
+                        2.3, 4.4, 6.7, 9.2, 11.9,
+                        15, 16.3, 18.5, 22, 26,
+                        27.6, 29.9, 33.8, 35.1, 36.0,
+                        100
                 };
                 public static double[] X_DISTANCE_MAP_Y = {
-                                -13,
-                                -10.25, -9, -6, -2.5, -1.25,
-                                0,
-                                1.25, 2.75, 3.75, 5.6, 8, 10.5,
-                                12.8, 15.8, 18.8, 20,
-                                24.3
-                };
+                        -208.44,
+                        -8.5, -6.8, -5.6, -4.1, -2.6, -0.5,
+                        0,
+                        1.6, 2.9, 3.9, 5.2, 6.7,
+                        8.2, 9.3, 10.3, 11.8, 13.6,
+                        14.6, 15.8, 18.0, 19.0, 20.5,
+                        127.56
+                };// 35.89, 19.93,  (-11.3， -8.12）， y = 1.68x -40.44
+//                public static double[] X_DISTANCE_MAP_X = {
+//                                -100,
+//                                -11.6, -11, -9.4, -4.5, -2.3,
+//                                0,
+//                                3.2, 5, 7, 11.8, 15.4, 20.1,
+//                                25.4, 30.55, 35, 36,
+//                                100
+//                };
+//                public static double[] X_DISTANCE_MAP_Y = {
+//                                -13,
+//                                -10.25, -9, -6, -2.5, -1.25,
+//                                0,
+//                                1.25, 2.75, 3.75, 5.6, 8, 10.5,
+//                                12.8, 15.8, 18.8, 20,
+//                                24.3
+//                };
+//                public static double[] X_DISTANCE_MAP_X = {
+//                        -100,
+//                        -13, -12.5, -10.4, -8.6, -5.6, -3.5,
+//                        0,
+//                        2, 4.2, 6.4, 9.4, 12.4,
+//                        15.4, 18.4, 22.5, 25, 28.5,
+//                        31.4, 34.0, 35.5, 37
+//                        , 100
+//                };
+//                public static double[] X_DISTANCE_MAP_Y = {
+//                        -13,
+//                        -13, -11.5, -9.3, -6.5, -3.5, -2,
+//                        0,
+//                        2, 3.5, 4.8, 5.5, 7.5,
+//                        9, 10.2, 12.5, 13.5, 15.5,
+//                        17.3, 21, 21.8, 24.3
+//                        , 24.3
+//                };
                 public static String[] ACCEPTED_COLORS = {
                                 "blue", "red", "yellow"
                 };

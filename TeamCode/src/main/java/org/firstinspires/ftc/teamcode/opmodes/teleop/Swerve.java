@@ -183,8 +183,8 @@ public class Swerve extends LinearOpMode {
         gamepad1Controller.onPressed(ButtonType.X, () -> {
             scheduler.schedule(new CameraUpdateDetectorResult(camera));
             scheduler.schedule(new DistanceAdjustLUTY(lowSlide, camera::getTy));
-            scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getPy, camera::getTy,
-                    mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
+//            scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy,camera::getPx, camera::getPy,
+//                    mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
             // scheduler.schedule(new SequentialCommandGroup(
             // new DistanceAdjustLUTY(lowSlide, camera, gamepad1),
             // new WaitCommand(0.5),
@@ -209,9 +209,11 @@ public class Swerve extends LinearOpMode {
 
         gamepad1Controller.onPressed(ButtonType.B, () -> {
             scheduler.schedule(new CameraUpdateDetectorResult(camera));
-            scheduler.schedule(new DistanceAdjustCalculatedY(lowSlide, camera::getDy));
-            scheduler.schedule(new DistanceAdjustCalculatedX(drive, camera::getDx, camera::getDy,
+                        scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy,camera::getPx, camera::getPy,
                     mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
+//            scheduler.schedule(new DistanceAdjustCalculatedY(lowSlide, camera::getDy));
+//            scheduler.schedule(new DistanceAdjustCalculatedX(drive, camera::getDx, camera::getDy,
+//                    mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
         });
 
         gamepad1Controller.onPressed(ButtonType.Y, () -> {
