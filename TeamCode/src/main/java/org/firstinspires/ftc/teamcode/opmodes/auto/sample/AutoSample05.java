@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
-import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
@@ -243,7 +242,7 @@ public final class AutoSample05 extends LinearOpMode {
                                 new ParallelAction(
                                                 new LowerSlideUpdatePID(lowSlide).toAction(),
                                                 new UpperSlideUpdatePID(upSlide).toAction(),
-                                                new LoopTimeTelemetryCommand().toAction(),
+
                                                 // Add camera telemetry for debugging
                                                 new Action() {
                                                         @Override
@@ -305,8 +304,10 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                                                 39, 28),
                                                                                                                 SCORE.heading - Math
                                                                                                                                 .toRadians(180))
-                                                                                                .setReversed(false)
-                                                                                                .strafeTo(SCORE.pos)
+                                                                                                .setReversed(true)
+                                                                                                .splineTo(SCORE.pos,
+                                                                                                                SCORE.heading - Math
+                                                                                                                                .toRadians(180))
                                                                                                 .build(),
                                                                                 transferWhileDriving()),
                                                                 frontForDrop(),

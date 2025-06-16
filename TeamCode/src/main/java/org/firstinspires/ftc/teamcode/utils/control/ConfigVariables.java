@@ -18,7 +18,7 @@ public class ConfigVariables {
                 public static double HANGING_SERVOS_SPEED = 0.8; // pwm unit
                 public static double DRIVETRAIN_SPEED_MULTIPLIERFORLIMIT = 1;
                 public static int DISTANCE_THRESHOLD_ENCODER = 50;
-                public static int CLAW_OPERATION_TIMEOUT = 200;
+                public static int CLAW_OPERATION_TIMEOUT = 200  ;
                 public static int ARM_OPERATION_TIMEOUT = 400;
         }
 
@@ -32,7 +32,7 @@ public class ConfigVariables {
 
         @Config
         public static class AutoTesting {
-                public static double A_DROPDELAY_S = 0.25;
+                public static double A_DROPDELAY_S = 0.3;
 
                 public static double B_AFTERSCOREDELAY_S = 0.05;
                 public static double C_AFTERGRABDELAY_S = 0.1;
@@ -45,9 +45,9 @@ public class ConfigVariables {
                 public static double I_SUBDELAY_S = 0.4;
                 public static double J_AFTERSUBDELAY_S = 0.4;
 
-                public static double Z_LowerslideExtend_FIRST = 39; //was 20
-                public static double Z_LowerslideExtend_SECOND = 39;
-                public static double Z_LowerslideExtend_THIRD = 17;
+                public static double Z_LowerslideExtend_FIRST = 24; //was 20
+                public static double Z_LowerslideExtend_SECOND = 30;
+                public static double Z_LowerslideExtend_THIRD = 28;
 
                 public static double Y_PICKUPDELAY = Camera.CAMERA_DELAY;
 
@@ -90,7 +90,7 @@ public class ConfigVariables {
                 public static double[] DISTORTION_COEFFS = {0.177168, -0.457341, 0.000360, 0.002753, 0.178259};
                 public static double TOLERANCE = 2.5;
                 public static double Y_OFFSET = 0; //cm
-                public static double CAMERA_DELAY = 0.5; // s
+                public static double CAMERA_DELAY = 0.8; // s
                 public static double CLAW_90 = 90;
                 public static double XYPIXELRATIO = 225.0 / 672.0;
                 public static double XYDISTANCERATIO = 2.2/6.7;
@@ -230,13 +230,13 @@ public class ConfigVariables {
                 // slide positions
                 public static double POS_0_CM = 0;
                 public static double POS_1_CM = 35; //max is 45
-                public static double POS_2_CM = 10;
+                public static double POS_2_CM = 14;
 
                 // Claw positions
                 public static double CLAW_OPEN = 1.0;
                 public static double CLAW_CLOSE = 0.0;
 
-                public static int POS_GRAB_TIMEOUT = 400;
+                public static int POS_GRAB_TIMEOUT = 350;
                 public static int CLAW_CLOSE_TIMEOUT = General.CLAW_OPERATION_TIMEOUT;
                 public static int POS_HOVER_TIMEOUT = 200;
 
