@@ -3,17 +3,12 @@ package org.firstinspires.ftc.teamcode.commands.vision;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.math.InterpLUT;
-import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
 import java.util.function.Supplier;
 
@@ -21,14 +16,14 @@ public class DistanceAdjustLUTX extends CommandBase {
     private final InterpLUT lutx = new InterpLUT();
     // private final InterpLUT lutratio = new InterpLUT();
     private final MecanumDrive drive;
-    private double dx, py, ty;
+    private double tx, py, ty, px;
     private boolean isAdjusted = false;
     private Action moveAction = null;
-    Supplier<Double> txSupplier, pySupplier, tySupplier;
+    Supplier<Double> txSupplier, pxSupplier, pySupplier, tySupplier;
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
 
-    public DistanceAdjustLUTX(MecanumDrive drive, Supplier<Double> txSupplier, Supplier<Double> pySupplier, Supplier<Double> tySuplier, Runnable disableDriveControl,
+    public DistanceAdjustLUTX(MecanumDrive drive, Supplier<Double> txSupplier,  Supplier<Double> tySuplier, Supplier<Double> pxSupplier,Supplier<Double> pySupplier, Runnable disableDriveControl,
             Runnable enableDriveControl) {
         for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
             lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
@@ -39,6 +34,7 @@ public class DistanceAdjustLUTX extends CommandBase {
         // }
         lutx.createLUT();
         // lutratio.createLUT();
+        this.pxSupplier = pxSupplier;
         this.pySupplier = pySupplier;
         this.tySupplier = tySuplier;
         this.txSupplier = txSupplier;
@@ -49,17 +45,20 @@ public class DistanceAdjustLUTX extends CommandBase {
 
     @Override
     public void initialize() {
-        this.dx = txSupplier.get();
+        this.tx = txSupplier.get();
+        this.px = pxSupplier.get();
         this.py = pySupplier.get();
         this.ty = tySupplier.get();
         isAdjusted = false;
         moveAction = null;
         disableDriveControl.run();
     }
-
+    public double pixToAngle(double px) { // return rad
+        return Math.atan((px-ConfigVariables.Camera.CAMERA_MATRIX[0][2]) / ConfigVariables.Camera.CAMERA_MATRIX[0][0]);
+    }
     @Override
     public void execute(TelemetryPacket packet) {
-        packet.put("DistanceAdjustLUTX/dx_input", dx);
+        packet.put("DistanceAdjustLUTX/dx_input", tx);
         packet.put("DistanceAdjustLUTX/py_input", py);
         packet.put("DistanceAdjustLUTX/isAdjusted", isAdjusted);
         packet.put("DistanceAdjustLUTX/hasActiveAction", moveAction != null);
@@ -78,7 +77,7 @@ public class DistanceAdjustLUTX extends CommandBase {
                 return; // Continue running current action
             }
         } else {
-            if (dx == 0 || ty == 0) {
+            if (tx == 0 || ty == 0) {
                 isAdjusted = true;
                 packet.put("DistanceAdjustLUTX/status", "NO_DX_VALUE");
                 return;
@@ -92,11 +91,26 @@ public class DistanceAdjustLUTX extends CommandBase {
 //            final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
 //            final double pixelToAnglex = ConfigVariables.Camera.FOV[0]/ConfigVariables.Camera.RESOLUTION[0];
 //            final double ddx = py*gradientpx*pixelToAnglex;
-            final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
-            final double ddx = Math.toDegrees(Math.atan(Math.tan(Math.toRadians(ty)) * gradientpx));
-            packet.put("vision/ddx", ddx);
-            dx = dx - ddx;
-            adjustx(dx, packet);
+//
+//            final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
+//            final double ddx = Math.toDegrees(Math.atan(Math.tan(Math.toRadians(ty)) * gradientpx));
+            final double[] vanishingPoint = ConfigVariables.Camera.VANISHING_POINT;
+            // find the line (px, py) to (vanishingPoint[0], vanishingPoint[1])
+            final double m = (vanishingPoint[0] - px) / (vanishingPoint[1] - py);
+            final double b = px - m * py;
+            packet.put("vision/m", m);
+            packet.put("vision/b", b);
+            final double crosshairY = ConfigVariables.Camera.CROSSHAIR_Y_PX;
+            // find x in px at crosshairY, x = my+b
+            final double newpx = m*crosshairY + b;
+            packet.put("vision/newpx", newpx);
+            // tx = (px-cx)/fx
+            final double fx1 = pixToAngle(newpx);
+            final double fx2 = pixToAngle(ConfigVariables.Camera.CROSSHAIR_X_PX);
+            final double newtx = Math.toDegrees(fx1 - fx2);
+            packet.put("vision/newtx", newtx);
+            tx = newtx;
+            adjustx(tx, packet);
         }
 
         // if (gamepad1.dpad_up) {
@@ -123,16 +137,10 @@ public class DistanceAdjustLUTX extends CommandBase {
     }
 
     public void adjustx(double dx, TelemetryPacket packet) {
-        packet.put("vision/dx", dx);
-
         double dxcm = lutx.get(dx);
         packet.put("vision/dxcm", dxcm);
 
-        // Calculate how much we need to adjust
-        double adjustmentNeeded = dxcm - lutx.get(0);
-        packet.put("vision/adjustmentNeeded", adjustmentNeeded);
-
-        double adjustmentNeededinch = adjustmentNeeded / 2.54;
+        double adjustmentNeededinch = dxcm / 2.54;
         Pose2d startpose = drive.localizer.getPose();
         double heading = startpose.heading.toDouble();
         // robot centric to field centric

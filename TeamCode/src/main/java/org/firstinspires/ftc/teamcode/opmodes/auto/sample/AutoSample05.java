@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
-import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
@@ -188,16 +187,18 @@ public final class AutoSample05 extends LinearOpMode {
         private Action adjustSequence() {
                 return new SequentialAction(
                                 new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTX(drive, camera::getTx, camera::getPy, camera::getTy, () -> {
-                                }, () -> {
-                                }).toAction(),
+                                new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy, camera::getPx,
+                                                camera::getPy, () -> {
+                                                }, () -> {
+                                                }).toAction(),
                                 new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction());
         }
 
         private Action adjustMultipleSequence() {
-                return new AdjustUntilClose(drive, lowSlide, camera::getTx, camera::getTy, camera::getPy, () -> {
-                }, () -> {
-                },
+                return new AdjustUntilClose(drive, lowSlide, camera::getTx, camera::getTy, camera::getPx, camera::getPy,
+                                () -> {
+                                }, () -> {
+                                },
                                 camera::updateDetectorResult)
                                 .toAction();
         }
@@ -243,7 +244,7 @@ public final class AutoSample05 extends LinearOpMode {
                                 new ParallelAction(
                                                 new LowerSlideUpdatePID(lowSlide).toAction(),
                                                 new UpperSlideUpdatePID(upSlide).toAction(),
-                                                new LoopTimeTelemetryCommand().toAction(),
+
                                                 // Add camera telemetry for debugging
                                                 new Action() {
                                                         @Override
@@ -300,14 +301,16 @@ public final class AutoSample05 extends LinearOpMode {
                                                                 new ParallelAction(
                                                                                 // Drive to score
                                                                                 drive.actionBuilder(SCORE.pose)
-                                                                                        .setReversed(true)
-                                                                                        .splineTo(new Vector2d(
-                                                                                                        39, 28),
-                                                                                                SCORE.heading - Math.toRadians(180))
-                                                                                        .setReversed(true)
-                                                                                        .splineTo(SCORE.pos,
-                                                                                                SCORE.heading - Math.toRadians(180))
-                                                                                        .build(),
+                                                                                                .setReversed(true)
+                                                                                                .splineTo(new Vector2d(
+                                                                                                                39, 28),
+                                                                                                                SCORE.heading - Math
+                                                                                                                                .toRadians(180))
+                                                                                                .setReversed(true)
+                                                                                                .splineTo(SCORE.pos,
+                                                                                                                SCORE.heading - Math
+                                                                                                                                .toRadians(180))
+                                                                                                .build(),
                                                                                 transferWhileDriving()),
                                                                 frontForDrop(),
                                                                 dropAndResetUpperSlides())));
