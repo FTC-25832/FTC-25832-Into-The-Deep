@@ -38,6 +38,8 @@ import org.firstinspires.ftc.teamcode.utils.GamepadController;
 import org.firstinspires.ftc.teamcode.utils.GamepadController.ButtonType;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
+import org.firstinspires.ftc.teamcode.commands.slide.LowerUpperTransferSequenceCommand;
+import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 
 @TeleOp(group = "TeleOp")
 public class Swerve extends LinearOpMode {
@@ -183,8 +185,9 @@ public class Swerve extends LinearOpMode {
         gamepad1Controller.onPressed(ButtonType.X, () -> {
             scheduler.schedule(new CameraUpdateDetectorResult(camera));
             scheduler.schedule(new DistanceAdjustLUTY(lowSlide, camera::getTy));
-//            scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy,camera::getPx, camera::getPy,
-//                    mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
+            // scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx,
+            // camera::getTy,camera::getPx, camera::getPy,
+            // mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
             // scheduler.schedule(new SequentialCommandGroup(
             // new DistanceAdjustLUTY(lowSlide, camera, gamepad1),
             // new WaitCommand(0.5),
@@ -209,11 +212,12 @@ public class Swerve extends LinearOpMode {
 
         gamepad1Controller.onPressed(ButtonType.B, () -> {
             scheduler.schedule(new CameraUpdateDetectorResult(camera));
-                        scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy,camera::getPx, camera::getPy,
+            scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy, camera::getPx, camera::getPy,
                     mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
-//            scheduler.schedule(new DistanceAdjustCalculatedY(lowSlide, camera::getDy));
-//            scheduler.schedule(new DistanceAdjustCalculatedX(drive, camera::getDx, camera::getDy,
-//                    mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
+            // scheduler.schedule(new DistanceAdjustCalculatedY(lowSlide, camera::getDy));
+            // scheduler.schedule(new DistanceAdjustCalculatedX(drive, camera::getDx,
+            // camera::getDy,
+            // mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
         });
 
         gamepad1Controller.onPressed(ButtonType.Y, () -> {
@@ -266,19 +270,15 @@ public class Swerve extends LinearOpMode {
             scheduler.schedule(new ActionCommand(upslideActions.scorespec()));
         });
 
+        gamepad2Controller.onPressed(ButtonType.RIGHT_STICK_BUTTON, () -> {
+            scheduler.schedule(
+                    new ActionCommand(new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions)));
+        });
     }
 
     private void handleContinuousControls() {
         gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
-            Command grabCommand = new SequentialCommandGroup(
-                    new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
-                    new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
-                    new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
-                    new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT / 1000.0),
-                    new ActionCommand(new LowerSlideCommands(lowSlide).closeClaw()),
-                    new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT / 1000.0),
-                    new ActionCommand(new LowerSlideCommands(lowSlide).hover()));
-            scheduler.schedule(grabCommand);
+            scheduler.schedule(new ActionCommand(new LowerSlideGrabSequenceCommand(lowSlide)));
         });
         gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), () -> {
             scheduler.schedule(new ActionCommand(lowslideActions.up()));

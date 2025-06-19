@@ -33,6 +33,8 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import org.firstinspires.ftc.teamcode.commands.drive.SetDriveSpeedCommand;
+import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
+import org.firstinspires.ftc.teamcode.commands.slide.LowerUpperTransferSequenceCommand;
 
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
@@ -155,33 +157,12 @@ public final class AutoSample05 extends LinearOpMode {
         }
 
         private SequentialAction transferSequence() {
-                return new SequentialAction(
-                                // retract, remember to keep pos_hover() when retracting slides
-                                lowerSlideCommands.slidePos2(),
-
-                                // transfer sequence
-                                new WaitCommand(ConfigVariables.AutoTesting.D_SLIDEPOS0AFTERDELAY_S).toAction(),
-                                lowerSlideCommands.up(),
-                                new WaitCommand(ConfigVariables.AutoTesting.E_LOWSLIDEUPAFTERDELAY_S).toAction(),
-                                upperSlideCommands.transfer(),
-
-                                new WaitCommand(ConfigVariables.AutoTesting.F_TRANSFERAFTERDELAY_S).toAction(),
-                                upperSlideCommands.closeClaw(),
-
-                                new WaitCommand(ConfigVariables.AutoTesting.G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S)
-                                                .toAction(),
-                                lowerSlideCommands.openClaw());
+                return (SequentialAction) new LowerUpperTransferSequenceCommand(lowerSlideCommands, upperSlideCommands)
+                                .toAction();
         }
 
         private Action pickupSequence() {
-                return new SequentialCommandGroup(
-                                new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
-                                new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
-                                new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
-                                new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT / 1000.0),
-                                new ActionCommand(new LowerSlideCommands(lowSlide).closeClaw()),
-                                new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT / 1000.0),
-                                new ActionCommand(new LowerSlideCommands(lowSlide).hover())).toAction();
+                return new ActionCommand(new LowerSlideGrabSequenceCommand(lowSlide)).toAction();
         }
 
         private Action adjustSequence() {
