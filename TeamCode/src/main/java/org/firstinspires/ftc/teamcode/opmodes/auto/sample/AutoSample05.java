@@ -32,7 +32,6 @@ import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.PoseStorage;
-import org.firstinspires.ftc.teamcode.commands.drive.SetDriveSpeedCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerUpperTransferSequenceCommand;
 
@@ -162,7 +161,7 @@ public final class AutoSample05 extends LinearOpMode {
         }
 
         private Action pickupSequence() {
-                return new ActionCommand(new LowerSlideGrabSequenceCommand(lowSlide)).toAction();
+                return new LowerSlideGrabSequenceCommand(lowSlide).toAction();
         }
 
         private Action adjustSequence() {
@@ -284,13 +283,12 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                 drive.actionBuilder(SCORE.pose)
                                                                                                 .setReversed(true)
                                                                                                 .splineTo(new Vector2d(
-                                                                                                                39, 28),
+                                                                                                                44, 28),
                                                                                                                 SCORE.heading - Math
-                                                                                                                                .toRadians(180))
-                                                                                                .setReversed(true)
+                                                                                                                                .toRadians(170))
                                                                                                 .splineTo(SCORE.pos,
                                                                                                                 SCORE.heading - Math
-                                                                                                                                .toRadians(180))
+                                                                                                                                .toRadians(170))
                                                                                                 .build(),
                                                                                 transferWhileDriving()),
                                                                 frontForDrop(),

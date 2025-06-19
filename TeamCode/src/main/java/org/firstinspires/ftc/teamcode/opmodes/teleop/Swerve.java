@@ -272,13 +272,13 @@ public class Swerve extends LinearOpMode {
 
         gamepad2Controller.onPressed(ButtonType.RIGHT_STICK_BUTTON, () -> {
             scheduler.schedule(
-                    new ActionCommand(new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions)));
+                    new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions));
         });
     }
 
     private void handleContinuousControls() {
         gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
-            scheduler.schedule(new ActionCommand(new LowerSlideGrabSequenceCommand(lowSlide)));
+            scheduler.schedule(new LowerSlideGrabSequenceCommand(lowSlide));
         });
         gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), () -> {
             scheduler.schedule(new ActionCommand(lowslideActions.up()));

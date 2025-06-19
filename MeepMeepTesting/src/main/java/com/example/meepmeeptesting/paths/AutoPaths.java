@@ -95,8 +95,8 @@ public final class AutoPaths {
                 .splineTo(new Vector2d(30,15), Math.toRadians(205))
 
                 .setReversed(true)
-                .splineTo(new Vector2d(39,28), SCORE.heading-Math.toRadians(180))
-                .splineTo(SCORE.pos, SCORE.heading-Math.toRadians(180));
+                .splineTo(new Vector2d(44,28), SCORE.heading-Math.toRadians(170))
+                .splineTo(SCORE.pos, SCORE.heading-Math.toRadians(170));
 
     }
 
