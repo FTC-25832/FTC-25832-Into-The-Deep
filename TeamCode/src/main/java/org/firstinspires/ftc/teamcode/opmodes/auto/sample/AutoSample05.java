@@ -300,14 +300,14 @@ public final class AutoSample05 extends LinearOpMode {
                                                                 new ParallelAction(
                                                                                 // Drive to score
                                                                                 drive.actionBuilder(SCORE.pose)
-                                                                                                .setReversed(true)
-                                                                                                .splineTo(new Vector2d(
-                                                                                                                39, 28),
-                                                                                                                SCORE.heading - Math
-                                                                                                                                .toRadians(180))
-                                                                                                .setReversed(false)
-                                                                                                .strafeTo(SCORE.pos)
-                                                                                                .build(),
+                                                                                        .setReversed(true)
+                                                                                        .splineTo(new Vector2d(
+                                                                                                        39, 28),
+                                                                                                SCORE.heading - Math.toRadians(180))
+                                                                                        .setReversed(true)
+                                                                                        .splineTo(SCORE.pos,
+                                                                                                SCORE.heading - Math.toRadians(180))
+                                                                                        .build(),
                                                                                 transferWhileDriving()),
                                                                 frontForDrop(),
                                                                 dropAndResetUpperSlides())));

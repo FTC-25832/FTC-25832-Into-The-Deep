@@ -96,7 +96,7 @@ public final class AutoPaths {
 
                 .setReversed(true)
                 .splineTo(new Vector2d(39,28), SCORE.heading-Math.toRadians(180))
-                .strafeTo(SCORE.pos);
+                .splineTo(SCORE.pos, SCORE.heading-Math.toRadians(180));
 
     }
 
