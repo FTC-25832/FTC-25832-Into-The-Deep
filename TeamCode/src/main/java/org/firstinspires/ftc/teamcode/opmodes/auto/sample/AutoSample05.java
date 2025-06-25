@@ -155,9 +155,8 @@ public final class AutoSample05 extends LinearOpMode {
                                 transferAndScoreSequence(pickupPos, pickupPos, lowerslideExtendLength));
         }
 
-        private SequentialAction transferSequence() {
-                return (SequentialAction) new LowerUpperTransferSequenceCommand(lowerSlideCommands, upperSlideCommands)
-                                .toAction();
+        private Action transferSequence() {
+                return  new LowerUpperTransferSequenceCommand(lowerSlideCommands, upperSlideCommands).toAction();
         }
 
         private Action pickupSequence() {

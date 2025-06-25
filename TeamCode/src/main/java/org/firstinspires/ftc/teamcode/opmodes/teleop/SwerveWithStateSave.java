@@ -13,6 +13,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.commands.base.CommandScheduler;
+import org.firstinspires.ftc.teamcode.commands.base.ReadRobotStateCommand;
+import org.firstinspires.ftc.teamcode.commands.base.SaveRobotStateCommand;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.drive.MecanumDriveCommand;
@@ -22,8 +24,6 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceComma
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
-import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCalculatedX;
-import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustCalculatedY;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
@@ -39,10 +39,9 @@ import org.firstinspires.ftc.teamcode.utils.GamepadController.ButtonType;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerUpperTransferSequenceCommand;
-import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 
 @TeleOp(group = "TeleOp")
-public class Swerve extends LinearOpMode {
+public class SwerveWithStateSave extends LinearOpMode {
 
     private MecanumDrive drive;
 
@@ -78,6 +77,8 @@ public class Swerve extends LinearOpMode {
 
         dashboard = FtcDashboard.getInstance();
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
+        scheduler.schedule(new ReadRobotStateCommand(drive, lowSlide, upSlide));
+
         mecanumDriveCommand = new MecanumDriveCommand(drive, gamepad1);
 
         scheduler.schedule(mecanumDriveCommand);
@@ -128,6 +129,8 @@ public class Swerve extends LinearOpMode {
     }
 
     private void cleanup() {
+        scheduler.schedule(new SaveRobotStateCommand(drive, lowSlide, upSlide));
+        scheduler.run(new TelemetryPacket());
         scheduler.cancelAll();
         upSlide.stop();
         lowSlide.stop();
@@ -280,7 +283,7 @@ public class Swerve extends LinearOpMode {
         gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
 //            scheduler.schedule(new LowerSlideGrabSequenceCommand(lowSlide));
             Command grabCommand = new SequentialCommandGroup(
-            new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
+                    new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
                     new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
                     new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
                     new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT / 1000.0),

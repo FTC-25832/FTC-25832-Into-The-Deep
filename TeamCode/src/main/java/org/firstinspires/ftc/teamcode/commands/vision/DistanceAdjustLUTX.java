@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.commands.vision;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
@@ -147,12 +148,8 @@ public class DistanceAdjustLUTX extends CommandBase {
         Vector2d endpose = new Vector2d(
                 startpose.position.x + adjustmentNeededinch * Math.sin(heading),
                 startpose.position.y - adjustmentNeededinch * Math.cos(heading));
-
         // Create the action
-        moveAction = drive.actionBuilder(startpose)
-                .strafeToConstantHeading(endpose)
-                .build();
-
+        moveAction = drive.actionBuilder(startpose).strafeToLinearHeading(endpose, Rotation2d.fromDouble(heading)).build();
         // Run the action first time
         drive.updatePoseEstimate();
         moveAction.run(packet);

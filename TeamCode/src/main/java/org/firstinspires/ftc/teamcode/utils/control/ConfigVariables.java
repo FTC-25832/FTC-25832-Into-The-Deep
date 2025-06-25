@@ -224,7 +224,7 @@ public class ConfigVariables {
                 public static double GRAB_SMALL = 0;
                 public static double UP_BIG = 0.52;
                 public static double UP_SMALL = 1.0;
-                public static double HOVER_BIG = 0.7;
+                public static double HOVER_BIG = 0.6;
                 public static double HOVER_SMALL = 0.1;
 
                 // slide positions
