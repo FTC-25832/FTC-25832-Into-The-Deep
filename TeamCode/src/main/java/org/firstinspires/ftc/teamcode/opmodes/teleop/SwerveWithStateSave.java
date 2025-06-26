@@ -40,6 +40,12 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerUpperTransferSequenceCommand;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 @TeleOp(group = "TeleOp")
 public class SwerveWithStateSave extends LinearOpMode {
 
@@ -87,6 +93,7 @@ public class SwerveWithStateSave extends LinearOpMode {
         scheduler.schedule(new LoopTimeTelemetryCommand());
 
         setupGamepadControls();
+        setClawControls();
 
         while (!isStopRequested() && !opModeIsActive()) {
             TelemetryPacket packet = new TelemetryPacket();
@@ -97,6 +104,7 @@ public class SwerveWithStateSave extends LinearOpMode {
         }
 
         waitForStart();
+//        scheduler.schedule(new SaveRobotStateCommand(drive, lowSlide::getCurrentPosition, upSlide::getCurrentPosition));
         if (isStopRequested())
             return;
 
@@ -113,8 +121,6 @@ public class SwerveWithStateSave extends LinearOpMode {
             gamepad1Controller.update();
             gamepad2Controller.update();
 
-            handleClawControls();
-
             updatePID();
             telemetry.update();
 
@@ -129,8 +135,43 @@ public class SwerveWithStateSave extends LinearOpMode {
     }
 
     private void cleanup() {
-        scheduler.schedule(new SaveRobotStateCommand(drive, lowSlide, upSlide));
-        scheduler.run(new TelemetryPacket());
+        final Map<String, Object> state = new HashMap<>();
+        // Capture current robot state
+        Pose2d currentPose = drive.localizer.getPose();
+        state.put("drive/pose/x", currentPose.position.x);
+        state.put("drive/pose/y", currentPose.position.y);
+        state.put("drive/pose/heading", currentPose.heading.toDouble());
+        state.put("lowerslide/position", lowSlide.getCurrentPosition());
+        state.put("upperslide/position", upSlide.getCurrentPosition());
+        state.put("timestamp", System.currentTimeMillis());
+        if (telemetry != null) {
+            telemetry.addData("SaveState", "Capturing robot state...");
+            telemetry.addLine("--- Written State ---");
+            for (Map.Entry<String, Object> entry : state.entrySet()) {
+                telemetry.addData("State/"+entry.getKey(), entry.getValue());
+            }
+            telemetry.update();
+        }
+        try {
+            File file = new File("/sdcard/FIRST/robot_states/robot_state.txt");
+
+            // Create directory if it doesn't exist
+            file.getParentFile().mkdirs();
+
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write("# Robot State Save File\n");
+                writer.write("# Timestamp: " + System.currentTimeMillis() + "\n");
+                writer.write("# Date: " + new java.util.Date().toString() + "\n\n");
+
+                for (Map.Entry<String, Object> entry : state.entrySet()) {
+                    writer.write(entry.getKey() + "=" + entry.getValue().toString() + "\n");
+                }
+            }
+        } catch (IOException e) {
+            telemetry.addData("SaveState", "Error: " + e.getMessage());
+            telemetry.update();
+        }
+        telemetry.addData("SaveState", "Complete");
         scheduler.cancelAll();
         upSlide.stop();
         lowSlide.stop();
@@ -305,20 +346,18 @@ public class SwerveWithStateSave extends LinearOpMode {
         });
 
         gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
-            scheduler.schedule(new HangingCommand(hangingServos, HangingCommand.Direction.FORWARD));
+            scheduler.schedule(new ActionCommand(upslideActions.transfer()));
         });
 
         gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), () -> {
-            scheduler.schedule(new HangingCommand(hangingServos, HangingCommand.Direction.BACKWARD));
+            scheduler.schedule(new ActionCommand(upslideActions.offwall()));
         });
     }
 
-    private void handleClawControls() {
-        double time = System.currentTimeMillis();
-
-        lowerClaw.handleManualControl(gamepad1.left_bumper, time);
-        upperClaw.handleManualControl(gamepad2.left_bumper, time);
-        upperExtendo.handleManualControl(gamepad2.right_bumper, time);
+    private void setClawControls() {
+        gamepad1Controller.onPressed(gamepad1Controller.button(ButtonType.LEFT_BUMPER), ()->lowerClaw.handleManualControl(System.currentTimeMillis()));
+        gamepad2Controller.onPressed(gamepad2Controller.button(ButtonType.LEFT_BUMPER), ()->upperClaw.handleManualControl(System.currentTimeMillis()));
+        gamepad2Controller.onPressed(gamepad2Controller.button(ButtonType.RIGHT_BUMPER), ()->upperExtendo.handleManualControl(System.currentTimeMillis()));
     }
 
     private void updatePID() {

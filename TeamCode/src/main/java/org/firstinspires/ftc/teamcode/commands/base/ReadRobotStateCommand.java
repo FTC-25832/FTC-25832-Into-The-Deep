@@ -30,11 +30,11 @@ public class ReadRobotStateCommand extends CommandBase {
     private Telemetry telemetry;
 
     public ReadRobotStateCommand(MecanumDrive drive, LowerSlide lowerslide, UpperSlide upperslide) {
-        this(drive, lowerslide, upperslide, "robot_state.txt", false);
+        this(drive, lowerslide, upperslide, "robot_state.txt", true);
     }
 
     public ReadRobotStateCommand(MecanumDrive drive, LowerSlide lowerslide, UpperSlide upperslide, String filename) {
-        this(drive, lowerslide, upperslide, filename, false);
+        this(drive, lowerslide, upperslide, filename, true);
     }
 
     public ReadRobotStateCommand(MecanumDrive drive, LowerSlide lowerslide, UpperSlide upperslide, String filename, boolean restoreState) {
@@ -55,7 +55,7 @@ public class ReadRobotStateCommand extends CommandBase {
 
         if (telemetry != null) {
             telemetry.addData("ReadState", "Loading robot state from " + filename);
-            telemetry.update();
+            
         }
     }
 
@@ -74,7 +74,7 @@ public class ReadRobotStateCommand extends CommandBase {
                 if (telemetry != null) {
                     telemetry.addData("ReadState", "State loaded successfully");
                     displayLoadedState();
-                    telemetry.update();
+                    
                 }
 
                 if (packet != null) {
@@ -89,7 +89,7 @@ public class ReadRobotStateCommand extends CommandBase {
 
                 if (telemetry != null) {
                     telemetry.addData("ReadState", "Error: " + e.getMessage());
-                    telemetry.update();
+                    
                 }
 
                 if (packet != null) {
@@ -108,8 +108,8 @@ public class ReadRobotStateCommand extends CommandBase {
     public void end(boolean interrupted) {
         if (interrupted && telemetry != null) {
             telemetry.addData("ReadState", "Command interrupted");
-            telemetry.update();
         }
+        telemetry.update();
     }
 
     private void loadStateFromFile() throws IOException {
@@ -161,7 +161,7 @@ public class ReadRobotStateCommand extends CommandBase {
 
             // Restore slide positions
             if (loadedState.containsKey("lowerslide/position")) {
-                int lowerPosition = Integer.parseInt(loadedState.get("lowerslide/position"));
+                double lowerPosition = Double.parseDouble(loadedState.get("lowerslide/position"));
                 lowerslide.pidfController.pos = lowerPosition;
 
                 if (telemetry != null) {
@@ -170,7 +170,7 @@ public class ReadRobotStateCommand extends CommandBase {
             }
 
             if (loadedState.containsKey("upperslide/position")) {
-                int upperPosition = Integer.parseInt(loadedState.get("upperslide/position"));
+                double upperPosition = Double.parseDouble(loadedState.get("upperslide/position"));
                 upperslide.pidfController.pos = upperPosition;
 
                 if (telemetry != null) {
