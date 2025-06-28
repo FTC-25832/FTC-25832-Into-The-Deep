@@ -90,7 +90,7 @@ public class ConfigVariables {
                 public static double[] DISTORTION_COEFFS = {0.177168, -0.457341, 0.000360, 0.002753, 0.178259};
                 public static double TOLERANCE = 2.5;
                 public static double Y_OFFSET = 0; //cm
-                public static double CAMERA_DELAY = 0.8; // s
+                public static double CAMERA_DELAY = 0.5; // s
                 public static double CLAW_90 = 90;
                 public static double XYPIXELRATIO = 225.0 / 672.0;
                 public static double XYDISTANCERATIO = 2.2/6.7;
@@ -180,12 +180,12 @@ public class ConfigVariables {
         // @Configurable
         public static class UpperSlideVars {
                 // Arm positions
-                public static double FRONT_ARM_POS = 0.9;
-                public static double FRONT_SWING_POS = 0.3;
-                public static double BEHIND_ARM_POS = 0.44;
+                public static double FRONT_ARM_POS = 7;
+                public static double FRONT_SWING_POS = 0.65;
+                public static double BEHIND_ARM_POS = 0.24;
                 public static double BEHIND_SWING_POS = 1.0;
 
-                public static double INTER_ARM_POS = 0.7;
+                public static double INTER_ARM_POS = 0.5;
                 public static double INTER_SWING_POS = 0.8;
 
                 // Claw positions
@@ -202,14 +202,16 @@ public class ConfigVariables {
                 public static double POS_3_CM = 65.0;
 
                 // offwall positions
-                public static double OFFWALL_FRONT_ARM_POS = 1;
+                public static double OFFWALL_FRONT_ARM_POS = 0.9;
                 public static double OFFWALL_FRONT_SWING_POS = 0.65;
-
+                // delay
+                public static double SLIDEPOS3_DELAY = 0.5; //s
+                public static double FRONT_DELAY = 0.4; //s
                 // scorespec positions
-                public static double SCORESPEC_FRONT_ARM_POS = 0.55;
+                public static double SCORESPEC_FRONT_ARM_POS = 0.35;
                 public static double SCORESPEC_FRONT_SWING_POS = 0.65;
 
-                public static double PID_KP = 0.01;
+                public static double PID_KP = 0.01;     
                 public static double PID_KI = 0.0;
                 public static double PID_KD = 0.0;
                 public static double PID_KF = 0.0; // Feedforward gain for gravity compensation

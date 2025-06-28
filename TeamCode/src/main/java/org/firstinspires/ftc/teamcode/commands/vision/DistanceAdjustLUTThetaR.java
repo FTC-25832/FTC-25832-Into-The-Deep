@@ -150,6 +150,7 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
         // theta = atan2(y,x)
         // r = sqrt(x^2 + y^2)
         double theta = Math.atan2(dycm, dxcm);
+        // 90-theta
         double r = Math.sqrt(dxcm * dxcm + dycm * dycm);
         packet.put("vision/theta", Math.toDegrees(theta));
         packet.put("vision/r", r);
@@ -166,7 +167,7 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
         packet.put("vision/y0", luty.get(0));
         Pose2d startpose = drive.localizer.getPose();
         // theta
-        moveAction = drive.actionBuilder(startpose).turnTo(startpose.heading.toDouble() - theta).build();
+        moveAction = drive.actionBuilder(startpose).turnTo(startpose.heading.toDouble() + Math.PI/2 - theta).build();
         // Run the action first time
         drive.updatePoseEstimate();
         moveAction.run(packet);

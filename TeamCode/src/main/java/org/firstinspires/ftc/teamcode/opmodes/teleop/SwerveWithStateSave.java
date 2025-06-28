@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.drive.MecanumDriveCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
-import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideGrabSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
@@ -82,7 +81,7 @@ public class SwerveWithStateSave extends LinearOpMode {
         initializeSubsystems();
 
         dashboard = FtcDashboard.getInstance();
-        Telemetry dashboardTelemetry = dashboard.getTelemetry();
+        telemetry = dashboard.getTelemetry();
         scheduler.schedule(new ReadRobotStateCommand(drive, lowSlide, upSlide));
 
         mecanumDriveCommand = new MecanumDriveCommand(drive, gamepad1);
@@ -92,19 +91,14 @@ public class SwerveWithStateSave extends LinearOpMode {
         // Schedule loop timing telemetry command
         scheduler.schedule(new LoopTimeTelemetryCommand());
 
-        setupGamepadControls();
-        setClawControls();
-
         while (!isStopRequested() && !opModeIsActive()) {
             TelemetryPacket packet = new TelemetryPacket();
             scheduler.run(packet);
-            gamepad1Controller.update();
-            gamepad2Controller.update();
             telemetry.update();
         }
 
         waitForStart();
-//        scheduler.schedule(new SaveRobotStateCommand(drive, lowSlide::getCurrentPosition, upSlide::getCurrentPosition));
+        scheduler.schedule(new SaveRobotStateCommand(drive, lowSlide::getCurrentPosition, upSlide::getCurrentPosition));
         if (isStopRequested())
             return;
 
@@ -115,13 +109,6 @@ public class SwerveWithStateSave extends LinearOpMode {
 
             double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             packet.put("heading", heading);
-
-            handleContinuousControls();
-
-            gamepad1Controller.update();
-            gamepad2Controller.update();
-
-            updatePID();
             telemetry.update();
 
             if (System.currentTimeMillis()
@@ -129,49 +116,13 @@ public class SwerveWithStateSave extends LinearOpMode {
                 dashboard.sendTelemetryPacket(packet);
                 lastDashboardUpdateTime = System.currentTimeMillis();
             }
+
         }
 
         cleanup();
     }
 
     private void cleanup() {
-        final Map<String, Object> state = new HashMap<>();
-        // Capture current robot state
-        Pose2d currentPose = drive.localizer.getPose();
-        state.put("drive/pose/x", currentPose.position.x);
-        state.put("drive/pose/y", currentPose.position.y);
-        state.put("drive/pose/heading", currentPose.heading.toDouble());
-        state.put("lowerslide/position", lowSlide.getCurrentPosition());
-        state.put("upperslide/position", upSlide.getCurrentPosition());
-        state.put("timestamp", System.currentTimeMillis());
-        if (telemetry != null) {
-            telemetry.addData("SaveState", "Capturing robot state...");
-            telemetry.addLine("--- Written State ---");
-            for (Map.Entry<String, Object> entry : state.entrySet()) {
-                telemetry.addData("State/"+entry.getKey(), entry.getValue());
-            }
-            telemetry.update();
-        }
-        try {
-            File file = new File("/sdcard/FIRST/robot_states/robot_state.txt");
-
-            // Create directory if it doesn't exist
-            file.getParentFile().mkdirs();
-
-            try (FileWriter writer = new FileWriter(file)) {
-                writer.write("# Robot State Save File\n");
-                writer.write("# Timestamp: " + System.currentTimeMillis() + "\n");
-                writer.write("# Date: " + new java.util.Date().toString() + "\n\n");
-
-                for (Map.Entry<String, Object> entry : state.entrySet()) {
-                    writer.write(entry.getKey() + "=" + entry.getValue().toString() + "\n");
-                }
-            }
-        } catch (IOException e) {
-            telemetry.addData("SaveState", "Error: " + e.getMessage());
-            telemetry.update();
-        }
-        telemetry.addData("SaveState", "Complete");
         scheduler.cancelAll();
         upSlide.stop();
         lowSlide.stop();
@@ -217,149 +168,7 @@ public class SwerveWithStateSave extends LinearOpMode {
 
         lowerClaw = new ClawController(lowSlide::openClaw, lowSlide::closeClaw);
 
-        gamepad1Controller = new GamepadController(gamepad1);
-        gamepad2Controller = new GamepadController(gamepad2);
-
-        scheduler.schedule(new ActionCommand(upslideActions.front()));
-        scheduler.schedule(new ActionCommand(lowslideActions.up()));
     }
-
-    private void setupGamepadControls() {
-
-        gamepad1Controller.onPressed(ButtonType.X, () -> {
-            scheduler.schedule(new CameraUpdateDetectorResult(camera));
-            scheduler.schedule(new DistanceAdjustLUTY(lowSlide, camera::getTy));
-            // scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx,
-            // camera::getTy,camera::getPx, camera::getPy,
-            // mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
-            // scheduler.schedule(new SequentialCommandGroup(
-            // new DistanceAdjustLUTY(lowSlide, camera, gamepad1),
-            // new WaitCommand(0.5),
-            // new DistanceAdjustLUTX(camera, gamepad1, drive,
-            // mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl)
-            // ));
-        });
-
-        gamepad1Controller.onPressed(ButtonType.DPAD_UP, () -> {
-            scheduler.schedule(new ActionCommand(lowslideActions.hover()));
-            scheduler.schedule(new AngleAdjustCommand(lowSlide, camera));
-
-        });
-
-        gamepad1Controller.onPressed(ButtonType.RIGHT_BUMPER, () -> {
-            scheduler.schedule(new ActionCommand(lowslideActions.hover()));
-        });
-
-        gamepad1Controller.onPressed(ButtonType.A, () -> {
-            scheduler.schedule(new ActionCommand(lowslideActions.slidePos0()));
-        });
-
-        gamepad1Controller.onPressed(ButtonType.B, () -> {
-            scheduler.schedule(new CameraUpdateDetectorResult(camera));
-            scheduler.schedule(new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy, camera::getPx, camera::getPy,
-                    mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
-            // scheduler.schedule(new DistanceAdjustCalculatedY(lowSlide, camera::getDy));
-            // scheduler.schedule(new DistanceAdjustCalculatedX(drive, camera::getDx,
-            // camera::getDy,
-            // mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
-        });
-
-        gamepad1Controller.onPressed(ButtonType.Y, () -> {
-            scheduler.schedule(new ActionCommand(lowslideActions.slidePos2()));
-        });
-
-        gamepad1Controller.onPressed(ButtonType.DPAD_DOWN, () -> {
-            scheduler.schedule(
-                    new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 45)));
-        });
-
-        gamepad1Controller.onPressed(ButtonType.DPAD_LEFT, () -> {
-            scheduler.schedule(new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO)));
-        });
-
-        gamepad1Controller.onPressed(ButtonType.DPAD_RIGHT, () -> {
-            scheduler.schedule(
-                    new ActionCommand(lowslideActions.setSpinClawDeg(ConfigVariables.LowerSlideVars.ZERO + 90)));
-        });
-
-        gamepad2Controller.onPressed(ButtonType.A, () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.slidePos0()));
-        });
-
-        gamepad2Controller.onPressed(ButtonType.X, () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.slidePos1()));
-        });
-
-        gamepad2Controller.onPressed(ButtonType.Y, () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.slidePos2()));
-        });
-
-        gamepad2Controller.onPressed(ButtonType.B, () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.slidePos3()));
-        });
-
-        gamepad2Controller.onPressed(ButtonType.DPAD_DOWN, () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.transfer()));
-        });
-
-        gamepad2Controller.onPressed(ButtonType.DPAD_UP, () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.front()));
-        });
-
-        gamepad2Controller.onPressed(ButtonType.DPAD_LEFT, () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.offwall()));
-        });
-
-        gamepad2Controller.onPressed(ButtonType.DPAD_RIGHT, () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.scorespec()));
-        });
-
-        gamepad2Controller.onPressed(ButtonType.RIGHT_STICK_BUTTON, () -> {
-            scheduler.schedule(
-                    new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions));
-        });
-    }
-
-    private void handleContinuousControls() {
-        gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
-//            scheduler.schedule(new LowerSlideGrabSequenceCommand(lowSlide));
-            Command grabCommand = new SequentialCommandGroup(
-                    new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
-                    new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
-                    new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
-                    new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT / 1000.0),
-                    new ActionCommand(new LowerSlideCommands(lowSlide).closeClaw()),
-                    new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT / 1000.0),
-                    new ActionCommand(new LowerSlideCommands(lowSlide).hover()));
-            scheduler.schedule(grabCommand);
-        });
-        gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), () -> {
-            scheduler.schedule(new ActionCommand(lowslideActions.up()));
-        });
-
-        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
-            if (upperClaw.canStartGrabSequence()) {
-                Command grabCommand = new UpperSlideGrabSequenceCommand(upSlide, upperClaw);
-                upperClaw.startGrabSequence();
-                scheduler.schedule(grabCommand);
-            }
-        });
-
-        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.transfer()));
-        });
-
-        gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.offwall()));
-        });
-    }
-
-    private void setClawControls() {
-        gamepad1Controller.onPressed(gamepad1Controller.button(ButtonType.LEFT_BUMPER), ()->lowerClaw.handleManualControl(System.currentTimeMillis()));
-        gamepad2Controller.onPressed(gamepad2Controller.button(ButtonType.LEFT_BUMPER), ()->upperClaw.handleManualControl(System.currentTimeMillis()));
-        gamepad2Controller.onPressed(gamepad2Controller.button(ButtonType.RIGHT_BUMPER), ()->upperExtendo.handleManualControl(System.currentTimeMillis()));
-    }
-
     private void updatePID() {
         double upslidePower = upSlide.updatePID();
         double lowslidePower = lowSlide.updatePID();

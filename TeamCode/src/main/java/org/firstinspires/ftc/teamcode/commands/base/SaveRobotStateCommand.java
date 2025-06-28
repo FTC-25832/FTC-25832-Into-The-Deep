@@ -82,7 +82,6 @@ public class SaveRobotStateCommand extends CommandBase {
             for (Map.Entry<String, Object> entry : state.entrySet()) {
                 telemetry.addData("State/"+entry.getKey(), entry.getValue());
             }
-            telemetry.update();
         }
         try {
             File file = new File("/sdcard/FIRST/robot_states/" + filename);
@@ -104,6 +103,7 @@ public class SaveRobotStateCommand extends CommandBase {
             telemetry.update();
         }
         telemetry.addData("SaveState", "Complete");
+        telemetry.update();
     }
 
     public Map<String, Object> getState() {
