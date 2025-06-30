@@ -19,6 +19,7 @@ public class AdjustUntilClose extends CommandBase {
     private final Runnable updateDetectorResult;
     private final Supplier<Double> txSupplier;
     private final Supplier<Double> tySupplier;
+    private final Supplier<Double> pxSupplier;
     private final Supplier<Double> pySupplier;
 
 
@@ -37,19 +38,20 @@ private  boolean firstTime = true;
     private ElapsedTime timeBetweenAdjustments;
 
     public AdjustUntilClose(MecanumDrive drive, LowerSlide lowSlide,
-                            Supplier<Double> txSupplier, Supplier<Double> tySupplier, Supplier<Double> pySupplier,
+                            Supplier<Double> txSupplier, Supplier<Double> tySupplier, Supplier<Double> pxSupplier, Supplier<Double> pySupplier,
                             Runnable disableDriveControl, Runnable enableDriveControl, Runnable UpdateDetectorResult) {
         this.drive = drive;
         this.lowSlide = lowSlide;
         this.txSupplier = txSupplier;
         this.tySupplier = tySupplier;
+        this.pxSupplier = pxSupplier;
         this.pySupplier = pySupplier;
         this.disableDriveControl = disableDriveControl;
         this.enableDriveControl = enableDriveControl;
         this.updateDetectorResult = UpdateDetectorResult;
 
         // Create the adjustment commands
-        this.xAdjustCommand = new DistanceAdjustLUTX(drive, txSupplier, pySupplier, tySupplier, disableDriveControl, enableDriveControl);
+        this.xAdjustCommand = new DistanceAdjustLUTX(drive, txSupplier, tySupplier, pxSupplier, pySupplier, disableDriveControl, enableDriveControl);
         this.yAdjustCommand = new DistanceAdjustLUTY(lowSlide, tySupplier);
 
         this.timeBetweenAdjustments = new ElapsedTime(ElapsedTime.Resolution.SECONDS);

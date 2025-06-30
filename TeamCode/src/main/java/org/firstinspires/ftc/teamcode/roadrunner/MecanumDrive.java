@@ -496,7 +496,6 @@ public final class MecanumDrive {
         c.setStroke("#3F51B5");
         c.strokePolyline(xPoints, yPoints);
     }
-
     public TrajectoryActionBuilder actionBuilder(Pose2d beginPose) {
         return new TrajectoryActionBuilder(
                 TurnAction::new,

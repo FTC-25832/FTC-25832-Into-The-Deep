@@ -32,7 +32,8 @@ import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.PoseStorage;
-import org.firstinspires.ftc.teamcode.commands.drive.SetDriveSpeedCommand;
+import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
+import org.firstinspires.ftc.teamcode.commands.slide.LowerUpperTransferSequenceCommand;
 
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
@@ -154,49 +155,29 @@ public final class AutoSample05 extends LinearOpMode {
                                 transferAndScoreSequence(pickupPos, pickupPos, lowerslideExtendLength));
         }
 
-        private SequentialAction transferSequence() {
-                return new SequentialAction(
-                                // retract, remember to keep pos_hover() when retracting slides
-                                lowerSlideCommands.slidePos2(),
-
-                                // transfer sequence
-                                new WaitCommand(ConfigVariables.AutoTesting.D_SLIDEPOS0AFTERDELAY_S).toAction(),
-                                lowerSlideCommands.up(),
-                                new WaitCommand(ConfigVariables.AutoTesting.E_LOWSLIDEUPAFTERDELAY_S).toAction(),
-                                upperSlideCommands.transfer(),
-
-                                new WaitCommand(ConfigVariables.AutoTesting.F_TRANSFERAFTERDELAY_S).toAction(),
-                                upperSlideCommands.closeClaw(),
-
-                                new WaitCommand(ConfigVariables.AutoTesting.G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S)
-                                                .toAction(),
-                                lowerSlideCommands.openClaw());
+        private Action transferSequence() {
+                return  new LowerUpperTransferSequenceCommand(lowerSlideCommands, upperSlideCommands).toAction();
         }
 
         private Action pickupSequence() {
-                return new SequentialCommandGroup(
-                                new ActionCommand(new LowerSlideCommands(lowSlide).openClaw()),
-                                new ActionCommand(new LowerSlideCommands(lowSlide).grabPart1()),
-                                new ActionCommand(new LowerSlideCommands(lowSlide).grabPart2()),
-                                new WaitCommand(ConfigVariables.LowerSlideVars.POS_GRAB_TIMEOUT / 1000.0),
-                                new ActionCommand(new LowerSlideCommands(lowSlide).closeClaw()),
-                                new WaitCommand(ConfigVariables.LowerSlideVars.CLAW_CLOSE_TIMEOUT / 1000.0),
-                                new ActionCommand(new LowerSlideCommands(lowSlide).hover())).toAction();
+                return new LowerSlideGrabSequenceCommand(lowSlide).toAction();
         }
 
         private Action adjustSequence() {
                 return new SequentialAction(
                                 new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTX(drive, camera::getTx, camera::getPy, camera::getTy, () -> {
-                                }, () -> {
-                                }).toAction(),
+                                new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy, camera::getPx,
+                                                camera::getPy, () -> {
+                                                }, () -> {
+                                                }).toAction(),
                                 new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction());
         }
 
         private Action adjustMultipleSequence() {
-                return new AdjustUntilClose(drive, lowSlide, camera::getTx, camera::getTy, camera::getPy, () -> {
-                }, () -> {
-                },
+                return new AdjustUntilClose(drive, lowSlide, camera::getTx, camera::getTy, camera::getPx, camera::getPy,
+                                () -> {
+                                }, () -> {
+                                },
                                 camera::updateDetectorResult)
                                 .toAction();
         }
@@ -242,7 +223,7 @@ public final class AutoSample05 extends LinearOpMode {
                                 new ParallelAction(
                                                 new LowerSlideUpdatePID(lowSlide).toAction(),
                                                 new UpperSlideUpdatePID(upSlide).toAction(),
-                                                new LoopTimeTelemetryCommand().toAction(),
+
                                                 // Add camera telemetry for debugging
                                                 new Action() {
                                                         @Override
@@ -301,13 +282,12 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                 drive.actionBuilder(SCORE.pose)
                                                                                                 .setReversed(true)
                                                                                                 .splineTo(new Vector2d(
-                                                                                                                39, 28),
+                                                                                                                44, 28),
                                                                                                                 SCORE.heading - Math
-                                                                                                                                .toRadians(180))
-                                                                                                .setReversed(true)
+                                                                                                                                .toRadians(170))
                                                                                                 .splineTo(SCORE.pos,
                                                                                                                 SCORE.heading - Math
-                                                                                                                                .toRadians(180))
+                                                                                                                                .toRadians(170))
                                                                                                 .build(),
                                                                                 transferWhileDriving()),
                                                                 frontForDrop(),

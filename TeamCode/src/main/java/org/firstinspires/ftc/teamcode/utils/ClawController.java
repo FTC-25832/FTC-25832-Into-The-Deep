@@ -20,13 +20,11 @@ public class ClawController {
         }
 
         /**
-         * Handle manual control button press with debouncing
-         * 
-         * @param buttonPressed Whether the control button is pressed
+         * Handle manual control, change the claw state
          * @param currentTime   Current system time in ms
          */
-        public void handleManualControl(boolean buttonPressed, double currentTime) {
-                if (!isGrabSequenceRunning && buttonPressed) {
+        public void handleManualControl(double currentTime) {
+                if (!isGrabSequenceRunning) {
                         if (currentTime - lastButtonPressTime > DEBOUNCE_TIME) {
                                 isOpen = !isOpen;
                                 if (isOpen) {

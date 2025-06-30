@@ -16,6 +16,11 @@ public class SequentialCommandGroup extends CommandBase {
 
     public SequentialCommandGroup(Command... commands) {
         this.commands = new ArrayList<>();
+        addCommands(commands);
+    }
+
+    // 添加这个方法来支持添加多个命令
+    public void addCommands(Command... commands) {
         for (Command cmd : commands) {
             this.commands.add(cmd);
             // 合并所有子命令的requirements

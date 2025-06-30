@@ -116,8 +116,8 @@ public class DistanceAdjustLUTY extends CommandBase {
         packet.put("vision/y0", luty.get(0));
 
         // Apply limits and set position
-        if (pos > 45) {
-            lowSlide.setPositionCM(45);
+        if (pos > 40) {
+            lowSlide.setPositionCM(40);
         } else if (pos < 0) {
             lowSlide.setPositionCM(0);
         } else {

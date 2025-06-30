@@ -8,13 +8,16 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.math.InterpLUT;
 
 import java.util.function.Supplier;
 
-public class DistanceAdjustLUTX extends CommandBase {
+public class DistanceAdjustLUTThetaR extends CommandBase {
     private final InterpLUT lutx = new InterpLUT();
+    private final InterpLUT luty = new InterpLUT();
+    private final LowerSlide lowSlide;
     // private final InterpLUT lutratio = new InterpLUT();
     private final MecanumDrive drive;
     private double tx, py, ty, px;
@@ -24,17 +27,17 @@ public class DistanceAdjustLUTX extends CommandBase {
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
 
-    public DistanceAdjustLUTX(MecanumDrive drive, Supplier<Double> txSupplier,  Supplier<Double> tySuplier, Supplier<Double> pxSupplier,Supplier<Double> pySupplier, Runnable disableDriveControl,
-            Runnable enableDriveControl) {
+    public DistanceAdjustLUTThetaR(LowerSlide lowslide, MecanumDrive drive, Supplier<Double> txSupplier, Supplier<Double> tySuplier, Supplier<Double> pxSupplier, Supplier<Double> pySupplier, Runnable disableDriveControl,
+                                   Runnable enableDriveControl) {
         for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
             lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
         }
-        // for (int i = 0; i < ConfigVariables.Camera.XYRATIO_MAP_Y.length; i++) {
-        // lutratio.add(ConfigVariables.Camera.XYRATIO_MAP_X[i],
-        // ConfigVariables.Camera.XYRATIO_MAP_Y[i]);
-        // }
         lutx.createLUT();
-        // lutratio.createLUT();
+        for (int i = 0; i < ConfigVariables.Camera.Y_DISTANCE_MAP_Y.length; i++) {
+            luty.add(ConfigVariables.Camera.Y_DISTANCE_MAP_X[i], ConfigVariables.Camera.Y_DISTANCE_MAP_Y[i]);
+        }
+        luty.createLUT();
+        this.lowSlide = lowslide;
         this.pxSupplier = pxSupplier;
         this.pySupplier = pySupplier;
         this.tySupplier = tySuplier;
@@ -68,7 +71,7 @@ public class DistanceAdjustLUTX extends CommandBase {
         if (moveAction != null) {
             // Check if action is done or timed out
             boolean actionDone = !moveAction.run(packet);
-
+            lowSlide.updatePID();
             if (actionDone) {
                 isAdjusted = true;
                 moveAction = null;
@@ -95,6 +98,7 @@ public class DistanceAdjustLUTX extends CommandBase {
 //
 //            final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
 //            final double ddx = Math.toDegrees(Math.atan(Math.tan(Math.toRadians(ty)) * gradientpx));
+
             final double[] vanishingPoint = ConfigVariables.Camera.VANISHING_POINT;
             // find the line (px, py) to (vanishingPoint[0], vanishingPoint[1])
             final double m = (vanishingPoint[0] - px) / (vanishingPoint[1] - py);
@@ -111,7 +115,7 @@ public class DistanceAdjustLUTX extends CommandBase {
             final double newtx = Math.toDegrees(fx1 - fx2);
             packet.put("vision/newtx", newtx);
             tx = newtx;
-            adjustx(tx, packet);
+            adjust(tx, ty, packet);
         }
 
         // if (gamepad1.dpad_up) {
@@ -137,19 +141,33 @@ public class DistanceAdjustLUTX extends CommandBase {
         }
     }
 
-    public void adjustx(double dx, TelemetryPacket packet) {
-        double dxcm = lutx.get(dx);
+    public void adjust(double tx, double ty, TelemetryPacket packet) {
+        double dxcm = lutx.get(tx);
         packet.put("vision/dxcm", dxcm);
+        double dycm = luty.get(ty);
+        packet.put("vision/dycm", dycm);
+        // convert x,y to theta,r
+        // theta = atan2(y,x)
+        // r = sqrt(x^2 + y^2)
+        double theta = Math.atan2(dycm, dxcm);
+        // 90-theta
+        double r = Math.sqrt(dxcm * dxcm + dycm * dycm);
+        packet.put("vision/theta", Math.toDegrees(theta));
+        packet.put("vision/r", r);
 
-        double adjustmentNeededinch = dxcm / 2.54;
+        double pos = lowSlide.getCurrentPositionCM() + r - luty.get(0) + ConfigVariables.Camera.Y_OFFSET;
+        if (pos > 45) {
+            lowSlide.setPositionCM(45);
+        } else if (pos < 0) {
+            lowSlide.setPositionCM(0);
+        } else {
+            lowSlide.setPositionCM(pos);
+        }
+        packet.put("vision/position set", pos);
+        packet.put("vision/y0", luty.get(0));
         Pose2d startpose = drive.localizer.getPose();
-        double heading = startpose.heading.toDouble();
-        // robot centric to field centric
-        Vector2d endpose = new Vector2d(
-                startpose.position.x + adjustmentNeededinch * Math.sin(heading),
-                startpose.position.y - adjustmentNeededinch * Math.cos(heading));
-        // Create the action
-        moveAction = drive.actionBuilder(startpose).strafeToLinearHeading(endpose, Rotation2d.fromDouble(heading)).build();
+        // theta
+        moveAction = drive.actionBuilder(startpose).turnTo(startpose.heading.toDouble() + Math.PI/2 - theta).build();
         // Run the action first time
         drive.updatePoseEstimate();
         moveAction.run(packet);
