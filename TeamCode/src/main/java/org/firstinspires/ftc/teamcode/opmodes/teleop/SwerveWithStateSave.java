@@ -98,7 +98,6 @@ public class SwerveWithStateSave extends LinearOpMode {
         }
 
         waitForStart();
-        scheduler.schedule(new SaveRobotStateCommand(drive, lowSlide::getCurrentPosition, upSlide::getCurrentPosition));
         if (isStopRequested())
             return;
 
@@ -118,7 +117,8 @@ public class SwerveWithStateSave extends LinearOpMode {
             }
 
         }
-
+        scheduler.schedule(new SaveRobotStateCommand(drive, lowSlide, upSlide));
+        scheduler.run(new TelemetryPacket());
         cleanup();
     }
 

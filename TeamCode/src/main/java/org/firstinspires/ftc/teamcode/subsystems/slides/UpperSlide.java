@@ -63,7 +63,7 @@ public class UpperSlide extends SubsystemBase {
         // Initialize servos
         arm1 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(2));
         arm2 = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(1));
-        swing = hardwareMap.get(ServoImplEx.class, ControlHub.servo(5));
+        swing = hardwareMap.get(ServoImplEx.class, ControlHub.servo(1   ));
         claw = hardwareMap.get(ServoImplEx.class, ControlHub.servo(3));
         extendo = hardwareMap.get(ServoImplEx.class, ControlHub.servo(4));
 

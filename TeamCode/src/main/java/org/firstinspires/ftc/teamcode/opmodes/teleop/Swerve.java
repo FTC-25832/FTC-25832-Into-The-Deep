@@ -67,7 +67,6 @@ public class Swerve extends LinearOpMode {
     private ClawController upperExtendo;
     private ClawController lowerClaw;
 
-    private IMU imu;
     private MecanumDriveCommand mecanumDriveCommand;
 
     @Override
@@ -106,9 +105,6 @@ public class Swerve extends LinearOpMode {
             TelemetryPacket packet = new TelemetryPacket();
             scheduler.run(packet);
 
-            double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-            packet.put("heading", heading);
-
             handleContinuousControls();
 
             gamepad1Controller.update();
@@ -136,15 +132,8 @@ public class Swerve extends LinearOpMode {
     }
 
     private void initializeSubsystems() {
-
-        imu = hardwareMap.get(IMU.class, "imu");
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(logoDirection, usbDirection)));
-        imu.resetYaw();
-
         drive = new MecanumDrive(hardwareMap,
-                new Pose2d(0, 0, imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)));
+                new Pose2d(0, 0, 0));
 
         upSlide = new UpperSlide();
         lowSlide = new LowerSlide();
@@ -164,7 +153,6 @@ public class Swerve extends LinearOpMode {
         llIt.setDriverStationStreamSource();
         llIt.forwardAll();
         FtcDashboard.getInstance().startCameraStream(llIt.getStreamSource(), 10);
-
         upslideActions = new UpperSlideCommands(upSlide);
         lowslideActions = new LowerSlideCommands(lowSlide);
 
@@ -222,6 +210,7 @@ public class Swerve extends LinearOpMode {
         });
 
         gamepad1Controller.onPressed(ButtonType.Y, () -> {
+            scheduler.schedule(new CameraUpdateDetectorResult(camera));
             scheduler.schedule(new DistanceAdjustLUTThetaR(lowSlide, drive,
                     camera::getTx, camera::getTy, camera::getPx, camera::getPy,
                     mecanumDriveCommand::disableControl, mecanumDriveCommand::enableControl));
@@ -301,9 +290,9 @@ public class Swerve extends LinearOpMode {
     }
 
     private void setClawControls() {
-        gamepad1Controller.onPressed(gamepad1Controller.button(ButtonType.LEFT_BUMPER), ()->lowerClaw.handleManualControl(System.currentTimeMillis()));
-        gamepad2Controller.onPressed(gamepad2Controller.button(ButtonType.LEFT_BUMPER), ()->upperClaw.handleManualControl(System.currentTimeMillis()));
-        gamepad2Controller.onPressed(gamepad2Controller.button(ButtonType.RIGHT_BUMPER), ()->upperExtendo.handleManualControl(System.currentTimeMillis()));
+        gamepad1Controller.onPressed(gamepad1Controller.button(ButtonType.LEFT_BUMPER), () -> lowerClaw.handleManualControl(System.currentTimeMillis()));
+        gamepad2Controller.onPressed(gamepad2Controller.button(ButtonType.LEFT_BUMPER), () -> upperClaw.handleManualControl(System.currentTimeMillis()));
+        gamepad2Controller.onPressed(gamepad2Controller.button(ButtonType.RIGHT_BUMPER), () -> upperExtendo.handleManualControl(System.currentTimeMillis()));
     }
 
     private void updatePID() {

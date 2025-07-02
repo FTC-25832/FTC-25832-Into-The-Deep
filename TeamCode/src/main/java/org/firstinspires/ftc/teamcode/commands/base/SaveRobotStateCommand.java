@@ -35,47 +35,39 @@ public class SaveRobotStateCommand extends CommandBase {
     private final Map<String, Object> state;
     private final String filename;
     private Telemetry telemetry;
-    private Supplier lowerslidePosSupplier, upperslidePosSupplier;
+    private LowerSlide lowerslide;
+    private UpperSlide upperslide;
 
-    public SaveRobotStateCommand(MecanumDrive drive, Supplier lowerslide, Supplier upperslide) {
+    public SaveRobotStateCommand(MecanumDrive drive, LowerSlide lowerslide, UpperSlide upperslide) {
         this(drive, lowerslide, upperslide, "robot_state.txt");
     }
 
-    public SaveRobotStateCommand(MecanumDrive drive, Supplier lowerslide, Supplier upperslide, String filename) {
+    public SaveRobotStateCommand(MecanumDrive drive,  LowerSlide lowerslide, UpperSlide upperslide, String filename) {
         this.drive = drive;
-        this.lowerslidePosSupplier = lowerslide;
-        this.upperslidePosSupplier = upperslide;
+        this.lowerslide = lowerslide;
+        this.upperslide = upperslide;
         this.filename = filename;
         this.state = new HashMap<>();
         this.telemetry = FtcDashboard.getInstance().getTelemetry();
+        addRequirement(lowerslide);
+        addRequirement(upperslide);
     }
 
 
     @Override
     public void initialize() {
-        state.clear();
-    }
-
-    @Override
-    public void execute(TelemetryPacket packet) {
-
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false;
-    }
-
-    @Override
-    public void end(boolean interrupted) {
         // Capture current robot state
         Pose2d currentPose = drive.localizer.getPose();
         state.put("drive/pose/x", currentPose.position.x);
         state.put("drive/pose/y", currentPose.position.y);
         state.put("drive/pose/heading", currentPose.heading.toDouble());
-        state.put("lowerslide/position", lowerslidePosSupplier.get());
-        state.put("upperslide/position", upperslidePosSupplier.get());
+        state.put("lowerslide/position", lowerslide.getCurrentPosition());
+        state.put("upperslide/position", upperslide.getCurrentPosition());
         state.put("timestamp", System.currentTimeMillis());
+    }
+
+    @Override
+    public void execute(TelemetryPacket packet) {
         if (telemetry != null) {
             telemetry.addData("SaveState", "Capturing robot state...");
             telemetry.addLine("--- Written State ---");
@@ -106,7 +98,13 @@ public class SaveRobotStateCommand extends CommandBase {
         telemetry.update();
     }
 
-    public Map<String, Object> getState() {
-        return new HashMap<>(state);
+    @Override
+    public boolean isFinished() {
+        return true;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+
     }
 }

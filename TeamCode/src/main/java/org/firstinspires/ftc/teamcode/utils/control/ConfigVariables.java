@@ -74,6 +74,7 @@ public class ConfigVariables {
                 public static double[] VANISHING_POINT = {818.9, -991.4}; // +y down, +x right
                 public static double[] FOV = {54, 41}; // degrees, horizontal and vertical field of view of camera
                 public static double CAMERA_HEIGHT = 27; // cm, height of camera from ground
+                public static double HALF_ROBOT_LENGTH = 20; // cm, front to robot center
                 public static double CLAW_DISTANCE = 22; // cm
                 public static double CROSSHAIR_X = -0.42578125;
                 public static double CROSSHAIR_Y = -0.4791666567325592;
@@ -232,7 +233,7 @@ public class ConfigVariables {
                 // slide positions
                 public static double POS_0_CM = 0;
                 public static double POS_1_CM = 35; //max is 45
-                public static double POS_2_CM = 8.7;
+                public static double POS_2_CM = 10;
 
                 // Claw positions
                 public static double CLAW_OPEN = 1.0;
