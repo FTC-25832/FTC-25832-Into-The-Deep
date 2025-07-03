@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
+import org.firstinspires.ftc.teamcode.commands.drive.SetDriveSpeedCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
@@ -215,7 +216,7 @@ public final class AutoSample05 extends LinearOpMode {
 
                 if (isStopRequested())
                         return;
-
+                Actions.runBlocking(new SetDriveSpeedCommand(drive, 90).toAction());
                 // Full autonomous sequence
                 Actions.runBlocking(
                                 new ParallelAction(
@@ -223,13 +224,9 @@ public final class AutoSample05 extends LinearOpMode {
                                                 new UpperSlideUpdatePID(upSlide).toAction(),
 
                                                 // Add camera telemetry for debugging
-                                                new Action() {
-                                                        @Override
-                                                        public boolean run(
-                                                                        com.acmerobotics.dashboard.telemetry.TelemetryPacket packet) {
-                                                                camera.updateTelemetry(packet);
-                                                                return true; // Always continue running
-                                                        }
+                                        packet -> {
+                                                        camera.updateTelemetry(packet);
+                                                        return true; // Always continue running
                                                 },
                                                 new SequentialAction(
                                                                 upperSlideCommands.scorespec(),
@@ -290,8 +287,5 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                 transferWhileDriving()),
                                                                 frontForDrop(),
                                                                 dropAndResetUpperSlides())));
-
-                // Save final pose for teleop
-                PoseStorage.currentPose = drive.localizer.getPose();
         }
 }
