@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
+import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
@@ -86,9 +87,9 @@ public class LowerSlide extends SubsystemBase {
     @Override
     public void periodic(TelemetryPacket packet) {
         // Add slide positions to telemetry
-        packet.put("lowerslide/position", slideMotor.getCurrentPosition());
+        packet.put("lowerslide/position", getCurrentPosition());
         packet.put("lowerslide/target", pidfController.destination);
-        packet.put("lowerslide/error", slideMotor.getCurrentPosition() - pidfController.destination);
+        packet.put("lowerslide/error", getCurrentPosition() - pidfController.destination);
 
         // Add servo positions to telemetry
         packet.put("lowerslide/part1", part1.getPosition());
@@ -115,7 +116,7 @@ public class LowerSlide extends SubsystemBase {
      * Hold current position
      */
     public void posNow() {
-        pidfController.setDestination(slideMotor.getCurrentPosition());
+        pidfController.setDestination(getCurrentPosition());
     }
 
     /**
@@ -183,7 +184,7 @@ public class LowerSlide extends SubsystemBase {
      */
     public double updatePID() {
         if(!PIDEnabled) return 0;
-        double power = pidfController.calculate(slideMotor.getCurrentPosition());
+        double power = pidfController.calculate(getCurrentPosition());
         slideMotor.setPower(power);
         return power;
     }
@@ -207,10 +208,10 @@ public class LowerSlide extends SubsystemBase {
      * Get the current position of the slide
      */
     public double getCurrentPosition() {
-        return slideMotor.getCurrentPosition();
+        return slideMotor.getCurrentPosition()+PoseStorage.LowerSlideTick;
     }
 
     public double getCurrentPositionCM() {
-        return slideMotor.getCurrentPosition() / COUNTS_PER_CM;
+        return getCurrentPosition() / COUNTS_PER_CM;
     }
 }

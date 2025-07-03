@@ -233,5 +233,7 @@ public final class AutoSample04 extends LinearOpMode {
                                                 )));
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
+                PoseStorage.LowerSlideTick = (int)lowSlide.getCurrentPosition();
+                PoseStorage.UpperSlideTick = (int)upSlide.getCurrentPosition();
         }
 }

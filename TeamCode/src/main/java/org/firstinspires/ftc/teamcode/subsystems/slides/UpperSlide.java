@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
+import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
@@ -99,8 +100,9 @@ public class UpperSlide extends SubsystemBase {
         // Add slide positions to telemetry
         packet.put("upperslide/position1", slide1.getCurrentPosition());
         packet.put("upperslide/position2", slide2.getCurrentPosition());
+        packet.put("upperslide/positionreal", getCurrentPosition());
         packet.put("upperslide/target", pidfController.destination);
-        packet.put("upperslide/error", slide1.getCurrentPosition() - pidfController.destination);
+        packet.put("upperslide/error", getCurrentPosition() - pidfController.destination);
 
         // Add servo positions to telemetry
         packet.put("upperslide/arm1", arm1.getPosition());
@@ -257,6 +259,6 @@ public class UpperSlide extends SubsystemBase {
      * Get the current position of the slide (average of both encoders)
      */
     public double getCurrentPosition() {
-        return slide1.getCurrentPosition();
+        return slide1.getCurrentPosition()+PoseStorage.UpperSlideTick;
     }
 }
