@@ -42,8 +42,6 @@ import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerUpperTransferSequenceCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
 
-import org.firstinspires.ftc.teamcode.utils.PoseStorage;
-
 @TeleOp(group = "TeleOp")
 public class Swerve extends LinearOpMode {
 
@@ -77,8 +75,6 @@ public class Swerve extends LinearOpMode {
         scheduler = CommandScheduler.getInstance();
 
         initializeSubsystems();
-
-        drive.localizer.setPose(PoseStorage.currentPose);
 
         dashboard = FtcDashboard.getInstance();
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
