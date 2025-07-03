@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.commands.base.SaveRobotStateCommand;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.drive.MecanumDriveCommand;
+import org.firstinspires.ftc.teamcode.commands.drive.SetDriveSpeedCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
@@ -46,7 +47,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @TeleOp(group = "TeleOp")
-public class SwerveWithStateSave extends LinearOpMode {
+public class DriveSpeedTest extends LinearOpMode {
 
     private MecanumDrive drive;
 
@@ -105,10 +106,12 @@ public class SwerveWithStateSave extends LinearOpMode {
 
             TelemetryPacket packet = new TelemetryPacket();
             scheduler.run(packet);
-
-            double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-            packet.put("heading", heading);
-            telemetry.update();
+            if(gamepad1.a){
+                scheduler.schedule(new SetDriveSpeedCommand(drive, 10));
+            }
+            if(gamepad1.b){
+                scheduler.schedule(new SetDriveSpeedCommand(drive, 90));
+            }
 
             if (System.currentTimeMillis()
                     - lastDashboardUpdateTime >= ConfigVariables.General.DASHBOARD_UPDATE_INTERVAL_MS) {

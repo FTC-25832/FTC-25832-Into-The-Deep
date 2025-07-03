@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
-import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
@@ -37,6 +36,7 @@ public class UpperSlide extends SubsystemBase {
 
     // Position control
     public final PIDFController pidfController;
+    public int tickOffset = 0;
 
     // Constants for encoder calculations
     private static final double PI = 3.14;
@@ -64,7 +64,7 @@ public class UpperSlide extends SubsystemBase {
         // Initialize servos
         arm1 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(2));
         arm2 = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(1));
-        swing = hardwareMap.get(ServoImplEx.class, ControlHub.servo(5));
+        swing = hardwareMap.get(ServoImplEx.class, ControlHub.servo(1   ));
         claw = hardwareMap.get(ServoImplEx.class, ControlHub.servo(3));
         extendo = hardwareMap.get(ServoImplEx.class, ControlHub.servo(4));
 
@@ -98,9 +98,8 @@ public class UpperSlide extends SubsystemBase {
     @Override
     public void periodic(TelemetryPacket packet) {
         // Add slide positions to telemetry
-        packet.put("upperslide/position1", slide1.getCurrentPosition());
-        packet.put("upperslide/position2", slide2.getCurrentPosition());
-        packet.put("upperslide/positionreal", getCurrentPosition());
+        packet.put("upperslide/position1", getCurrentPosition() + tickOffset);
+        packet.put("upperslide/position2", slide2.getCurrentPosition() + tickOffset);
         packet.put("upperslide/target", pidfController.destination);
         packet.put("upperslide/error", getCurrentPosition() - pidfController.destination);
 
@@ -122,6 +121,7 @@ public class UpperSlide extends SubsystemBase {
     public void setPositionCM(double cm) {
         pidfController.setDestination(Math.round(COUNTS_PER_CM * cm));
     }
+    public void setTickOffset(int tickOffset) { this.tickOffset = tickOffset; }
 
     // Preset positions
     public void pos0() {
@@ -259,6 +259,6 @@ public class UpperSlide extends SubsystemBase {
      * Get the current position of the slide (average of both encoders)
      */
     public double getCurrentPosition() {
-        return slide1.getCurrentPosition()+PoseStorage.UpperSlideTick;
+        return slide1.getCurrentPosition() + tickOffset;
     }
 }

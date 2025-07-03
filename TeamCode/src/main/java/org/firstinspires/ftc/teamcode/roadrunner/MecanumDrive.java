@@ -102,19 +102,10 @@ public final class MecanumDrive {
         public double headingVelGain = 0.5; // shared with turn
     }
 
-    public static Params PARAMS = new Params();
+    public Params PARAMS = new Params();
 
     public final MecanumKinematics kinematics = new MecanumKinematics(
             PARAMS.inPerTick * PARAMS.trackWidthTicks, PARAMS.inPerTick / PARAMS.lateralInPerTick);
-
-    public final TurnConstraints defaultTurnConstraints = new TurnConstraints(
-            PARAMS.maxAngVel, -PARAMS.maxAngAccel, PARAMS.maxAngAccel);
-    public final VelConstraint defaultVelConstraint = new MinVelConstraint(Arrays.asList(
-            kinematics.new WheelVelConstraint(PARAMS.maxWheelVel),
-            new AngularVelConstraint(PARAMS.maxAngVel)));
-    public final AccelConstraint defaultAccelConstraint = new ProfileAccelConstraint(PARAMS.minProfileAccel,
-            PARAMS.maxProfileAccel);
-
     public final DcMotorEx leftFront, leftBack, rightBack, rightFront;
 
     public final VoltageSensor voltageSensor;
@@ -505,7 +496,10 @@ public final class MecanumDrive {
                         new ProfileParams(
                                 0.25, 0.1, 1e-2)),
                 beginPose, 0.0,
-                defaultTurnConstraints,
-                defaultVelConstraint, defaultAccelConstraint);
+                new TurnConstraints(PARAMS.maxAngVel, -PARAMS.maxAngAccel, PARAMS.maxAngAccel),
+                new MinVelConstraint(Arrays.asList(
+                        kinematics.new WheelVelConstraint(PARAMS.maxWheelVel),
+                        new AngularVelConstraint(PARAMS.maxAngVel))),
+                new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel));
     }
 }

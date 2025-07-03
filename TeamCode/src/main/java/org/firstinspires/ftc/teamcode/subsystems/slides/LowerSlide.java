@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
-import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
@@ -28,6 +27,7 @@ public class LowerSlide extends SubsystemBase {
     // Position control
     public final PIDFController pidfController;
     private boolean PIDEnabled = true;
+    public int tickOffset = 0;
 
     // Constants for encoder calculations
     private static final double PI = 3.14;
@@ -56,7 +56,6 @@ public class LowerSlide extends SubsystemBase {
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
         // Initialize servos
         part2 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(0));
         claw = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(0));
@@ -80,8 +79,8 @@ public class LowerSlide extends SubsystemBase {
     }
 
     public void keepPosExceptArms(double pos) {
-        part1.setPosition(0);
-        part2.setPosition(0);
+        part1.setPosition(pos);
+        part2.setPosition(pos);
     }
 
     @Override
@@ -169,6 +168,7 @@ public class LowerSlide extends SubsystemBase {
     public void setSlidePos2() {
         setPositionCM(LowerSlideVars.POS_2_CM);
     }
+    public void setTickOffset(int tickOffset) { this.tickOffset = tickOffset; }
 
     // Claw controls
     public void closeClaw() {
@@ -208,7 +208,7 @@ public class LowerSlide extends SubsystemBase {
      * Get the current position of the slide
      */
     public double getCurrentPosition() {
-        return slideMotor.getCurrentPosition()+PoseStorage.LowerSlideTick;
+        return slideMotor.getCurrentPosition() + tickOffset;
     }
 
     public double getCurrentPositionCM() {

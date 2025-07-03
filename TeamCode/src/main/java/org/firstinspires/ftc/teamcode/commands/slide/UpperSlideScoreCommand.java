@@ -18,7 +18,7 @@ public class UpperSlideScoreCommand extends SequentialCommandGroup {
                         new ActionCommand(upperSlideCommands.inter()),
                         new ActionCommand(upperSlideCommands.slidePos3()),
                         new WaitCommand(ConfigVariables.UpperSlideVars.SLIDEPOS3_DELAY),
-                        new ActionCommand(upperSlideCommands.front()),
+                        new ActionCommand(upperSlideCommands.offwall()),
                         new ActionCommand(upperSlideCommands.openExtendoClaw()),
                         new WaitCommand(ConfigVariables.UpperSlideVars.FRONT_DELAY),
                         new ActionCommand(upperSlideCommands.openClaw()),

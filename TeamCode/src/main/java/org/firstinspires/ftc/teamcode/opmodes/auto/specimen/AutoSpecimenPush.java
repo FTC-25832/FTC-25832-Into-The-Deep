@@ -202,7 +202,5 @@ public final class AutoSpecimenPush extends LinearOpMode {
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
-                PoseStorage.LowerSlideTick = (int)lowSlide.getCurrentPosition();
-                PoseStorage.UpperSlideTick = (int)upSlide.getCurrentPosition();
         }
 }

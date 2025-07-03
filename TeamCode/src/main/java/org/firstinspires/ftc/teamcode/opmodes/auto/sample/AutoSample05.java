@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.vision.AdjustUntilClose;
 import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
+import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTThetaR;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -165,12 +166,9 @@ public final class AutoSample05 extends LinearOpMode {
 
         private Action adjustSequence() {
                 return new SequentialAction(
-                                new CameraUpdateDetectorResult(camera).toAction(),
-                                new DistanceAdjustLUTX(drive, camera::getTx, camera::getTy, camera::getPx,
-                                                camera::getPy, () -> {
-                                                }, () -> {
-                                                }).toAction(),
-                                new DistanceAdjustLUTY(lowSlide, camera::getTy).toAction());
+                                new CameraUpdateDetectorResult(camera).toAction(), new DistanceAdjustLUTThetaR(lowSlide, drive,
+                                camera::getTx, camera::getTy, camera::getPx, camera::getPy,
+                                ()->{}, ()->{}).toAction());
         }
 
         private Action adjustMultipleSequence() {
@@ -295,7 +293,5 @@ public final class AutoSample05 extends LinearOpMode {
 
                 // Save final pose for teleop
                 PoseStorage.currentPose = drive.localizer.getPose();
-                PoseStorage.LowerSlideTick = (int)lowSlide.getCurrentPosition();
-                PoseStorage.UpperSlideTick = (int)upSlide.getCurrentPosition();
         }
 }
