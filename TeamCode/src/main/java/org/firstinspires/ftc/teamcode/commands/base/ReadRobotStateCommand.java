@@ -162,7 +162,7 @@ public class ReadRobotStateCommand extends CommandBase {
             // Restore slide positions
             if (loadedState.containsKey("lowerslide/position")) {
                 double lowerPosition = Double.parseDouble(loadedState.get("lowerslide/position"));
-                lowerslide.pidfController.pos = lowerPosition;
+                lowerslide.setTickOffset((int)lowerPosition);
 
                 if (telemetry != null) {
                     telemetry.addData("Restored Lower Slide", lowerPosition);
@@ -171,7 +171,7 @@ public class ReadRobotStateCommand extends CommandBase {
 
             if (loadedState.containsKey("upperslide/position")) {
                 double upperPosition = Double.parseDouble(loadedState.get("upperslide/position"));
-                upperslide.pidfController.pos = upperPosition;
+                upperslide.setTickOffset((int)upperPosition);
 
                 if (telemetry != null) {
                     telemetry.addData("Restored Upper Slide", upperPosition);

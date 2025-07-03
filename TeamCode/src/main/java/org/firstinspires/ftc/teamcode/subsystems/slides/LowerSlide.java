@@ -27,6 +27,7 @@ public class LowerSlide extends SubsystemBase {
     // Position control
     public final PIDFController pidfController;
     private boolean PIDEnabled = true;
+    public int tickOffset = 0;
 
     // Constants for encoder calculations
     private static final double PI = 3.14;
@@ -55,7 +56,6 @@ public class LowerSlide extends SubsystemBase {
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
         // Initialize servos
         part2 = hardwareMap.get(ServoImplEx.class, ControlHub.servo(0));
         claw = hardwareMap.get(ServoImplEx.class, ExpansionHub.servo(0));
@@ -79,16 +79,16 @@ public class LowerSlide extends SubsystemBase {
     }
 
     public void keepPosExceptArms(double pos) {
-        part1.setPosition(0);
-        part2.setPosition(0);
+        part1.setPosition(pos);
+        part2.setPosition(pos);
     }
 
     @Override
     public void periodic(TelemetryPacket packet) {
         // Add slide positions to telemetry
-        packet.put("lowerslide/position", slideMotor.getCurrentPosition());
+        packet.put("lowerslide/position", getCurrentPosition());
         packet.put("lowerslide/target", pidfController.destination);
-        packet.put("lowerslide/error", slideMotor.getCurrentPosition() - pidfController.destination);
+        packet.put("lowerslide/error", getCurrentPosition() - pidfController.destination);
 
         // Add servo positions to telemetry
         packet.put("lowerslide/part1", part1.getPosition());
@@ -115,7 +115,7 @@ public class LowerSlide extends SubsystemBase {
      * Hold current position
      */
     public void posNow() {
-        pidfController.setDestination(slideMotor.getCurrentPosition());
+        pidfController.setDestination(getCurrentPosition());
     }
 
     /**
@@ -168,6 +168,7 @@ public class LowerSlide extends SubsystemBase {
     public void setSlidePos2() {
         setPositionCM(LowerSlideVars.POS_2_CM);
     }
+    public void setTickOffset(int tickOffset) { this.tickOffset = tickOffset; }
 
     // Claw controls
     public void closeClaw() {
@@ -183,7 +184,7 @@ public class LowerSlide extends SubsystemBase {
      */
     public double updatePID() {
         if(!PIDEnabled) return 0;
-        double power = pidfController.calculate(slideMotor.getCurrentPosition());
+        double power = pidfController.calculate(getCurrentPosition());
         slideMotor.setPower(power);
         return power;
     }
@@ -207,10 +208,10 @@ public class LowerSlide extends SubsystemBase {
      * Get the current position of the slide
      */
     public double getCurrentPosition() {
-        return slideMotor.getCurrentPosition();
+        return slideMotor.getCurrentPosition() + tickOffset;
     }
 
     public double getCurrentPositionCM() {
-        return slideMotor.getCurrentPosition() / COUNTS_PER_CM;
+        return getCurrentPosition() / COUNTS_PER_CM;
     }
 }

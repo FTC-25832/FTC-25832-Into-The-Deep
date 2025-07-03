@@ -200,7 +200,7 @@ public class ConfigVariables {
                 public static double POS_PRE_0_CM = 10.0;
                 public static double POS_1_CM = 13;
                 public static double POS_2_CM = 40;
-                public static double POS_3_CM = 65.0;
+                public static double POS_3_CM = 75.0;
 
                 // offwall positions
                 public static double OFFWALL_FRONT_ARM_POS = 0.9;

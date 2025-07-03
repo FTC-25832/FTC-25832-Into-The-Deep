@@ -36,6 +36,7 @@ public class UpperSlide extends SubsystemBase {
 
     // Position control
     public final PIDFController pidfController;
+    public int tickOffset = 0;
 
     // Constants for encoder calculations
     private static final double PI = 3.14;
@@ -97,10 +98,10 @@ public class UpperSlide extends SubsystemBase {
     @Override
     public void periodic(TelemetryPacket packet) {
         // Add slide positions to telemetry
-        packet.put("upperslide/position1", slide1.getCurrentPosition());
-        packet.put("upperslide/position2", slide2.getCurrentPosition());
+        packet.put("upperslide/position1", getCurrentPosition() + tickOffset);
+        packet.put("upperslide/position2", slide2.getCurrentPosition() + tickOffset);
         packet.put("upperslide/target", pidfController.destination);
-        packet.put("upperslide/error", slide1.getCurrentPosition() - pidfController.destination);
+        packet.put("upperslide/error", getCurrentPosition() - pidfController.destination);
 
         // Add servo positions to telemetry
         packet.put("upperslide/arm1", arm1.getPosition());
@@ -120,6 +121,7 @@ public class UpperSlide extends SubsystemBase {
     public void setPositionCM(double cm) {
         pidfController.setDestination(Math.round(COUNTS_PER_CM * cm));
     }
+    public void setTickOffset(int tickOffset) { this.tickOffset = tickOffset; }
 
     // Preset positions
     public void pos0() {
@@ -257,6 +259,6 @@ public class UpperSlide extends SubsystemBase {
      * Get the current position of the slide (average of both encoders)
      */
     public double getCurrentPosition() {
-        return slide1.getCurrentPosition();
+        return slide1.getCurrentPosition() + tickOffset;
     }
 }
