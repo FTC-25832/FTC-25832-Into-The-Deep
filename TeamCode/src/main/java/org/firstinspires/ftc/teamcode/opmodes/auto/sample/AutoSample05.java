@@ -252,40 +252,47 @@ public final class AutoSample05 extends LinearOpMode {
                                                                                                 true),
                                                                                 lowerSlideCommands.setSpinClawDeg(
                                                                                                 ConfigVariables.LowerSlideVars.ZERO
-                                                                                                                + 90)),
+                                                                                                                + 90))
                                                                 // FULL SEND
-                                                                new ParallelAction(
-                                                                                drive.actionBuilder(SCORE.pose)
-                                                                                                .strafeTo(new Vector2d(
-                                                                                                                39, 28))
-                                                                                                .splineTo(new Vector2d(
-                                                                                                                30, 15),
-                                                                                                                Math.toRadians(205))
-                                                                                                .build(),
-                                                                                lowerSlideCommands.slidePos1()),
-                                                                new WaitCommand(ConfigVariables.AutoTesting.I_SUBDELAY_S)
-                                                                                .toAction(),
-                                                                new ParallelAction(
-                                                                                adjustMultipleSequence(),
-                                                                                new AngleAdjustCommand(lowSlide, camera)
-                                                                                                .toAction()),
-                                                                new WaitCommand(ConfigVariables.AutoTesting.J_AFTERSUBDELAY_S)
-                                                                                .toAction(),
-                                                                pickupSequence(),
-                                                                new ParallelAction(
-                                                                                // Drive to score
-                                                                                drive.actionBuilder(SCORE.pose)
-                                                                                                .setReversed(true)
-                                                                                                .splineTo(new Vector2d(
-                                                                                                                44, 28),
-                                                                                                                SCORE.heading - Math
-                                                                                                                                .toRadians(170))
-                                                                                                .splineTo(SCORE.pos,
-                                                                                                                SCORE.heading - Math
-                                                                                                                                .toRadians(170))
-                                                                                                .build(),
-                                                                                transferWhileDriving()),
-                                                                frontForDrop(),
-                                                                dropAndResetUpperSlides())));
+                                                        )));
+                Actions.runBlocking(new SetDriveSpeedCommand(drive, 65).toAction());
+                Actions.runBlocking(new ParallelAction(
+                        new UpperSlideUpdatePID(upSlide).toAction(),
+                        new LowerSlideUpdatePID(lowSlide).toAction(),
+                        new SequentialAction(
+                        new ParallelAction(
+                                drive.actionBuilder(SCORE.pose)
+                                        .strafeTo(new Vector2d(
+                                                39, 28))
+                                        .splineTo(new Vector2d(
+                                                        30, 15),
+                                                Math.toRadians(205))
+                                        .build(),
+                                lowerSlideCommands.slidePos1()
+                        ),
+                        new WaitCommand(ConfigVariables.AutoTesting.I_SUBDELAY_S)
+                                .toAction(),
+                        new ParallelAction(
+                                adjustMultipleSequence(),
+                                new AngleAdjustCommand(lowSlide, camera)
+                                        .toAction()),
+                        new WaitCommand(ConfigVariables.AutoTesting.J_AFTERSUBDELAY_S)
+                                .toAction(),
+                        pickupSequence(),
+                        new ParallelAction(
+                                // Drive to score
+                                drive.actionBuilder(SCORE.pose)
+                                        .setReversed(true)
+                                        .splineTo(new Vector2d(
+                                                        44, 28),
+                                                SCORE.heading - Math
+                                                        .toRadians(170))
+                                        .splineTo(SCORE.pos,
+                                                SCORE.heading - Math
+                                                        .toRadians(170))
+                                        .build(),
+                                transferWhileDriving()),
+                        frontForDrop(),
+                        dropAndResetUpperSlides())));
         }
 }

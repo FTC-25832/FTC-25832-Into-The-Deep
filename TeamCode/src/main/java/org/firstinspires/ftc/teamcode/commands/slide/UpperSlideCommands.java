@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.commands.slide;
 
+import android.graphics.Bitmap;
+import android.telecom.Conference;
+
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.SequentialAction;
 
 import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
+import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.UpperSlideVars;
 
 /**
@@ -53,6 +57,13 @@ public class UpperSlideCommands {
 
         public Action setSlidePos(double cm) {
                 return new SlidePositionCommand(cm);
+        }
+        public Action addSlideTick(int direction){
+                return telemetryPacket -> {
+                        upSlide.setTickOffset(upSlide.tickOffset + UpperSlideVars.SET_TICK_SPEED * direction);
+                        telemetryPacket.put("upperslide/tick", upSlide.tickOffset);
+                        return false;
+                };
         }
 
         public Action slidePos0() {

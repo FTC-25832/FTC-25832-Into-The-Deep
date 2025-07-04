@@ -180,8 +180,10 @@ public class ConfigVariables {
         @Config
         // @Configurable
         public static class UpperSlideVars {
+                public static int SET_TICK_SPEED = 10;
                 // Arm positions
-                public static double FRONT_ARM_POS = 7;
+                public static double FRONT_ARM_POS = 0.7;
+
                 public static double FRONT_SWING_POS = 0.65;
                 public static double BEHIND_ARM_POS = 0.24;
                 public static double BEHIND_SWING_POS = 1.0;
@@ -232,7 +234,7 @@ public class ConfigVariables {
 
                 // slide positions
                 public static double POS_0_CM = 0;
-                public static double POS_1_CM = 35; //max is 45
+                public static double POS_1_CM = 30; //max is 40
                 public static double POS_2_CM = 10;
 
                 // Claw positions
