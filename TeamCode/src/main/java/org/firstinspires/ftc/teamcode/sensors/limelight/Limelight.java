@@ -115,10 +115,8 @@ public class Limelight {
         if (outerCorners == null || outerCorners.size() != 4) {
             return new ArrayList<>();
         }
-        double A = Math.sqrt(Math.pow(outerCorners.get(1).get(0) - outerCorners.get(0).get(0), 2) +
-                Math.pow(outerCorners.get(1).get(1) - outerCorners.get(0).get(1), 2));
-        double B = Math.sqrt(Math.pow(outerCorners.get(2).get(0) - outerCorners.get(1).get(0), 2) +
-                Math.pow(outerCorners.get(2).get(1) - outerCorners.get(1).get(1), 2));
+        double A = outerCorners.get(1).get(0) - outerCorners.get(0).get(0);
+        double B = outerCorners.get(2).get(1) - outerCorners.get(1).get(1);
         double[] solution = solveEquations(A, B);
         if (solution[1] == 0 || solution[2] == 0) {
             return new ArrayList<>();
@@ -332,6 +330,18 @@ public class Limelight {
         if( Math.cos(angle)==0|| Math.sin(Math.toRadians(90 - ConfigVariables.Camera.TILT_ANGLE - ty + dcy - ty))==0) return 0;
         double dy = Math.sin(Math.toRadians(ty)) * h / Math.cos(angle) / Math.sin(Math.toRadians(90 - ConfigVariables.Camera.TILT_ANGLE - ty + dcy - ty));
         return dy;
+    }
+    public double getProportion() {
+        if (!available || !resultAvailable)
+            return 0;
+        outerCorners = detectorResult.getTargetCorners();
+        if (outerCorners == null || outerCorners.size() != 4) {
+            resultAvailable = false;
+            return 0;
+        }
+        double A = outerCorners.get(1).get(0) - outerCorners.get(0).get(0);
+        double B = outerCorners.get(2).get(1) - outerCorners.get(1).get(1);
+        return A/B;
     }
     public double getWorldx() {
         return poseResult[0];

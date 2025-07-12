@@ -37,7 +37,7 @@ public class ConfigVariables {
                 public static double B_AFTERSCOREDELAY_S = 0.05;
                 public static double C_AFTERGRABDELAY_S = 0.1;
                 public static double D_SLIDEPOS0AFTERDELAY_S = 0.1;
-                public static double E_LOWSLIDEUPAFTERDELAY_S = 0.35;
+                public static double E_LOWSLIDEUPAFTERDELAY_S = 0.45;
                 public static double F_TRANSFERAFTERDELAY_S = 0.2;
                 public static double G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S = 0.05;
                 public static double H_TRANSFERCOMPLETEAFTERDELAY_S = 0.2;
@@ -83,6 +83,7 @@ public class ConfigVariables {
                 public static final double ADJUSTMENT_DELAY = 0.65; // 500ms between adjustments
 
                 public static double TILT_ANGLE = 45.0;
+                public static double PROPORTION_45 = 1.5;
                 public static double[][] CAMERA_MATRIX = {
                         {1221.445, 0, 637.226},
                         {0, 1223.398, 502.549},
@@ -92,7 +93,7 @@ public class ConfigVariables {
                 public static double TOLERANCE = 2.5;
                 public static double Y_OFFSET = 0; //cm
                 public static double CAMERA_DELAY = 0.5; // s
-                public static double CLAW_90 = 90;
+                public static double CLAW_90 = 130;
                 public static double XYPIXELRATIO = 225.0 / 672.0;
                 public static double XYDISTANCERATIO = 2.2/6.7;
                 public static double CAMERA_DISTANCE = 0;        // cm, y distance between camera and sample
@@ -185,7 +186,7 @@ public class ConfigVariables {
                 public static double FRONT_ARM_POS = 0.7;
 
                 public static double FRONT_SWING_POS = 0.65;
-                public static double BEHIND_ARM_POS = 0.24;
+                public static double BEHIND_ARM_POS = 0.3;
                 public static double BEHIND_SWING_POS = 1.0;
 
                 public static double INTER_ARM_POS = 0.5;
@@ -211,10 +212,10 @@ public class ConfigVariables {
                 public static double SLIDEPOS3_DELAY = 0.5; //s
                 public static double FRONT_DELAY = 0.4; //s
                 // scorespec positions
-                public static double SCORESPEC_FRONT_ARM_POS = 0.35;
+                public static double SCORESPEC_FRONT_ARM_POS = 0.4;
                 public static double SCORESPEC_FRONT_SWING_POS = 0.65;
 
-                public static double PID_KP = 0.01;     
+                public static double PID_KP = 0.01;
                 public static double PID_KI = 0.0;
                 public static double PID_KD = 0.0;
                 public static double PID_KF = 0.0; // Feedforward gain for gravity compensation
@@ -225,8 +226,8 @@ public class ConfigVariables {
         // @Configurable
         public static class LowerSlideVars {
                 // Arm positions
-                public static double GRAB_BIG = 0.93;
-                public static double GRAB_SMALL = 0;
+                public static double GRAB_BIG = 0.95;
+                public static double GRAB_SMALL = 0.1;
                 public static double UP_BIG = 0.52;
                 public static double UP_SMALL = 1.0;
                 public static double HOVER_BIG = 0.6;
@@ -235,11 +236,11 @@ public class ConfigVariables {
                 // slide positions
                 public static double POS_0_CM = 0;
                 public static double POS_1_CM = 30; //max is 40
-                public static double POS_2_CM = 10;
+                public static double POS_2_CM = 15;
 
                 // Claw positions
-                public static double CLAW_OPEN = 1.0;
-                public static double CLAW_CLOSE = 0.0;
+                public static double CLAW_OPEN = 0.6;
+                public static double CLAW_CLOSE = 0.18;
 
                 public static int POS_GRAB_TIMEOUT = 350;
                 public static int CLAW_CLOSE_TIMEOUT = General.CLAW_OPERATION_TIMEOUT;

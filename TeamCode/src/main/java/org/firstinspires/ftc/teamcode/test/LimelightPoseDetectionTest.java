@@ -89,6 +89,7 @@ public class LimelightPoseDetectionTest extends LinearOpMode {
                telemetry.addData("DY", limelight.getDy());
                telemetry.addData("PX", limelight.getPx());
                telemetry.addData("PY", limelight.getPy());
+               telemetry.addData("Proportion", limelight.getProportion());
                telemetry.update();
            }
             // Get the latest image from the limelight

@@ -22,6 +22,7 @@ public class LowerUpperTransferSequenceCommand extends SequentialCommandGroup {
                         // Step 1: Wait then up
 //                        new WaitCommand(ConfigVariables.AutoTesting.D_SLIDEPOS0AFTERDELAY_S),
                         new ActionCommand(lowerSlideCommands.up()),
+                        new ActionCommand(upperSlideCommands.scorespec()),
 
                         // Step 2: Wait then transfer
                         new WaitCommand(ConfigVariables.AutoTesting.E_LOWSLIDEUPAFTERDELAY_S),

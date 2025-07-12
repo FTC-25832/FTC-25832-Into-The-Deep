@@ -42,22 +42,21 @@ public class AngleAdjustCommand extends CommandBase {
 
     @Override
     public void execute(TelemetryPacket packet) {
-        camera.updateDetectorResult();
-        camera.updatePosition();
-        // Processing angle for spinclaw
-        double angle = camera.getAngle(); // -90 ~ 90
-        angles.add(angle);
-        packet.put("visionAdjust/angle", angle);
-        if(angles.size()>=ConfigVariables.Camera.ANGLE_MAXNUM){
+        if(camera.updateDetectorResult()){
+        double proportion = camera.getProportion();
+        packet.put("visionAdjust/proportion", proportion);
+        angles.add(proportion);
+        if (angles.size() >= ConfigVariables.Camera.ANGLE_MAXNUM) {
+            isAngleAdjusted = true;
+        }} else {
             isAngleAdjusted = true;
         }
-
     }
 
     // This command must be interrupted after 500ms to stop
     @Override
     public long getTimeout() {
-        return 0; // Timeout after 1000ms
+        return 0;
     }
 
     @Override
@@ -68,10 +67,10 @@ public class AngleAdjustCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         isAngleAdjusted = true;
-        if(angles.stream().mapToDouble((a)->a).sum()/angles.size() < -45){
-            lowSlide.spinclawSetPositionDeg(ConfigVariables.Camera.CLAW_90+90);
+        if(angles.stream().mapToDouble((a)->a).sum()/angles.size() < ConfigVariables.Camera.PROPORTION_45){
+            lowSlide.spinclawSetPositionDeg(ConfigVariables.Camera.CLAW_90 - 90);
         } else {
-            lowSlide.spinclawSetPositionDeg(ConfigVariables.Camera.CLAW_90);
+            lowSlide.spinclawSetPositionDeg(ConfigVariables.Camera.CLAW_90 + 0);
         }
         camera.reset();
     }

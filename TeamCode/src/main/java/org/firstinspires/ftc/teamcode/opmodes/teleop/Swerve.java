@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.SCORE;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -110,6 +112,9 @@ public class Swerve extends LinearOpMode {
             gamepad2Controller.update();
             telemetry.update();
 
+            lowSlide.updatePID();
+            upSlide.updatePID();
+
             if (System.currentTimeMillis()
                     - lastDashboardUpdateTime >= ConfigVariables.General.DASHBOARD_UPDATE_INTERVAL_MS) {
                 dashboard.sendTelemetryPacket(packet);
@@ -159,9 +164,6 @@ public class Swerve extends LinearOpMode {
 
         scheduler.schedule(new ActionCommand(upslideActions.front()));
         scheduler.schedule(new ActionCommand(lowslideActions.up()));
-
-        scheduler.schedule(new UpperSlideUpdatePID(upSlide));
-        scheduler.schedule(new LowerSlideUpdatePID(lowSlide));
     }
 
     private void setupGamepadControls() {
@@ -255,14 +257,22 @@ public class Swerve extends LinearOpMode {
         });
 
         gamepad2Controller.onPressed(ButtonType.DPAD_RIGHT, () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.scorespec()));
+            scheduler.schedule(new ActionCommand(upslideActions.transfer()));
         });
 
         gamepad2Controller.onPressed(ButtonType.RIGHT_STICK_BUTTON, () -> {
             scheduler.schedule(new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions));
         });
         gamepad2Controller.onPressed(ButtonType.LEFT_STICK_BUTTON, () -> {
-            scheduler.schedule(new UpperSlideScoreCommand(upslideActions));
+            scheduler.schedule(
+                    new SequentialCommandGroup(
+                            new ActionCommand((packet)->{mecanumDriveCommand.disableControl(); return false;}),
+                            new ActionCommand(drive.actionBuilder(drive.localizer.getPose())
+                                .strafeToLinearHeading(SCORE.pos, SCORE.heading)
+                                .build()),
+                            new ActionCommand((packet)->{mecanumDriveCommand.enableControl(); return false;})
+                        )
+            );
         });
     }
 
@@ -275,7 +285,7 @@ public class Swerve extends LinearOpMode {
         });
 
         gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
-            scheduler.schedule(new ActionCommand(upslideActions.transfer()));
+            scheduler.schedule(new ActionCommand(upslideActions.scorespec()));
         });
 
         gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), () -> {

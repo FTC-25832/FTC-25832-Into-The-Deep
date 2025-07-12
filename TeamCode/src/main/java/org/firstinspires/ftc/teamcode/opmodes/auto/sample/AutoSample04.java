@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideUpdatePID;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideUpdatePID;
-import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustAutoCommand;
+import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
 import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
 import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
@@ -106,7 +106,7 @@ public final class AutoSample04 extends LinearOpMode {
                                                                                 .toAction())),
 
                                 new ParallelAction(
-                                                new AngleAdjustAutoCommand(lowSlide, camera).toAction(),
+                                                new AngleAdjustCommand(lowSlide, camera).toAction(),
                                                 // Grab
                                                 new RaceAction(
                                                                 new SequentialAction(

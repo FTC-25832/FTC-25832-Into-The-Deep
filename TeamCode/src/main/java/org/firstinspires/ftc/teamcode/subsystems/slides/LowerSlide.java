@@ -22,7 +22,7 @@ public class LowerSlide extends SubsystemBase {
 
     // Control ranges
     private final PwmControl.PwmRange servoRange = new PwmControl.PwmRange(500, 2500);
-    private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1150);
+    private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 2500);
 
     // Position control
     public final PIDFController pidfController;
