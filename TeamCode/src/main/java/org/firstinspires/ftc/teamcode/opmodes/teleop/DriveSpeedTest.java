@@ -8,24 +8,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
-import org.firstinspires.ftc.teamcode.commands.base.Command;
 import org.firstinspires.ftc.teamcode.commands.base.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commands.base.ReadRobotStateCommand;
 import org.firstinspires.ftc.teamcode.commands.base.SaveRobotStateCommand;
-import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
-import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.drive.MecanumDriveCommand;
 import org.firstinspires.ftc.teamcode.commands.drive.SetDriveSpeedCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
-import org.firstinspires.ftc.teamcode.commands.hang.HangingCommand;
-import org.firstinspires.ftc.teamcode.commands.vision.AngleAdjustCommand;
-import org.firstinspires.ftc.teamcode.commands.vision.CameraUpdateDetectorResult;
-import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTX;
-import org.firstinspires.ftc.teamcode.commands.vision.DistanceAdjustLUTY;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.sensors.limelight.LimeLightImageTools;
@@ -34,17 +24,8 @@ import org.firstinspires.ftc.teamcode.subsystems.hang.Hanging;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
-import org.firstinspires.ftc.teamcode.utils.GamepadController;
-import org.firstinspires.ftc.teamcode.utils.GamepadController.ButtonType;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
-import org.firstinspires.ftc.teamcode.commands.slide.LowerUpperTransferSequenceCommand;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @TeleOp(group = "TeleOp")
 public class DriveSpeedTest extends LinearOpMode {
