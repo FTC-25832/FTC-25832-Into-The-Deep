@@ -3,29 +3,29 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.commands.base.CommandScheduler;
+import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
 import org.firstinspires.ftc.teamcode.commands.base.ReadRobotStateCommand;
 import org.firstinspires.ftc.teamcode.commands.base.SaveRobotStateCommand;
 import org.firstinspires.ftc.teamcode.commands.drive.MecanumDriveCommand;
 import org.firstinspires.ftc.teamcode.commands.drive.SetDriveSpeedCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.UpperSlideCommands;
-import org.firstinspires.ftc.teamcode.utils.ClawController;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.sensors.limelight.LimeLightImageTools;
-
+import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.hang.Hanging;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
-import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
+import org.firstinspires.ftc.teamcode.utils.ClawController;
+import org.firstinspires.ftc.teamcode.utils.GamepadController;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
-import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
 
 @TeleOp(group = "TeleOp")
 public class DriveSpeedTest extends LinearOpMode {
@@ -87,10 +87,10 @@ public class DriveSpeedTest extends LinearOpMode {
 
             TelemetryPacket packet = new TelemetryPacket();
             scheduler.run(packet);
-            if(gamepad1.a){
+            if (gamepad1.a) {
                 scheduler.schedule(new SetDriveSpeedCommand(drive, 10));
             }
-            if(gamepad1.b){
+            if (gamepad1.b) {
                 scheduler.schedule(new SetDriveSpeedCommand(drive, 90));
             }
 
@@ -153,6 +153,7 @@ public class DriveSpeedTest extends LinearOpMode {
         lowerClaw = new ClawController(lowSlide::openClaw, lowSlide::closeClaw);
 
     }
+
     private void updatePID() {
         double upslidePower = upSlide.updatePID();
         double lowslidePower = lowSlide.updatePID();

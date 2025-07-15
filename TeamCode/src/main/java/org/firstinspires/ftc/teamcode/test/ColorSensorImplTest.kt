@@ -1,41 +1,36 @@
 package org.firstinspires.ftc.teamcode.test
 
-import android.app.Activity
-import android.graphics.Color
-import android.view.View
 import com.acmerobotics.dashboard.FtcDashboard
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.ColorSensor
-import com.qualcomm.robotcore.hardware.DistanceSensor
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.sensors.ColorSensorImpl
 import java.util.Locale
 
-@TeleOp(name = "Sensor: REVColorDistance", group = "Test")
+@TeleOp(name = "SensorImpl: REVColorDistance", group = "Test")
 class ColorSensorImplTest : LinearOpMode() {
-
-    val sensorColor = ColorSensorImpl(hardwareMap)
     val telemetry: Telemetry = FtcDashboard.getInstance().telemetry
     override fun runOpMode() {
-        if(sensorColor.sensorColor == null){
+        val sensorColor = ColorSensorImpl(hardwareMap)
+        if (sensorColor.sensorColor == null) {
             telemetry.addData("Error", "Color sensor not found!")
             telemetry.update()
             return
         }
-        if(sensorColor.sensorDistance == null){
+        if (sensorColor.sensorDistance == null) {
             telemetry.addData("Error", "Distance sensor not found!")
             telemetry.update()
             return
-        }
-        else
-        waitForStart()
+        } else
+            waitForStart()
 
         // loop and read the RGB and distance data.
         // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
         while (opModeIsActive()) {
-            telemetry.addData("Distance (cm)", String.format(Locale.CHINA, "%.02f", sensorColor.distance))
+            telemetry.addData(
+                "Distance (cm)",
+                String.format(Locale.CHINA, "%.02f", sensorColor.distance)
+            )
             telemetry.addData("Color", sensorColor.matchColor())
             telemetry.addData("Catched", sensorColor.catched())
             telemetry.addData("Can Transfer", sensorColor.canTransfer())

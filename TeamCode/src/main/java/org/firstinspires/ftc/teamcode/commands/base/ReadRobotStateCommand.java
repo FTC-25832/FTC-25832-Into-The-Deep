@@ -7,7 +7,6 @@ import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
@@ -55,7 +54,6 @@ public class ReadRobotStateCommand extends CommandBase {
 
         if (telemetry != null) {
             telemetry.addData("ReadState", "Loading robot state from " + filename);
-            
         }
     }
 
@@ -74,7 +72,6 @@ public class ReadRobotStateCommand extends CommandBase {
                 if (telemetry != null) {
                     telemetry.addData("ReadState", "State loaded successfully");
                     displayLoadedState();
-                    
                 }
 
                 if (packet != null) {
@@ -89,7 +86,7 @@ public class ReadRobotStateCommand extends CommandBase {
 
                 if (telemetry != null) {
                     telemetry.addData("ReadState", "Error: " + e.getMessage());
-                    
+
                 }
 
                 if (packet != null) {
@@ -143,9 +140,7 @@ public class ReadRobotStateCommand extends CommandBase {
     private void restoreRobotState() {
         try {
             // Restore drive pose
-            if (loadedState.containsKey("drive/pose/x") &&
-                    loadedState.containsKey("drive/pose/y") &&
-                    loadedState.containsKey("drive/pose/heading")) {
+            if (loadedState.containsKey("drive/pose/x") && loadedState.containsKey("drive/pose/y") && loadedState.containsKey("drive/pose/heading")) {
 
                 double x = Double.parseDouble(loadedState.get("drive/pose/x"));
                 double y = Double.parseDouble(loadedState.get("drive/pose/y"));
@@ -162,7 +157,7 @@ public class ReadRobotStateCommand extends CommandBase {
             // Restore slide positions
             if (loadedState.containsKey("lowerslide/position")) {
                 double lowerPosition = Double.parseDouble(loadedState.get("lowerslide/position"));
-                lowerslide.setTickOffset((int)lowerPosition);
+                lowerslide.setTickOffset((int) lowerPosition);
 
                 if (telemetry != null) {
                     telemetry.addData("Restored Lower Slide", lowerPosition);
@@ -171,7 +166,7 @@ public class ReadRobotStateCommand extends CommandBase {
 
             if (loadedState.containsKey("upperslide/position")) {
                 double upperPosition = Double.parseDouble(loadedState.get("upperslide/position"));
-                upperslide.setTickOffset((int)upperPosition);
+                upperslide.setTickOffset((int) upperPosition);
 
                 if (telemetry != null) {
                     telemetry.addData("Restored Upper Slide", upperPosition);
