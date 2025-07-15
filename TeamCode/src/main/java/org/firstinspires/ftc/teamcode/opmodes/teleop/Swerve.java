@@ -119,14 +119,20 @@ public class Swerve extends LinearOpMode {
             if (System.currentTimeMillis() - lastDashboardUpdateTime >= ConfigVariables.General.DASHBOARD_UPDATE_INTERVAL_MS) {
                 packet.put("gamepad1/NoOperationTimems", gamepad1Controller.getNoOperationTime());
                 packet.put("gamepad2/NoOperationTimems", gamepad2Controller.getNoOperationTime());
+                packet.put("colorsensor/catched", colorSensor.catched());
+                packet.put("colorsensor/cantransfer", colorSensor.canTransfer());
                 dashboard.sendTelemetryPacket(packet);
                 lastDashboardUpdateTime = System.currentTimeMillis();
             }
 
         }
         if (ConfigVariables.General.WITH_STATESAVE) {
-            scheduler.schedule(new SaveRobotStateCommand(drive, lowSlide, upSlide));
-            scheduler.run(new TelemetryPacket());
+            SaveRobotStateCommand command = new SaveRobotStateCommand(drive, lowSlide, upSlide);
+            TelemetryPacket packet = new TelemetryPacket();
+            command.initialize();
+            command.execute(packet);
+            command.end(false);
+            dashboard.sendTelemetryPacket(packet);
         }
         cleanup();
     }
@@ -314,7 +320,7 @@ public class Swerve extends LinearOpMode {
 
     private void setContinuousControls() {
         gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
-            scheduler.schedule(new SequentialCommandGroup(new LowerSlideGrabSequenceCommand(lowSlide), new WaitCommand(ConfigVariables.LowerSlideVars.POS_HOVER_TIMEOUT), new ConditionalCommand(colorSensor::canTransfer, new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions))));
+            scheduler.schedule(new SequentialCommandGroup(new LowerSlideGrabSequenceCommand(lowSlide), new WaitCommand((double) ConfigVariables.LowerSlideVars.POS_HOVER_TIMEOUT / 1000), new ConditionalCommand(colorSensor::canTransfer, new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions))));
         });
         gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), () -> {
             scheduler.schedule(new ActionCommand(lowslideActions.up()));

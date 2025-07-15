@@ -28,7 +28,6 @@ buildscript {
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 apply plugin: 'dev.frozenmilk.sinister.sloth.load'
-apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
@@ -46,16 +45,13 @@ android {
         }
         jniLibs.useLegacyPackaging true
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
 }
 
 repositories {
-   maven {
-       url = 'https://maven.brott.dev/'
-       url = "https://repo.dairy.foundation/releases"
-   }
+    maven {
+        url = 'https://maven.brott.dev/'
+        url = "https://repo.dairy.foundation/releases"
+    }
 }
 
 //these orders matter, dont change if not knowing what you are doing, for roadrunner
@@ -65,8 +61,8 @@ dependencies {
     implementation("com.acmerobotics.roadrunner:ftc:0.1.21") {
         exclude group: "com.acmerobotics.dashboard"
     }
-    implementation 'androidx.core:core-ktx:1.16.0'
     apply from: '../build.RoadRunnerCommon.gradle'
+    implementation 'androidx.core:core:1.16.0'
 
 
     implementation("dev.frozenmilk.sinister:Sloth:0.2.1")

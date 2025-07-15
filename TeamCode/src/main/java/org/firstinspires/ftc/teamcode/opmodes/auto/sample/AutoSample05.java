@@ -17,6 +17,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.commands.base.SaveRobotStateCommand;
 import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
@@ -137,11 +138,7 @@ public final class AutoSample05 extends LinearOpMode {
                         lowerSlideCommands.setSlidePos(lowerslideExtendLength)),
 
                 new WaitCommand(ConfigVariables.AutoTesting.Y_PICKUPDELAY).toAction(),
-                new SequentialAction(
-                        adjustSequence(),
-                        new WaitCommand(0.4).toAction()
-                ),
-
+                adjustSequence(),
                 pickupSequence(),
                 // waitSeconds(pickupPos.pose, ConfigVariables.AutoTesting.C_AFTERGRABDELAY_S),
 
@@ -211,7 +208,6 @@ public final class AutoSample05 extends LinearOpMode {
                 new ParallelAction(
                         new LowerSlideUpdatePID(lowSlide).toAction(),
                         new UpperSlideUpdatePID(upSlide).toAction(),
-
                         // Add camera telemetry for debugging
                         packet -> {
                             camera.updateTelemetry(packet);
@@ -275,7 +271,9 @@ public final class AutoSample05 extends LinearOpMode {
                                                 .build(),
                                         transferWhileDriving()),
                                 frontForDrop(),
-                                dropAndResetUpperSlides())
+                                dropAndResetUpperSlides(),
+                                new SaveRobotStateCommand(drive, lowSlide, upSlide).toAction()
+                        )
                 ));
 //                Actions.runBlocking(
 //                        new ParallelAction(

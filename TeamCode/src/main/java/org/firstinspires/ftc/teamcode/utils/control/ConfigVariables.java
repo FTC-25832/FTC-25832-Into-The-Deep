@@ -13,7 +13,7 @@ public class ConfigVariables {
     // @Configurable
     public static class General {
         public static boolean SINGLE_CONTROLLER_MODE = false; // true for single controller mode, false for dual controller mode
-        public static boolean WITH_STATESAVE = true; // true for state save mode, false for normal mode
+        public static boolean WITH_STATESAVE = false; // true for state save mode, false for normal mode
         public static long DASHBOARD_UPDATE_INTERVAL_MS = 1;
         public static double DRIVE_ROTATE_FACTOR = 0.5;
         public static double HANGING_SERVOS_SPEED = 0.8; // pwm unit
@@ -47,7 +47,7 @@ public class ConfigVariables {
         public static double B_AFTERSCOREDELAY_S = 0.05;
         public static double C_AFTERGRABDELAY_S = 0.1;
         public static double D_SLIDEPOS0AFTERDELAY_S = 0.1;
-        public static double E_LOWSLIDEUPAFTERDELAY_S = 0.45;
+        public static double E_LOWSLIDEUPAFTERDELAY_S = 0.55;
         public static double F_TRANSFERAFTERDELAY_S = 0.2;
         public static double G_LOWSLIDETRANSFEROPENCLAWAFTERDELAY_S = 0.05;
         public static double H_TRANSFERCOMPLETEAFTERDELAY_S = 0.2;
@@ -229,7 +229,7 @@ public class ConfigVariables {
         // slide positions
         public static double POS_0_CM = 0;
         public static double POS_1_CM = 30; //max is 40
-        public static double POS_2_CM = 15;
+        public static double POS_2_CM = 12;
 
         // Claw positions
         public static double CLAW_OPEN = 0.6;
