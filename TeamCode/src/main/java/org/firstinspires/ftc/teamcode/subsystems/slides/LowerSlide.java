@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.utils.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
+import org.firstinspires.ftc.teamcode.utils.motion.MotionProfileController;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 
 import static org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.LowerSlideVars;
@@ -26,7 +27,9 @@ public class LowerSlide extends SubsystemBase {
 
     // Position control
     public final PIDFController pidfController;
+    public final MotionProfileController motionProfileController;
     private boolean PIDEnabled = true;
+    private boolean motionProfileEnabled = false;
     public int tickOffset = 0;
 
     // Constants for encoder calculations
@@ -44,6 +47,14 @@ public class LowerSlide extends SubsystemBase {
                 LowerSlideVars.PID_KI,
                 LowerSlideVars.PID_KD,
                 0);
+
+        // Initialize motion profile controller with the PIDF controller
+        motionProfileController = new MotionProfileController(
+                pidfController,
+                LowerSlideVars.MAX_VELOCITY_CM_S * COUNTS_PER_CM, // Convert cm/s to ticks/s
+                LowerSlideVars.MAX_ACCELERATION_CM_S2 * COUNTS_PER_CM, // Convert cm/s² to ticks/s²
+                LowerSlideVars.VELOCITY_FEEDFORWARD,
+                LowerSlideVars.ACCELERATION_FEEDFORWARD);
     }
 
     @Override
@@ -85,16 +96,19 @@ public class LowerSlide extends SubsystemBase {
 
     @Override
     public void periodic(TelemetryPacket packet) {
-        // Add slide positions to telemetry
-        packet.put("lowerslide/position", getCurrentPosition());
+        // PERFORMANCE OPTIMIZATION: Reduced telemetry frequency
+        // Only update essential telemetry to reduce I/O overhead
+        double currentPos = getCurrentPosition();
+        packet.put("lowerslide/position", currentPos);
         packet.put("lowerslide/target", pidfController.destination);
-        packet.put("lowerslide/error", getCurrentPosition() - pidfController.destination);
+        packet.put("lowerslide/error", currentPos - pidfController.destination);
 
-        // Add servo positions to telemetry
-        packet.put("lowerslide/part1", part1.getPosition());
-        packet.put("lowerslide/part2", part2.getPosition());
-        packet.put("lowerslide/spinclaw", spinclaw.getPosition());
-        packet.put("lowerslide/claw", claw.getPosition());
+        // PERFORMANCE OPTIMIZATION: Servo position reads are expensive - reduce
+        // frequency
+        // packet.put("lowerslide/part1", part1.getPosition());
+        // packet.put("lowerslide/part2", part2.getPosition());
+        // packet.put("lowerslide/spinclaw", spinclaw.getPosition());
+        // packet.put("lowerslide/claw", claw.getPosition());
     }
 
     /**
@@ -168,7 +182,10 @@ public class LowerSlide extends SubsystemBase {
     public void setSlidePos2() {
         setPositionCM(LowerSlideVars.POS_2_CM);
     }
-    public void setTickOffset(int tickOffset) { this.tickOffset = tickOffset; }
+
+    public void setTickOffset(int tickOffset) {
+        this.tickOffset = tickOffset;
+    }
 
     // Claw controls
     public void closeClaw() {
@@ -180,18 +197,69 @@ public class LowerSlide extends SubsystemBase {
     }
 
     /**
-     * Update PID control and return the calculated power
+     * Set slide position in centimeters with motion profiling
+     */
+    public void setPositionCMWithProfile(double cm) {
+        motionProfileEnabled = true;
+        double targetTicks = Math.round(COUNTS_PER_CM * cm);
+        motionProfileController.setTarget(getCurrentPosition(), targetTicks);
+    }
+
+    /**
+     * Update motion profile or PID control and return the calculated power
      */
     public double updatePID() {
-        if(!PIDEnabled) return 0;
-        double power = pidfController.calculate(getCurrentPosition());
+        if (!PIDEnabled && !motionProfileEnabled)
+            return 0;
+
+        double power;
+        if (motionProfileEnabled && motionProfileController.isProfileActive()) {
+            // Use motion profile control
+            power = motionProfileController.calculate(getCurrentPosition());
+        } else {
+            // Fall back to regular PID control
+            motionProfileEnabled = false;
+            power = pidfController.calculate(getCurrentPosition());
+        }
+
         slideMotor.setPower(power);
         return power;
     }
 
-     public void setPIDEnabled(boolean enabled) {
-     this.PIDEnabled = enabled;
-     }
+    public void setPIDEnabled(boolean enabled) {
+        this.PIDEnabled = enabled;
+    }
+
+    public void setMotionProfileEnabled(boolean enabled) {
+        this.motionProfileEnabled = enabled;
+        if (!enabled) {
+            motionProfileController.stopProfile();
+        }
+    }
+
+    /**
+     * Check if motion profile is currently active
+     */
+    public boolean isMotionProfileActive() {
+        return motionProfileEnabled && motionProfileController.isProfileActive();
+    }
+
+    /**
+     * Get current motion profile target position
+     */
+    public double getMotionProfileTarget() {
+        if (isMotionProfileActive()) {
+            return motionProfileController.getCurrentTarget();
+        }
+        return Double.NaN;
+    }
+
+    /**
+     * Get estimated time remaining for current motion profile
+     */
+    public double getMotionProfileTimeRemaining() {
+        return motionProfileController.getTimeRemaining();
+    }
 
     @Override
     public void stop() {

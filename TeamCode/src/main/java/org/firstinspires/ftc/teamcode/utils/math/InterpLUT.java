@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils.math;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collections;
 
 /**
  * Performs spline interpolation given a set of control points.
@@ -30,12 +32,16 @@ public class InterpLUT {
      * Creates a monotone cubic spline from a given set of control points.
      *
      * <p>
-     * The spline is guaranteed to pass through each control point exactly. Moreover, assuming the control points are
-     * monotonic (Y is non-decreasing or non-increasing) then the interpolated values will also be monotonic.
+     * The spline is guaranteed to pass through each control point exactly.
+     * Moreover, assuming the control points are
+     * monotonic (Y is non-decreasing or non-increasing) then the interpolated
+     * values will also be monotonic.
      *
-     * @throws IllegalArgumentException if the X or Y arrays are null, have different lengths or have fewer than 2 values.
+     * @throws IllegalArgumentException if the X or Y arrays are null, have
+     *                                  different lengths or have fewer than 2
+     *                                  values.
      */
-    //public static LUTWithInterpolator createLUT(List<Double> x, List<Double> y) {
+    // public static LUTWithInterpolator createLUT(List<Double> x, List<Double> y) {
     public void createLUT() {
         List<Double> x = this.mX;
         List<Double> y = this.mY;
@@ -88,7 +94,8 @@ public class InterpLUT {
     }
 
     /**
-     * Interpolates the value of Y = f(X) for given X. Clamps X to the domain of the spline.
+     * Interpolates the value of Y = f(X) for given X. Clamps X to the domain of the
+     * spline.
      *
      * @param input The X value.
      * @return The interpolated Y = f(X) value.
@@ -100,10 +107,12 @@ public class InterpLUT {
             return input;
         }
         if (input <= mX.get(0)) {
-            throw new IllegalArgumentException("User requested value outside of bounds of LUT. Bounds are: " + mX.get(0).toString() + " to " + mX.get(n - 1).toString() + ". Value provided was: " + input);
+            throw new IllegalArgumentException("User requested value outside of bounds of LUT. Bounds are: "
+                    + mX.get(0).toString() + " to " + mX.get(n - 1).toString() + ". Value provided was: " + input);
         }
         if (input >= mX.get(n - 1)) {
-            throw new IllegalArgumentException("User requested value outside of bounds of LUT. Bounds are: " + mX.get(0).toString() + " to " + mX.get(n - 1).toString() + ". Value provided was: " + input);
+            throw new IllegalArgumentException("User requested value outside of bounds of LUT. Bounds are: "
+                    + mX.get(0).toString() + " to " + mX.get(n - 1).toString() + ". Value provided was: " + input);
         }
 
         // Find the index 'i' of the last point with smaller X.
@@ -121,6 +130,18 @@ public class InterpLUT {
         double t = (input - mX.get(i)) / h;
         return (mY.get(i) * (1 + 2 * t) + h * mM.get(i) * t) * (1 - t) * (1 - t)
                 + (mY.get(i + 1) * (3 - 2 * t) + h * mM.get(i + 1) * (t - 1)) * t * t;
+    }
+
+    public double getMinX() {
+        if (mX.size() == 0)
+            return 0.0;
+        return Collections.min(mX);
+    }
+
+    public double getMaxX() {
+        if (mX.size() == 0)
+            return 0.0;
+        return Collections.max(mX);
     }
 
     // For debugging.

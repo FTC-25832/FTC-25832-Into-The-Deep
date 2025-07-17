@@ -22,7 +22,6 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
-import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPathSpecimenTemp.*;
 
@@ -200,7 +199,5 @@ public final class AutoSpecimenPush extends LinearOpMode {
 
                                                 )));
 
-                // Save final pose for teleop
-                PoseStorage.currentPose = drive.localizer.getPose();
         }
 }

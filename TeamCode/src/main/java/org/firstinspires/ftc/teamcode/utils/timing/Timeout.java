@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils.timing;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -9,7 +10,7 @@ public class Timeout {
     public Timeout() {
     }
 
-    public Timeout(Runnable callback, long delay){
+    public Timeout(Runnable callback, long delay) {
         timer = new Timer();
 
         TimerTask timerTask = new TimerTask() {
@@ -19,11 +20,11 @@ public class Timeout {
                 timer.cancel();
             }
         };
-        timer.schedule(timerTask,delay);
+        timer.schedule(timerTask, delay);
     }
 
-    public void cancel(){
-        if(timer!=null){
+    public void cancel() {
+        if (timer != null) {
             timer.cancel();
         }
     }
@@ -31,6 +32,6 @@ public class Timeout {
 
 // usage
 // Timeout timeout = new Timeout(() -> {
-//     // do something
+// // do something
 // }, 1000); // 1 second delay
 // timeout.cancel(); // cancel the timeout if needed

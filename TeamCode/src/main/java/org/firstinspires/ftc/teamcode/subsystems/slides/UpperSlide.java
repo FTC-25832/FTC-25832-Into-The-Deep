@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
+import org.firstinspires.ftc.teamcode.utils.motion.MotionProfileController;
 import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 
 import static org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.UpperSlideVars;
@@ -36,6 +37,8 @@ public class UpperSlide extends SubsystemBase {
 
     // Position control
     public final PIDFController pidfController;
+    public final MotionProfileController motionProfileController;
+    private boolean motionProfileEnabled = false;
     public int tickOffset = 0;
 
     // Constants for encoder calculations
@@ -53,6 +56,14 @@ public class UpperSlide extends SubsystemBase {
                 UpperSlideVars.PID_KI,
                 UpperSlideVars.PID_KD,
                 UpperSlideVars.PID_KF);
+
+        // Initialize motion profile controller with the PIDF controller
+        motionProfileController = new MotionProfileController(
+                pidfController,
+                UpperSlideVars.MAX_VELOCITY_CM_S * COUNTS_PER_CM, // Convert cm/s to ticks/s
+                UpperSlideVars.MAX_ACCELERATION_CM_S2 * COUNTS_PER_CM, // Convert cm/s² to ticks/s²
+                UpperSlideVars.VELOCITY_FEEDFORWARD,
+                UpperSlideVars.ACCELERATION_FEEDFORWARD);
     }
 
     @Override
@@ -97,22 +108,27 @@ public class UpperSlide extends SubsystemBase {
 
     @Override
     public void periodic(TelemetryPacket packet) {
-        // Add slide positions to telemetry
-        packet.put("upperslide/position1", getCurrentPosition() + tickOffset);
-        packet.put("upperslide/position2", slide2.getCurrentPosition() + tickOffset);
+        // PERFORMANCE OPTIMIZATION: Reduced telemetry frequency
+        // Only update essential telemetry to reduce I/O overhead
+        double currentPos = getCurrentPosition();
+        packet.put("upperslide/position", currentPos);
         packet.put("upperslide/target", pidfController.destination);
-        packet.put("upperslide/error", getCurrentPosition() - pidfController.destination);
+        packet.put("upperslide/error", currentPos - pidfController.destination);
 
-        // Add servo positions to telemetry
-        packet.put("upperslide/arm1", arm1.getPosition());
-        packet.put("upperslide/arm2", arm2.getPosition());
-        packet.put("upperslide/swing", swing.getPosition());
-        packet.put("upperslide/claw", claw.getPosition());
-        packet.put("upperslide/extendo", extendo.getPosition());
+        // PERFORMANCE OPTIMIZATION: Servo position reads and current monitoring are
+        // expensive
+        // Comment out non-essential telemetry to improve loop times
+        // packet.put("upperslide/position2", slide2.getCurrentPosition() + tickOffset);
+        // packet.put("upperslide/arm1", arm1.getPosition());
+        // packet.put("upperslide/arm2", arm2.getPosition());
+        // packet.put("upperslide/swing", swing.getPosition());
+        // packet.put("upperslide/claw", claw.getPosition());
+        // packet.put("upperslide/extendo", extendo.getPosition());
 
-        // current
-        packet.put("upperslide/current1", slide1.getCurrent(CurrentUnit.AMPS));
-        packet.put("upperslide/current2", slide2.getCurrent(CurrentUnit.AMPS));
+        // PERFORMANCE OPTIMIZATION: Current monitoring is very expensive I2C operation
+        // Only enable for debugging motor issues
+        // packet.put("upperslide/current1", slide1.getCurrent(CurrentUnit.AMPS));
+        // packet.put("upperslide/current2", slide2.getCurrent(CurrentUnit.AMPS));
     }
 
     /**
@@ -121,7 +137,10 @@ public class UpperSlide extends SubsystemBase {
     public void setPositionCM(double cm) {
         pidfController.setDestination(Math.round(COUNTS_PER_CM * cm));
     }
-    public void setTickOffset(int tickOffset) { this.tickOffset = tickOffset; }
+
+    public void setTickOffset(int tickOffset) {
+        this.tickOffset = tickOffset;
+    }
 
     // Preset positions
     public void pos0() {
@@ -177,7 +196,6 @@ public class UpperSlide extends SubsystemBase {
         setSwingPosition(UpperSlideVars.INTER_SWING_POS);
     }
 
-
     public void keepPosExceptArms(double pos) {
         arm1.setPosition(0);
         arm2.setPosition(0);
@@ -220,26 +238,76 @@ public class UpperSlide extends SubsystemBase {
     }
 
     /**
-     * Update PID control and return the calculated power
+     * Set slide position in centimeters with motion profiling
+     */
+    public void setPositionCMWithProfile(double cm) {
+        motionProfileEnabled = true;
+        double targetTicks = Math.round(COUNTS_PER_CM * cm);
+        motionProfileController.setTarget(getCurrentPosition(), targetTicks);
+    }
+
+    /**
+     * Update motion profile or PID control and return the calculated power
      */
     public double updatePID() {
         double currentPosition = getCurrentPosition();
-        double power = pidfController.calculate(currentPosition) * 1;
+        double power;
 
-//        if (pidfController.destination == 0) {
-//            // check if current is 0, if so then it means slides have reached bottom, so we
-//            // reset encoders to prevent it from going negative
-//            if(slide1.isOverCurrent() || slide2.isOverCurrent()) {
-//                slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//                slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//            }
-//        }
+        if (motionProfileEnabled && motionProfileController.isProfileActive()) {
+            // Use motion profile control
+            power = motionProfileController.calculate(currentPosition);
+        } else {
+            // Fall back to regular PID control
+            motionProfileEnabled = false;
+            power = pidfController.calculate(currentPosition);
+        }
+
+        // if (pidfController.destination == 0) {
+        // // check if current is 0, if so then it means slides have reached bottom, so
+        // we
+        // // reset encoders to prevent it from going negative
+        // if(slide1.isOverCurrent() || slide2.isOverCurrent()) {
+        // slide1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // slide2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // slide1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // slide2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // }
+        // }
 
         slide1.setPower(power);
         slide2.setPower(power);
         return power;
+    }
+
+    public void setMotionProfileEnabled(boolean enabled) {
+        this.motionProfileEnabled = enabled;
+        if (!enabled) {
+            motionProfileController.stopProfile();
+        }
+    }
+
+    /**
+     * Check if motion profile is currently active
+     */
+    public boolean isMotionProfileActive() {
+        return motionProfileEnabled && motionProfileController.isProfileActive();
+    }
+
+    /**
+     * Get current motion profile target position
+     */
+    public double getMotionProfileTarget() {
+        if (isMotionProfileActive()) {
+            return motionProfileController.getCurrentTarget();
+        }
+        return Double.NaN;
+    }
+
+    /**
+     * Get estimated time remaining for current motion profile
+     */
+    public double getMotionProfileTimeRemaining() {
+        return motionProfileController.getTimeRemaining();
     }
 
     @Override

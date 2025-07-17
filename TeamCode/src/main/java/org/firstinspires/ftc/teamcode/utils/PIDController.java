@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 /**
  * A Proportional-Integral-Derivative (PID) controller implementation.
+ * Optimized to use ElapsedTime instead of System.currentTimeMillis() for better
+ * performance.
  * Example usage:
  * public PIDController pidController;
  * initialize() {
@@ -25,7 +29,7 @@ public class PIDController {
         public double destination; // Desired value
         public double integralSum; // Sum of error over time
         public double lastError; // Previous error
-        public long lastTime; // Last execution time in milliseconds
+        private final ElapsedTime timer = new ElapsedTime(); // High-resolution timer
         public boolean isInitialized; // Flag to check if controller has been initialized
 
         public PIDController(double kp, double ki, double kd) {
@@ -35,7 +39,7 @@ public class PIDController {
                 this.destination = 0;
                 this.integralSum = 0;
                 this.lastError = 0;
-                this.lastTime = 0;
+//                this.lastTime = 0;
                 this.isInitialized = false;
         }
 
@@ -72,19 +76,18 @@ public class PIDController {
          * Calculate the control output based on the measured process value.
          */
         public double calculate(double processValue) {
-                long currentTime = System.currentTimeMillis();
                 pos = processValue;
 
                 // Initialize controller on first call
                 if (!isInitialized) {
                         isInitialized = true;
-                        lastTime = currentTime;
+                        timer.reset();
                         lastError = destination - processValue;
                         return kp * lastError;
                 }
 
-                double deltaTime = (currentTime - lastTime) / 1000.0; // Convert to seconds
-                lastTime = currentTime;
+                double deltaTime = timer.seconds();
+                timer.reset(); // Reset for next calculation
 
                 // Calculate error
                 double error = destination - processValue;

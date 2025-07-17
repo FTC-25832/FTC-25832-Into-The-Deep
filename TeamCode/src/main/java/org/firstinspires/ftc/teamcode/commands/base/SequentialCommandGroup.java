@@ -47,34 +47,37 @@ public class SequentialCommandGroup extends CommandBase {
             return;
         }
 
-        // 检查整个组的超时
-        if (timeout > 0 && (System.currentTimeMillis() - groupStartTime) >= timeout) {
+        // Cache current time once per execute call
+        long currentTime = System.currentTimeMillis();
+
+        // Check group timeout using cached time
+        if (timeout > 0 && (currentTime - groupStartTime) >= timeout) {
             cancelCurrentCommand(true);
             isFinished = true;
             return;
         }
 
-        // 执行当前命令
+        // Execute current command
         currentCommand.execute(packet);
 
-        // 检查当前命令是否完成
+        // Check if current command is finished
         if (currentCommand.isFinished()) {
             currentCommand.end(false);
-            moveToNextCommand();
+            moveToNextCommand(currentTime);
         }
-        // 检查当前命令的超时
+        // Check current command timeout using cached time
         else if (currentCommand.getTimeout() > 0 &&
-                (System.currentTimeMillis() - currentCommandStartTime) >= currentCommand.getTimeout()) {
+                (currentTime - currentCommandStartTime) >= currentCommand.getTimeout()) {
             cancelCurrentCommand(true);
-            moveToNextCommand();
+            moveToNextCommand(currentTime);
         }
     }
 
-    private void moveToNextCommand() {
+    private void moveToNextCommand(long currentTime) {
         currentCommandIndex++;
         if (currentCommandIndex < commands.size()) {
             currentCommand = commands.get(currentCommandIndex);
-            currentCommandStartTime = System.currentTimeMillis();
+            currentCommandStartTime = currentTime;
             currentCommand.initialize();
         } else {
             isFinished = true;

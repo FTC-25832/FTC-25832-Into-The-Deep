@@ -23,6 +23,8 @@ public class DistanceAdjustLUTY extends CommandBase {
     private boolean isAdjusted = false;
     private double dy;
     Supplier<Double> tySupplier;
+    private static final double SLIDE_MIN_CM = 0;
+    private static final double SLIDE_MAX_CM = 40;
 
     // Variables for feedforward compensation
     private static final double CAMERA_DELAY = 0.1;
@@ -31,15 +33,10 @@ public class DistanceAdjustLUTY extends CommandBase {
     private ElapsedTime velocityTimer = new ElapsedTime();
     private static final double VELOCITY_SMOOTHING = 0.7; // Smoothing factor for velocity calculation
 
-    public final void sleep(long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
     public DistanceAdjustLUTY(LowerSlide lowSlide, Supplier<Double> tySupplier) {
+        if (tySupplier == null) {
+            throw new IllegalArgumentException("tySupplier must not be null");
+        }
         this.lowSlide = lowSlide;
         this.tySupplier = tySupplier;
         for (int i = 0; i < ConfigVariables.Camera.Y_DISTANCE_MAP_Y.length; i++) {
@@ -51,7 +48,7 @@ public class DistanceAdjustLUTY extends CommandBase {
 
     @Override
     public void initialize() {
-        this.dy = tySupplier.get();
+        this.dy = safeGet(tySupplier);
         isAdjusted = false;
         // lowSlide.setPIDEnabled(false);
         velocityTimer.reset();
@@ -59,10 +56,11 @@ public class DistanceAdjustLUTY extends CommandBase {
 
     @Override
     public void execute(TelemetryPacket packet) {
+        // Fetch fresh vision data every cycle
+        this.dy = safeGet(tySupplier);
         packet.put("DistanceAdjustLUTY/dy_input", dy);
         packet.put("DistanceAdjustLUTY/isAdjusted", isAdjusted);
 
-        // if(Math.abs(lowSlide.pidfController.lastError) > 20) return;
         if (dy == 0) {
             packet.put("DistanceAdjustLUTY/status", "NO_DY_VALUE");
             return;
@@ -108,20 +106,38 @@ public class DistanceAdjustLUTY extends CommandBase {
         packet.put("vision/predictedTy", predictedDy);
         packet.put("vision/velocity", dyVelocity);
 
-        // Use the predicted position instead of current position
-        double dycm = luty.get(dy);
+        // LUT range checking
+        double minLut = luty.getMinX();
+        double maxLut = luty.getMaxX();
+        if (dy < minLut || dy > maxLut) {
+            packet.put("vision/error", "dy out of LUT range: " + dy);
+            return;
+        }
+        // Use the predicted position instead of current position (optional: swap dy for
+        // predictedDy)
+        double dycm = luty.get(dy); // or luty.get(predictedDy) for prediction
         double pos = lowSlide.getCurrentPositionCM() + dycm - luty.get(0) + ConfigVariables.Camera.Y_OFFSET;
         packet.put("vision/position set", pos);
         packet.put("vision/dycm", dycm);
         packet.put("vision/y0", luty.get(0));
 
         // Apply limits and set position
-        if (pos > 40) {
-            lowSlide.setPositionCM(40);
-        } else if (pos < 0) {
-            lowSlide.setPositionCM(0);
+        if (pos > SLIDE_MAX_CM) {
+            lowSlide.setPositionCM(SLIDE_MAX_CM);
+        } else if (pos < SLIDE_MIN_CM) {
+            lowSlide.setPositionCM(SLIDE_MIN_CM);
         } else {
             lowSlide.setPositionCM(pos);
+        }
+    }
+
+    // Helper to safely get supplier values (null-safe, returns 0 if null)
+    private double safeGet(Supplier<Double> supplier) {
+        try {
+            Double val = supplier.get();
+            return val != null ? val : 0.0;
+        } catch (Exception e) {
+            return 0.0;
         }
     }
 }

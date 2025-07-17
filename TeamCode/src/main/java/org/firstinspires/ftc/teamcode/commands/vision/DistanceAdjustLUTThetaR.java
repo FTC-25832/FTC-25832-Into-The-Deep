@@ -26,9 +26,19 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
     Supplier<Double> txSupplier, pxSupplier, pySupplier, tySupplier;
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
+    private static final int CAMERA_CX_INDEX = 2; // Index for camera matrix center x
+    private static final int CAMERA_FX_INDEX = 0; // Index for camera matrix focal length x
+    private static final int CAMERA_MATRIX_ROW = 0; // Row for camera matrix
+    private static final double TIMEOUT_SECONDS = 3.0; // Timeout for movement
+    private long actionStartTime = 0; // For timeout
 
-    public DistanceAdjustLUTThetaR(LowerSlide lowslide, MecanumDrive drive, Supplier<Double> txSupplier, Supplier<Double> tySuplier, Supplier<Double> pxSupplier, Supplier<Double> pySupplier, Runnable disableDriveControl,
-                                   Runnable enableDriveControl) {
+    public DistanceAdjustLUTThetaR(LowerSlide lowslide, MecanumDrive drive, Supplier<Double> txSupplier,
+            Supplier<Double> tySupplier, Supplier<Double> pxSupplier, Supplier<Double> pySupplier,
+            Runnable disableDriveControl,
+            Runnable enableDriveControl) {
+        if (txSupplier == null || tySupplier == null || pxSupplier == null || pySupplier == null) {
+            throw new IllegalArgumentException("Suppliers must not be null");
+        }
         for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
             lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
         }
@@ -40,7 +50,7 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
         this.lowSlide = lowslide;
         this.pxSupplier = pxSupplier;
         this.pySupplier = pySupplier;
-        this.tySupplier = tySuplier;
+        this.tySupplier = tySupplier;
         this.txSupplier = txSupplier;
         this.drive = drive;
         this.disableDriveControl = disableDriveControl;
@@ -49,19 +59,28 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
 
     @Override
     public void initialize() {
-        this.tx = txSupplier.get();
-        this.px = pxSupplier.get();
-        this.py = pySupplier.get();
-        this.ty = tySupplier.get();
+        this.tx = safeGet(txSupplier);
+        this.px = safeGet(pxSupplier);
+        this.py = safeGet(pySupplier);
+        this.ty = safeGet(tySupplier);
         isAdjusted = false;
         moveAction = null;
+        actionStartTime = 0;
         disableDriveControl.run();
     }
+
     public double pixToAngle(double px) { // return rad
-        return Math.atan((px-ConfigVariables.Camera.CAMERA_MATRIX[0][2]) / ConfigVariables.Camera.CAMERA_MATRIX[0][0]);
+        return Math.atan((px - ConfigVariables.Camera.CAMERA_MATRIX[CAMERA_MATRIX_ROW][CAMERA_CX_INDEX])
+                / ConfigVariables.Camera.CAMERA_MATRIX[CAMERA_MATRIX_ROW][CAMERA_FX_INDEX]);
     }
+
     @Override
     public void execute(TelemetryPacket packet) {
+        // Fetch fresh vision data every cycle
+        this.tx = safeGet(txSupplier);
+        this.px = safeGet(pxSupplier);
+        this.py = safeGet(pySupplier);
+        this.ty = safeGet(tySupplier);
         packet.put("DistanceAdjustLUTX/dx_input", tx);
         packet.put("DistanceAdjustLUTX/py_input", py);
         packet.put("DistanceAdjustLUTX/isAdjusted", isAdjusted);
@@ -69,13 +88,17 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
 
         // If we have an active movement action, run it
         if (moveAction != null) {
-            // Check if action is done or timed out
+            // Timeout check
+            if (actionStartTime == 0)
+                actionStartTime = System.currentTimeMillis();
+            double elapsed = (System.currentTimeMillis() - actionStartTime) / 1000.0;
+            boolean timedOut = elapsed > TIMEOUT_SECONDS;
             boolean actionDone = !moveAction.run(packet);
             lowSlide.updatePID();
-            if (actionDone) {
+            if (actionDone || timedOut) {
                 isAdjusted = true;
                 moveAction = null;
-                packet.put("DistanceAdjustLUTX/actionStatus", actionDone ? "completed" : "timed out");
+                packet.put("DistanceAdjustLUTX/actionStatus", timedOut ? "timed out" : "completed");
             } else {
                 drive.updatePoseEstimate();
                 return; // Continue running current action
@@ -88,28 +111,21 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
             }
 
             packet.put("DistanceAdjustLUTX/status", "ADJUSTING");
-            // final double gradient = lutratio.get(dy);
-            // dx = dx - dy * gradient;
-            // Δtx = 180/pi arctan(tan(ty*pi/180)*gradientpx))
-
-//            final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
-//            final double pixelToAnglex = ConfigVariables.Camera.FOV[0]/ConfigVariables.Camera.RESOLUTION[0];
-//            final double ddx = py*gradientpx*pixelToAnglex;
-//
-//            final double gradientpx = ConfigVariables.Camera.XYPIXELRATIO;
-//            final double ddx = Math.toDegrees(Math.atan(Math.tan(Math.toRadians(ty)) * gradientpx));
-
             final double[] vanishingPoint = ConfigVariables.Camera.VANISHING_POINT;
-            // find the line (px, py) to (vanishingPoint[0], vanishingPoint[1])
-            final double m = (vanishingPoint[0] - px) / (vanishingPoint[1] - py);
+            // Division by zero check for vertical line
+            double denominator = (vanishingPoint[1] - py);
+            if (Math.abs(denominator) < 1e-6) {
+                packet.put("vision/error", "Vertical line: vanishingPoint[1] == py");
+                isAdjusted = true;
+                return;
+            }
+            final double m = (vanishingPoint[0] - px) / denominator;
             final double b = px - m * py;
             packet.put("vision/m", m);
             packet.put("vision/b", b);
             final double crosshairY = ConfigVariables.Camera.CROSSHAIR_Y_PX;
-            // find x in px at crosshairY, x = my+b
-            final double newpx = m*crosshairY + b;
+            final double newpx = m * crosshairY + b;
             packet.put("vision/newpx", newpx);
-            // tx = (px-cx)/fx
             final double fx1 = pixToAngle(newpx);
             final double fx2 = pixToAngle(ConfigVariables.Camera.CROSSHAIR_X_PX);
             final double newtx = Math.toDegrees(fx1 - fx2);
@@ -117,12 +133,6 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
             tx = newtx;
             adjust(tx, ty, packet);
         }
-
-        // if (gamepad1.dpad_up) {
-        // isAdjusted = true;
-        // moveAction = null;
-        // packet.put("vision/x", "completed by manual");
-        // }
     }
 
     @Override
@@ -135,24 +145,39 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
         enableDriveControl.run();
         // Stop any ongoing movement if interrupted
         if (interrupted && moveAction != null) {
-            // Set drive powers to zero to stop movement
             drive.setDrivePowers(new com.acmerobotics.roadrunner.PoseVelocity2d(
                     new Vector2d(0, 0), 0));
+            moveAction = null;
         }
     }
 
     public void adjust(double tx, double ty, TelemetryPacket packet) {
+        // LUT range checking
+        double minLutX = lutx.getMinX();
+        double maxLutX = lutx.getMaxX();
+        double minLutY = luty.getMinX();
+        double maxLutY = luty.getMaxX();
+        if (tx < minLutX || tx > maxLutX) {
+            packet.put("vision/error", "tx out of LUT range: " + tx);
+            isAdjusted = true;
+            moveAction = null;
+            return;
+        }
+        if (ty < minLutY || ty > maxLutY) {
+            packet.put("vision/error", "ty out of LUT range: " + ty);
+            isAdjusted = true;
+            moveAction = null;
+            return;
+        }
         double dxcm = lutx.get(tx);
         packet.put("vision/dxcm", dxcm);
         double dycm = luty.get(ty);
         packet.put("vision/dycm", dycm);
         double lowslideExtendcm = lowSlide.getCurrentPositionCM();
-        // convert x,y to theta,r
-        // theta = atan2(y,x)
-        // r = sqrt(x^2 + y^2)
         double dyrobot = dycm + ConfigVariables.Camera.HALF_ROBOT_LENGTH + lowslideExtendcm;
         double theta = Math.atan2(-dxcm, dyrobot);
-        double r = Math.sqrt(dxcm * dxcm + dyrobot * dyrobot) - ConfigVariables.Camera.HALF_ROBOT_LENGTH - lowslideExtendcm;
+        double r = Math.sqrt(dxcm * dxcm + dyrobot * dyrobot) - ConfigVariables.Camera.HALF_ROBOT_LENGTH
+                - lowslideExtendcm;
         packet.put("vision/theta", Math.toDegrees(theta));
         packet.put("vision/r", r);
 
@@ -167,10 +192,19 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
         packet.put("vision/position set", pos);
         packet.put("vision/y0", luty.get(0));
         Pose2d startpose = drive.localizer.getPose();
-        // theta
         moveAction = drive.actionBuilder(startpose).turnTo(startpose.heading.toDouble() + theta).build();
-        // Run the action first time
         drive.updatePoseEstimate();
         moveAction.run(packet);
+        actionStartTime = System.currentTimeMillis();
+    }
+
+    // Helper to safely get supplier values (null-safe, returns 0 if null)
+    private double safeGet(Supplier<Double> supplier) {
+        try {
+            Double val = supplier.get();
+            return val != null ? val : 0.0;
+        } catch (Exception e) {
+            return 0.0;
+        }
     }
 }

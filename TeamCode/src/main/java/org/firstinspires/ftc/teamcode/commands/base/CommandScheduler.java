@@ -6,20 +6,30 @@ import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import java.util.*;
 
 /**
- * The command scheduler manages the execution of commands and coordinates
- * subsystem requirements.
+ * PERFORMANCE OPTIMIZED: The command scheduler manages the execution of
+ * commands and coordinates
+ * subsystem requirements using optimized data structures for hot path
+ * performance.
  */
 public class CommandScheduler {
         private static CommandScheduler instance;
 
-        // Subsystems and their registered commands
-        private final Set<SubsystemBase> subsystems = new HashSet<>();
+        // PERFORMANCE OPTIMIZATION: Use ArrayList instead of HashSet for better
+        // iteration performance
+        private final List<SubsystemBase> subsystems = new ArrayList<>();
         private final Map<SubsystemBase, Command> requirements = new HashMap<>();
-        private final Set<Command> scheduledCommands = new HashSet<>();
+        // PERFORMANCE OPTIMIZATION: Use ArrayList for commands to avoid iterator
+        // overhead
+        private final List<Command> scheduledCommands = new ArrayList<>();
 
-        // Command execution tracking
+        // Command execution tracking - keep HashMap for O(1) lookups
         private final Map<Command, Long> commandStartTimes = new HashMap<>();
         private boolean running = true;
+
+        // PERFORMANCE OPTIMIZATION: Pre-allocated collections to avoid garbage
+        // collection
+        private final List<Command> commandsToRemove = new ArrayList<>();
+        private final List<SubsystemBase> requirementsToRemove = new ArrayList<>();
 
         private CommandScheduler() {
         }
@@ -88,7 +98,8 @@ public class CommandScheduler {
         }
 
         /**
-         * Run one iteration of the scheduler.
+         * PERFORMANCE OPTIMIZED: Run one iteration of the scheduler using optimized
+         * operations.
          * 
          * @param packet Telemetry packet for logging
          */
@@ -97,8 +108,14 @@ public class CommandScheduler {
                         return;
                 }
 
-                // Run subsystem periodic methods
-                for (SubsystemBase subsystem : subsystems) {
+                // Cache current time once per loop iteration
+                long currentTime = System.currentTimeMillis();
+
+                // PERFORMANCE OPTIMIZATION: Use indexed for-loop instead of enhanced for-loop
+                // for better performance
+                int subsystemCount = subsystems.size();
+                for (int i = 0; i < subsystemCount; i++) {
+                        SubsystemBase subsystem = subsystems.get(i);
                         subsystem.periodic(packet);
 
                         // Schedule default commands if needed
@@ -108,24 +125,26 @@ public class CommandScheduler {
                         }
                 }
 
-                // Execute scheduled commands
-                Iterator<Command> commandIterator = scheduledCommands.iterator();
-                while (commandIterator.hasNext()) {
-                        Command command = commandIterator.next();
+                // PERFORMANCE OPTIMIZATION: Clear pre-allocated list and collect commands to
+                // remove
+                commandsToRemove.clear();
 
-                        // Check command timeout
+                // PERFORMANCE OPTIMIZATION: Use indexed for-loop to avoid iterator overhead
+                int commandCount = scheduledCommands.size();
+                for (int i = 0; i < commandCount; i++) {
+                        Command command = scheduledCommands.get(i);
+
+                        // Check command timeout using cached time
                         long timeout = command.getTimeout();
                         if (timeout > 0) {
-                                long elapsed = System.currentTimeMillis() - commandStartTimes.get(command);
-                                if (elapsed >= timeout) {
-                                        command.end(true);
-                                        commandIterator.remove();
-                                        commandStartTimes.remove(command);
-                                        command.getRequirements().forEach(requirement -> {
-                                                requirements.remove(requirement);
-                                                requirement.setCurrentCommand(null);
-                                        });
-                                        continue;
+                                Long startTime = commandStartTimes.get(command);
+                                if (startTime != null) {
+                                        long elapsed = currentTime - startTime;
+                                        if (elapsed >= timeout) {
+                                                command.end(true);
+                                                commandsToRemove.add(command);
+                                                continue;
+                                        }
                                 }
                         }
 
@@ -133,18 +152,36 @@ public class CommandScheduler {
 
                         if (command.isFinished()) {
                                 command.end(false);
-                                commandIterator.remove();
-                                commandStartTimes.remove(command);
-                                command.getRequirements().forEach(requirement -> {
-                                        requirements.remove(requirement);
-                                        requirement.setCurrentCommand(null);
-                                });
+                                commandsToRemove.add(command);
                         }
                 }
 
-                // Add telemetry
-                packet.put("CommandScheduler/numSubsystems", subsystems.size());
-                packet.put("CommandScheduler/numScheduledCommands", scheduledCommands.size());
+                // PERFORMANCE OPTIMIZATION: Remove finished commands in batch using
+                // pre-allocated collections
+                if (!commandsToRemove.isEmpty()) {
+                        for (Command command : commandsToRemove) {
+                                scheduledCommands.remove(command);
+                                commandStartTimes.remove(command);
+
+                                // PERFORMANCE OPTIMIZATION: Collect requirements to remove to avoid iterator
+                                requirementsToRemove.clear();
+                                for (SubsystemBase requirement : command.getRequirements()) {
+                                        requirementsToRemove.add(requirement);
+                                }
+
+                                // Remove requirements in batch
+                                for (SubsystemBase requirement : requirementsToRemove) {
+                                        requirements.remove(requirement);
+                                        requirement.setCurrentCommand(null);
+                                }
+                        }
+                }
+
+                // Add telemetry (only if needed to reduce overhead)
+                if (packet != null) {
+                        packet.put("CommandScheduler/numSubsystems", subsystemCount);
+                        packet.put("CommandScheduler/numScheduledCommands", scheduledCommands.size());
+                }
         }
 
         /**

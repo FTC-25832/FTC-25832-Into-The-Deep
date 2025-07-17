@@ -28,7 +28,6 @@ import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
-import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.*;
 
@@ -231,7 +230,5 @@ public final class AutoSample04 extends LinearOpMode {
                                                 // TELEOP_START.heading)
                                                 // .build()
                                                 )));
-                // Save final pose for teleop
-                PoseStorage.currentPose = drive.localizer.getPose();
         }
 }

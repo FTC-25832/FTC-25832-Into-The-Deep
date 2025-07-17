@@ -15,34 +15,74 @@ public class ColorSensorImpl {
     public ColorSensor sensorColor;
     public DistanceSensor sensorDistance;
 
+    // PERFORMANCE OPTIMIZATION: Cache readings to avoid multiple I2C calls
+    private double cachedDistance = Double.MAX_VALUE;
+    private int cachedRed = 0;
+    private int cachedGreen = 0;
+    private int cachedBlue = 0;
+    private String cachedColor = "unknown";
+    private boolean cachedCatched = false;
+    private boolean cachedCanTransfer = false;
+    private long lastUpdateTime = 0;
+    private static final long CACHE_TIMEOUT_MS = 50; // Update cache every 50ms max
+
     public ColorSensorImpl(HardwareMap hardwareMap) {
         sensorColor = hardwareMap.get(ColorSensor.class, "sensor_color_distance");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "sensor_color_distance");
     }
 
+    /**
+     * PERFORMANCE OPTIMIZATION: Update all sensor readings at once
+     * Call this from bulk read manager or once per loop
+     */
+    private void updateCache() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastUpdateTime < CACHE_TIMEOUT_MS) {
+            return; // Use cached values
+        }
+
+        // Update all values at once to minimize I2C calls
+        cachedDistance = sensorDistance != null ? sensorDistance.getDistance(DistanceUnit.CM) : Double.MAX_VALUE;
+        cachedRed = sensorColor != null ? sensorColor.red() : 0;
+        cachedGreen = sensorColor != null ? sensorColor.green() : 0;
+        cachedBlue = sensorColor != null ? sensorColor.blue() : 0;
+
+        // Update derived values
+        cachedColor = calculateColor();
+        cachedCatched = cachedDistance < 5;
+        cachedCanTransfer = Arrays.asList(ConfigVariables.Camera.ACCEPTED_COLORS).contains(cachedColor)
+                && cachedCatched;
+
+        lastUpdateTime = currentTime;
+    }
+
     public double getDistance() {
-        return sensorDistance != null ? sensorDistance.getDistance(DistanceUnit.CM) : Double.MAX_VALUE;
+        updateCache();
+        return cachedDistance;
     }
 
     public int getRed() {
-        return sensorColor != null ? sensorColor.red() : 0;
+        updateCache();
+        return cachedRed;
     }
 
     public int getGreen() {
-        return sensorColor != null ? sensorColor.green() : 0;
+        updateCache();
+        return cachedGreen;
     }
 
     public int getBlue() {
-        return sensorColor != null ? sensorColor.blue() : 0;
+        updateCache();
+        return cachedBlue;
     }
 
-    public String matchColor() {
+    private String calculateColor() {
         // convert rgb values to hsv
         float[] hsvValues = new float[3];
-        Color.RGBToHSV(getRed(), getGreen(), getBlue(), hsvValues);
+        Color.RGBToHSV(cachedRed, cachedGreen, cachedBlue, hsvValues);
 
         // if too dark
-        if (getRed() + getGreen() + getBlue() < 20) {
+        if (cachedRed + cachedGreen + cachedBlue < 20) {
             return "unknown";
         }
 
@@ -59,13 +99,18 @@ public class ColorSensorImpl {
         }
     }
 
+    public String matchColor() {
+        updateCache();
+        return cachedColor;
+    }
+
     public boolean catched() {
-        // distance < 5cm
-        return getDistance() < 5;
+        updateCache();
+        return cachedCatched;
     }
 
     public boolean canTransfer() {
-        String color = matchColor();
-        return Arrays.asList(ConfigVariables.Camera.ACCEPTED_COLORS).contains(color) && catched();
+        updateCache();
+        return cachedCanTransfer;
     }
 }
