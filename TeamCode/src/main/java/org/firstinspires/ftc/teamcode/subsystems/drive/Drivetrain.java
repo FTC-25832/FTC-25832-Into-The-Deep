@@ -1,25 +1,23 @@
 package org.firstinspires.ftc.teamcode.subsystems.drive;
 
-import android.service.controls.Control;
-
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
+import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
 import org.firstinspires.ftc.teamcode.utils.hardware.Localizer;
 import org.firstinspires.ftc.teamcode.utils.math.curvePoint;
-import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
-import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.opencv.core.Point;
 
 import java.util.ArrayList;
 
 public class Drivetrain extends SubsystemBase {
-    private DcMotor frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor;
     private static double currX, currY, currTheta;
+    private DcMotor frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor;
 
     public Drivetrain() {
         super("drivetrain");

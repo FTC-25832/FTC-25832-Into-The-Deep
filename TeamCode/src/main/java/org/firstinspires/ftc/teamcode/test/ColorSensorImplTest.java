@@ -35,7 +35,7 @@ public class ColorSensorImplTest extends LinearOpMode {
         while (opModeIsActive()) {
             telemetry.addData("Distance (cm)", String.format(Locale.CHINA, "%.02f", sensorColor.getDistance()));
             telemetry.addData("Color", sensorColor.matchColor());
-            telemetry.addData("Catched", sensorColor.catched());
+            telemetry.addData("Catched", sensorColor.caught());
             telemetry.addData("Can Transfer", sensorColor.canTransfer());
             telemetry.addData("Red", sensorColor.getRed());
             telemetry.addData("Green", sensorColor.getGreen());

@@ -59,13 +59,19 @@ public class ColorSensorImpl {
         }
     }
 
-    public boolean catched() {
+    public boolean caught() {
         // distance < 5cm
         return getDistance() < 5;
     }
 
+    public boolean caughtDefaultTrue() {
+        double distance = getDistance();
+        // distance < 5cm
+        return distance < 5 || distance >= Double.MAX_VALUE - 1;
+    }
+
     public boolean canTransfer() {
         String color = matchColor();
-        return Arrays.asList(ConfigVariables.Camera.ACCEPTED_COLORS).contains(color) && catched();
+        return Arrays.asList(ConfigVariables.Camera.ACCEPTED_COLORS).contains(color) && caught();
     }
 }

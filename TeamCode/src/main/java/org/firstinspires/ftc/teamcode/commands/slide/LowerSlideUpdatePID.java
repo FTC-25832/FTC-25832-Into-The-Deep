@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.commands.slide;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
-import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
 /**
  * executing the grab sequence on the lower slide
@@ -15,6 +15,7 @@ public class LowerSlideUpdatePID extends CommandBase {
         this.lowSlide = lowSlide;
         addRequirement(lowSlide);
     }
+
     @Override
     public void execute(TelemetryPacket packet) {
         lowSlide.updatePID();

@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.commands.vision;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
-import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
+import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
@@ -12,7 +12,7 @@ public class DistanceAdjustCommand extends CommandBase {
     private final LowerSlide lowSlide;
     private final Limelight camera;
     private final PIDFController pidY;
-//    private final Gamepad gamepad1;
+    //    private final Gamepad gamepad1;
     private boolean isAdjusted = false;
 
     public DistanceAdjustCommand(LowerSlide lowSlide, Limelight camera) { //Gamepad gamepad1
@@ -31,7 +31,7 @@ public class DistanceAdjustCommand extends CommandBase {
     public void initialize() {
         isAdjusted = false;
         pidY.reset();
-         lowSlide.setPIDEnabled(false);
+        lowSlide.setPIDEnabled(false);
         if (!camera.updateDetectorResult()) {
             isAdjusted = true; // Skip if no detection
             return;

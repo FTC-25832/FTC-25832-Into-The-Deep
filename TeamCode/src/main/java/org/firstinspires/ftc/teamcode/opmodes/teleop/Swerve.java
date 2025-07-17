@@ -3,18 +3,17 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoPaths.SCORE;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.base.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.base.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commands.base.ConditionalCommand;
 import org.firstinspires.ftc.teamcode.commands.base.LoopTimeTelemetryCommand;
-import org.firstinspires.ftc.teamcode.commands.base.ReadRobotStateCommand;
-import org.firstinspires.ftc.teamcode.commands.base.SaveRobotStateCommand;
 import org.firstinspires.ftc.teamcode.commands.base.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.base.WaitForConditionCommand;
@@ -37,35 +36,44 @@ import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
 import org.firstinspires.ftc.teamcode.utils.ClawController;
 import org.firstinspires.ftc.teamcode.utils.GamepadController;
 import org.firstinspires.ftc.teamcode.utils.GamepadController.ButtonType;
+import org.firstinspires.ftc.teamcode.utils.RobotStateStore;
+import org.firstinspires.ftc.teamcode.utils.TelemetryPacket;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
+
+import java.util.List;
 
 @TeleOp(group = "TeleOp")
 public class Swerve extends LinearOpMode {
 
+    private static List<LynxModule> allHubs = null;
+    private final long starttime = System.currentTimeMillis();
     private MecanumDrive drive;
-
     private UpperSlide upSlide;
     private LowerSlide lowSlide;
     private Limelight camera;
-
     private UpperSlideCommands upslideActions;
     private LowerSlideCommands lowslideActions;
-
     private CommandScheduler scheduler;
-
     private FtcDashboard dashboard;
     private long lastDashboardUpdateTime = 0;
-
     private GamepadController gamepad1Controller;
     private GamepadController gamepad2Controller;
-
     private ClawController upperClaw;
     private ClawController upperExtendo;
     private ClawController lowerClaw;
-
     private MecanumDriveCommand mecanumDriveCommand;
-
     private ColorSensorImpl colorSensor;
+    private long loopCount = 0;
+    private long lastloop = System.currentTimeMillis();
+
+    public static void initializeBulkReads(HardwareMap hardwareMap) {
+        if (allHubs == null) {
+            allHubs = hardwareMap.getAll(LynxModule.class);
+            for (LynxModule hub : allHubs) {
+                hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+            }
+        }
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -73,7 +81,7 @@ public class Swerve extends LinearOpMode {
         scheduler = CommandScheduler.getInstance();
 
         initializeSubsystems();
-
+        initializeBulkReads(hardwareMap);
         dashboard = FtcDashboard.getInstance();
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
         mecanumDriveCommand = new MecanumDriveCommand(drive, gamepad1);
@@ -83,14 +91,13 @@ public class Swerve extends LinearOpMode {
         scheduler.schedule(new ActionCommand(upslideActions.front()));
         scheduler.schedule(new ActionCommand(lowslideActions.up()));
         if (ConfigVariables.General.WITH_STATESAVE) {
-            scheduler.schedule(new ReadRobotStateCommand(drive, lowSlide, upSlide));
+            RobotStateStore.loadSlides(lowSlide, upSlide);
         }
         while (!isStopRequested() && !opModeIsActive()) {
             TelemetryPacket packet = new TelemetryPacket();
             scheduler.run(packet);
 //            gamepad1Controller.update();
 //            gamepad2Controller.update();
-            telemetry.update();
         }
 
         waitForStart();
@@ -105,34 +112,36 @@ public class Swerve extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive() && !isStopRequested()) {
+            loopCount += 1;
+            long timestamp = System.currentTimeMillis();
 
             TelemetryPacket packet = new TelemetryPacket();
             scheduler.run(packet);
 
             gamepad1Controller.update();
             gamepad2Controller.update();
-            telemetry.update();
 
             lowSlide.updatePID();
             upSlide.updatePID();
+            if (loopCount % 20 == 0) {
+                telemetry.addData("looptimems", timestamp - lastloop);
+                telemetry.addData("avglooptimems", (timestamp - starttime) / (double) loopCount);
+            }
 
-            if (System.currentTimeMillis() - lastDashboardUpdateTime >= ConfigVariables.General.DASHBOARD_UPDATE_INTERVAL_MS) {
+            telemetry.update();
+            if (ConfigVariables.General.DEBUG_MODE && timestamp - lastDashboardUpdateTime >= ConfigVariables.General.DASHBOARD_UPDATE_INTERVAL_MS) {
                 packet.put("gamepad1/NoOperationTimems", gamepad1Controller.getNoOperationTime());
                 packet.put("gamepad2/NoOperationTimems", gamepad2Controller.getNoOperationTime());
-                packet.put("colorsensor/catched", colorSensor.catched());
+                packet.put("colorsensor/caught", colorSensor.caught());
                 packet.put("colorsensor/cantransfer", colorSensor.canTransfer());
                 dashboard.sendTelemetryPacket(packet);
-                lastDashboardUpdateTime = System.currentTimeMillis();
+                lastDashboardUpdateTime = timestamp;
             }
+            lastloop = timestamp;
 
         }
         if (ConfigVariables.General.WITH_STATESAVE) {
-            SaveRobotStateCommand command = new SaveRobotStateCommand(drive, lowSlide, upSlide);
-            TelemetryPacket packet = new TelemetryPacket();
-            command.initialize();
-            command.execute(packet);
-            command.end(false);
-            dashboard.sendTelemetryPacket(packet);
+            RobotStateStore.save(drive.localizer.getPose(), lowSlide.getCurrentPosition(), upSlide.getCurrentPosition());
         }
         cleanup();
     }
@@ -145,7 +154,14 @@ public class Swerve extends LinearOpMode {
     }
 
     private void initializeSubsystems() {
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        if (ConfigVariables.General.WITH_STATESAVE) {
+            drive = new MecanumDrive(hardwareMap, RobotStateStore.getPose());
+            LimeLightImageTools llIt = new LimeLightImageTools(camera.limelight);
+            llIt.setDriverStationStreamSource();
+            llIt.forwardAll();
+        } else {
+            drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        }
 
         upSlide = new UpperSlide();
         lowSlide = new LowerSlide();
@@ -159,10 +175,7 @@ public class Swerve extends LinearOpMode {
         lowSlide.initialize(hardwareMap);
         camera.initialize(hardwareMap);
         camera.cameraStart();
-        LimeLightImageTools llIt = new LimeLightImageTools(camera.limelight);
-        llIt.setDriverStationStreamSource();
-        llIt.forwardAll();
-        FtcDashboard.getInstance().startCameraStream(llIt.getStreamSource(), 10);
+
         upslideActions = new UpperSlideCommands(upSlide);
         lowslideActions = new LowerSlideCommands(lowSlide);
 
@@ -209,7 +222,7 @@ public class Swerve extends LinearOpMode {
         });
 
         gamepad1Controller.onPressed(ButtonType.DPAD_RIGHT, () -> {
-            scheduler.schedule(new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions));
+            scheduler.schedule(new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions, colorSensor::caughtDefaultTrue));
         });
         gamepad1Controller.onPressed(ButtonType.LEFT_STICK_BUTTON, () -> {
             scheduler.schedule(new SequentialCommandGroup(new ActionCommand((packet) -> {
@@ -302,7 +315,7 @@ public class Swerve extends LinearOpMode {
         });
 
         gamepad2Controller.onPressed(ButtonType.RIGHT_STICK_BUTTON, () -> {
-            scheduler.schedule(new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions));
+            scheduler.schedule(new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions, colorSensor::caughtDefaultTrue));
         });
         gamepad2Controller.onPressed(ButtonType.LEFT_STICK_BUTTON, () -> {
             scheduler.schedule(new SequentialCommandGroup(new ActionCommand((packet) -> {
@@ -320,12 +333,12 @@ public class Swerve extends LinearOpMode {
 
     private void setContinuousControls() {
         gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
-            scheduler.schedule(new SequentialCommandGroup(new LowerSlideGrabSequenceCommand(lowSlide), new WaitCommand((double) ConfigVariables.LowerSlideVars.POS_HOVER_TIMEOUT / 1000), new ConditionalCommand(colorSensor::canTransfer, new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions))));
+            scheduler.schedule(new SequentialCommandGroup(new LowerSlideGrabSequenceCommand(lowSlide), new WaitCommand((double) ConfigVariables.LowerSlideVars.POS_HOVER_TIMEOUT / 1000), new ConditionalCommand(colorSensor::canTransfer, new LowerUpperTransferSequenceCommand(lowslideActions, upslideActions, colorSensor::caughtDefaultTrue))));
         });
         gamepad1Controller.onPressed(gamepad1Controller.trigger(GamepadController.TriggerType.LEFT_TRIGGER), () -> {
             scheduler.schedule(new ActionCommand(lowslideActions.up()));
         });
-
+    
         gamepad2Controller.onPressed(gamepad2Controller.trigger(GamepadController.TriggerType.RIGHT_TRIGGER), () -> {
             scheduler.schedule(new ActionCommand(upslideActions.scorespec()));
         });

@@ -17,15 +17,15 @@ public class DistanceAdjustLUTX extends CommandBase {
     private final InterpLUT lutx = new InterpLUT();
     // private final InterpLUT lutratio = new InterpLUT();
     private final MecanumDrive drive;
+    private final Runnable disableDriveControl;
+    private final Runnable enableDriveControl;
+    Supplier<Double> txSupplier, pxSupplier, pySupplier, tySupplier;
     private double tx, py, ty, px;
     private boolean isAdjusted = false;
     private Action moveAction = null;
-    Supplier<Double> txSupplier, pxSupplier, pySupplier, tySupplier;
-    private final Runnable disableDriveControl;
-    private final Runnable enableDriveControl;
 
-    public DistanceAdjustLUTX(MecanumDrive drive, Supplier<Double> txSupplier,  Supplier<Double> tySuplier, Supplier<Double> pxSupplier,Supplier<Double> pySupplier, Runnable disableDriveControl,
-            Runnable enableDriveControl) {
+    public DistanceAdjustLUTX(MecanumDrive drive, Supplier<Double> txSupplier, Supplier<Double> tySuplier, Supplier<Double> pxSupplier, Supplier<Double> pySupplier, Runnable disableDriveControl,
+                              Runnable enableDriveControl) {
         for (int i = 0; i < ConfigVariables.Camera.X_DISTANCE_MAP_Y.length; i++) {
             lutx.add(ConfigVariables.Camera.X_DISTANCE_MAP_X[i], ConfigVariables.Camera.X_DISTANCE_MAP_Y[i]);
         }
@@ -54,9 +54,11 @@ public class DistanceAdjustLUTX extends CommandBase {
         moveAction = null;
         disableDriveControl.run();
     }
+
     public double pixToAngle(double px) { // return rad
-        return Math.atan((px-ConfigVariables.Camera.CAMERA_MATRIX[0][2]) / ConfigVariables.Camera.CAMERA_MATRIX[0][0]);
+        return Math.atan((px - ConfigVariables.Camera.CAMERA_MATRIX[0][2]) / ConfigVariables.Camera.CAMERA_MATRIX[0][0]);
     }
+
     @Override
     public void execute(TelemetryPacket packet) {
         packet.put("DistanceAdjustLUTX/dx_input", tx);
@@ -103,7 +105,7 @@ public class DistanceAdjustLUTX extends CommandBase {
             packet.put("vision/b", b);
             final double crosshairY = ConfigVariables.Camera.CROSSHAIR_Y_PX;
             // find x in px at crosshairY, x = my+b
-            final double newpx = m*crosshairY + b;
+            final double newpx = m * crosshairY + b;
             packet.put("vision/newpx", newpx);
             // tx = (px-cx)/fx
             final double fx1 = pixToAngle(newpx);

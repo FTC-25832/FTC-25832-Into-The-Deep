@@ -12,6 +12,7 @@ public class ConfigVariables {
     @Config
     // @Configurable
     public static class General {
+        public static boolean DEBUG_MODE = true;
         public static boolean SINGLE_CONTROLLER_MODE = false; // true for single controller mode, false for dual controller mode
         public static boolean WITH_STATESAVE = false; // true for state save mode, false for normal mode
         public static long DASHBOARD_UPDATE_INTERVAL_MS = 1;
@@ -43,6 +44,8 @@ public class ConfigVariables {
         public static final double AFTER_ALIGN_DELAY = 0.2;
         public static final double AFTER_GRAB_DELAY = 0.5;
         public static final double AFTER_SCORE_DELAY = 0.5;
+        public static final double TANK_SPEED_MUTIPLIER = 0.75;
+        public static final double TANK_ANGULAR_MUTIPLIER = 0.75;
         public static double A_DROPDELAY_S = 0.3;
         public static double B_AFTERSCOREDELAY_S = 0.05;
         public static double C_AFTERGRABDELAY_S = 0.1;
@@ -228,8 +231,8 @@ public class ConfigVariables {
 
         // slide positions
         public static double POS_0_CM = 0;
-        public static double POS_1_CM = 30; //max is 40
-        public static double POS_2_CM = 12;
+        public static double POS_1_CM = 10; // inner transfer
+        public static double POS_2_CM = 12; // outer transfer
 
         // Claw positions
         public static double CLAW_OPEN = 0.6;

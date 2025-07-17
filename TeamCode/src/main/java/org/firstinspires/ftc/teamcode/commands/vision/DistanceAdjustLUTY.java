@@ -1,43 +1,28 @@
 package org.firstinspires.ftc.teamcode.commands.vision;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
-import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import org.firstinspires.ftc.teamcode.utils.math.InterpLUT;
-import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
 import java.util.function.Supplier;
 
 public class DistanceAdjustLUTY extends CommandBase {
+    // Variables for feedforward compensation
+    private static final double CAMERA_DELAY = 0.1;
+    private static final double VELOCITY_SMOOTHING = 0.7; // Smoothing factor for velocity calculation
     private final LowerSlide lowSlide;
     private final InterpLUT luty = new InterpLUT();
+    Supplier<Double> tySupplier;
     // private final Gamepad gamepad1;
     private boolean isAdjusted = false;
     private double dy;
-    Supplier<Double> tySupplier;
-
-    // Variables for feedforward compensation
-    private static final double CAMERA_DELAY = 0.1;
     private double prevDy = 0;
     private double dyVelocity = 0; // Change in dy per second
     private ElapsedTime velocityTimer = new ElapsedTime();
-    private static final double VELOCITY_SMOOTHING = 0.7; // Smoothing factor for velocity calculation
-
-    public final void sleep(long milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
 
     public DistanceAdjustLUTY(LowerSlide lowSlide, Supplier<Double> tySupplier) {
         this.lowSlide = lowSlide;
@@ -47,6 +32,14 @@ public class DistanceAdjustLUTY extends CommandBase {
         }
         luty.createLUT();
         addRequirement(lowSlide);
+    }
+
+    public final void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

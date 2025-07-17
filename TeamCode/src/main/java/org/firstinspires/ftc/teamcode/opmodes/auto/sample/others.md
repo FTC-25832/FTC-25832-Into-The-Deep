@@ -154,14 +154,15 @@ public class BlueRRLeft0plus7Auto extends LinearOpMode {
         Action moveToGrabBlock1 = drivetrain.drive.actionBuilder(new Pose2d(61.5, 56, Math.toRadians(254)))
                 .setTangent(Math.toRadians(254))
                 .afterTime(0.2, () -> {
-//                    intake.setTargetSlidePos(9);
-//                    extensionDistance = 9;
-                    intake.setIntakingState(NewIntake.IntakingState.START_INTAKING);
-                    autoTimer.reset();
-                })
-                .splineToConstantHeading(new Vector2d(58, 51.5), Math.toRadians(261))
-//                .splineToLinearHeading(new Pose2d(50.5, 50, Math.toRadians(270)), Math.toRadians(270))
-                .build();
+
+// intake.setTargetSlidePos(9);
+// extensionDistance = 9;
+intake.setIntakingState(NewIntake.IntakingState.START_INTAKING);
+autoTimer.reset();
+})
+.splineToConstantHeading(new Vector2d(58, 51.5), Math.toRadians(261))
+// .splineToLinearHeading(new Pose2d(50.5, 50, Math.toRadians(270)), Math.toRadians(270))
+.build();
 
         Action moveToScoreBlock1 = drivetrain.drive.actionBuilder(new Pose2d(58, 51.5, Math.toRadians(261)))
                 .setTangent(Math.toRadians(84))
@@ -254,9 +255,10 @@ public class BlueRRLeft0plus7Auto extends LinearOpMode {
                     return false;
                 }
             };
+
 //hi brett
-        drivetrain.drive.setPoseEstimate(new Pose2d(1, 1, 0));
-        drivetrain.drive.pinpoint.update();
+drivetrain.drive.setPoseEstimate(new Pose2d(1, 1, 0));
+drivetrain.drive.pinpoint.update();
 
         if (drivetrain.drive.pinpoint.fastIsPinpointCooked()) {
             throw new RuntimeException("pinpoint cooked");
@@ -335,14 +337,14 @@ public class BlueRRLeft0plus7Auto extends LinearOpMode {
             loopTimer.reset();
         }
 
-//        intake.overrideSpinOut();
+// intake.overrideSpinOut();
 //
-//        drivetrain.stopMotors();
-//        intake.stopMotors();
-//        outtake.stopMotors();
+// drivetrain.stopMotors();
+// intake.stopMotors();
+// outtake.stopMotors();
 //
-//        sleep(250);
-    }
+// sleep(250);
+}
 
     public class RunToTimeThreshold implements Action {
         Action action;
@@ -371,18 +373,19 @@ public class BlueRRLeft0plus7Auto extends LinearOpMode {
                 return false;
             } else if (autoTimer.seconds()>2) {
                 intake.toIntakeState(NewIntake.ToIntakeState.RETRACT);
-//                extensionDistance = Math.max(extensionDistance-5, 0);
-//                intake.setTargetSlidePos(extensionDistance);
-//                skipScore = true;
-                autoTimer.reset();
-                return false;
-            } else {
-                extensionDistance = MathUtil.clip(extensionDistance + 4 * Math.max(.015, loopTime), -.5, 18.5);
-                intake.setTargetSlidePos(extensionDistance);
-                return true;
-            }
-        }
-    }
+
+// extensionDistance = Math.max(extensionDistance-5, 0);
+// intake.setTargetSlidePos(extensionDistance);
+// skipScore = true;
+autoTimer.reset();
+return false;
+} else {
+extensionDistance = MathUtil.clip(extensionDistance + 4 * Math.max(.015, loopTime), -.5, 18.5);
+intake.setTargetSlidePos(extensionDistance);
+return true;
+}
+}
+}
 
     public class ScoreBlock implements Action {
         private boolean firstLoop = true;
@@ -547,49 +550,51 @@ public class BlueRRLeft0plus7Auto extends LinearOpMode {
                         autoTimer.reset();
 
                         // intake.setTargetSlidePos(extensionDistance);
-//                        grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.APPROACHING_HEADING;
-                    } else if (autoTimer.seconds()>.5) {
-                        if (holdAngle<Math.toRadians(182)) {
-                            holdAngle = Math.toRadians(190);
-                            drivetrain.holdPoint(holdPoint.toPose(holdAngle));
-                            grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.RESETTING;
-                            autoTimer.reset();
-                        } else {
-                            holdAngle = Math.toRadians(170);
-                            drivetrain.holdPoint(holdPoint.toPose(holdAngle));
-                            grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.RESETTING;
-                            autoTimer.reset();
-                        }
-                    }
-                    break;
-                case APPROACHING:
-                    if (intake.getTargetSlidePos()-intake.getActualSlidePos() < 3) {
-                        intake.toIntakeState(NewIntake.ToIntakeState.DROP_AND_INTAKE);
-                        intake.setIntakingState(NewIntake.IntakingState.START_INTAKING);
-                        autoTimer.reset();
-                        grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.INTAKING_2;
-                    }
-                    break;
-                case INTAKING_2:
+
+// grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.APPROACHING_HEADING;
+} else if (autoTimer.seconds()>.5) {
+if (holdAngle<Math.toRadians(182)) {
+holdAngle = Math.toRadians(190);
+drivetrain.holdPoint(holdPoint.toPose(holdAngle));
+grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.RESETTING;
+autoTimer.reset();
+} else {
+holdAngle = Math.toRadians(170);
+drivetrain.holdPoint(holdPoint.toPose(holdAngle));
+grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.RESETTING;
+autoTimer.reset();
+}
+}
+break;
+case APPROACHING:
+if (intake.getTargetSlidePos()-intake.getActualSlidePos() < 3) {
+intake.toIntakeState(NewIntake.ToIntakeState.DROP_AND_INTAKE);
+intake.setIntakingState(NewIntake.IntakingState.START_INTAKING);
+autoTimer.reset();
+grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.INTAKING_2;
+}
+break;
+case INTAKING_2:
 
                     if (autoTimer.seconds() > 1) {
-//                        double curHeading = drivetrain.getPoseEstimate().getHeading();
+
+// double curHeading = drivetrain.getPoseEstimate().getHeading();
 //
-//                        if (curHeading > Math.toRadians(183)) {
-//                            targetHeading = Math.toRadians(176);
-//                            drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(176)));
-//                        } else if (curHeading < Math.toRadians(177)) {
-//                            targetHeading = Math.toRadians(183);
-//                            drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(185)));
-//                        } else {
-//                            targetHeading = Math.toRadians(175);
-//                            drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(175)));
-//                        }
+// if (curHeading > Math.toRadians(183)) {
+// targetHeading = Math.toRadians(176);
+// drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(176)));
+// } else if (curHeading < Math.toRadians(177)) {
+// targetHeading = Math.toRadians(183);
+// drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(185)));
+// } else {
+// targetHeading = Math.toRadians(175);
+// drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(175)));
+// }
 //
-                        grabFromSubmersibleState = GrabFromSubmersibleState.RETRACTING;
-//                        intake.toIntakeState(NewIntake.ToIntakeState.SEARCH_POSITION_KEEP_SPINNING);
-//                        extensionDistance = NewIntake.HorizontalSlide.SEARCH_POS.length;
-                        autoTimer.reset();
+grabFromSubmersibleState = GrabFromSubmersibleState.RETRACTING;
+// intake.toIntakeState(NewIntake.ToIntakeState.SEARCH_POSITION_KEEP_SPINNING);
+// extensionDistance = NewIntake.HorizontalSlide.SEARCH_POS.length;
+autoTimer.reset();
 
                     } else {
                         extensionDistance = MathUtil.clip(extensionDistance + 6 * loopTime, -.5, 18.5);
@@ -815,14 +820,15 @@ public class BlueRRLeft0plus7Auto extends LinearOpMode {
         Action moveToGrabBlock1 = drivetrain.drive.actionBuilder(new Pose2d(61.5, 56, Math.toRadians(254)))
                 .setTangent(Math.toRadians(254))
                 .afterTime(0.2, () -> {
-//                    intake.setTargetSlidePos(9);
-//                    extensionDistance = 9;
-                    intake.setIntakingState(NewIntake.IntakingState.START_INTAKING);
-                    autoTimer.reset();
-                })
-                .splineToConstantHeading(new Vector2d(58, 51.5), Math.toRadians(261))
-//                .splineToLinearHeading(new Pose2d(50.5, 50, Math.toRadians(270)), Math.toRadians(270))
-                .build();
+
+// intake.setTargetSlidePos(9);
+// extensionDistance = 9;
+intake.setIntakingState(NewIntake.IntakingState.START_INTAKING);
+autoTimer.reset();
+})
+.splineToConstantHeading(new Vector2d(58, 51.5), Math.toRadians(261))
+// .splineToLinearHeading(new Pose2d(50.5, 50, Math.toRadians(270)), Math.toRadians(270))
+.build();
 
         Action moveToScoreBlock1 = drivetrain.drive.actionBuilder(new Pose2d(58, 51.5, Math.toRadians(261)))
                 .setTangent(Math.toRadians(84))
@@ -915,9 +921,10 @@ public class BlueRRLeft0plus7Auto extends LinearOpMode {
                     return false;
                 }
             };
+
 //hi brett
-        drivetrain.drive.setPoseEstimate(new Pose2d(1, 1, 0));
-        drivetrain.drive.pinpoint.update();
+drivetrain.drive.setPoseEstimate(new Pose2d(1, 1, 0));
+drivetrain.drive.pinpoint.update();
 
         if (drivetrain.drive.pinpoint.fastIsPinpointCooked()) {
             throw new RuntimeException("pinpoint cooked");
@@ -996,14 +1003,14 @@ public class BlueRRLeft0plus7Auto extends LinearOpMode {
             loopTimer.reset();
         }
 
-//        intake.overrideSpinOut();
+// intake.overrideSpinOut();
 //
-//        drivetrain.stopMotors();
-//        intake.stopMotors();
-//        outtake.stopMotors();
+// drivetrain.stopMotors();
+// intake.stopMotors();
+// outtake.stopMotors();
 //
-//        sleep(250);
-    }
+// sleep(250);
+}
 
     public class RunToTimeThreshold implements Action {
         Action action;
@@ -1032,18 +1039,19 @@ public class BlueRRLeft0plus7Auto extends LinearOpMode {
                 return false;
             } else if (autoTimer.seconds()>2) {
                 intake.toIntakeState(NewIntake.ToIntakeState.RETRACT);
-//                extensionDistance = Math.max(extensionDistance-5, 0);
-//                intake.setTargetSlidePos(extensionDistance);
-//                skipScore = true;
-                autoTimer.reset();
-                return false;
-            } else {
-                extensionDistance = MathUtil.clip(extensionDistance + 4 * Math.max(.015, loopTime), -.5, 18.5);
-                intake.setTargetSlidePos(extensionDistance);
-                return true;
-            }
-        }
-    }
+
+// extensionDistance = Math.max(extensionDistance-5, 0);
+// intake.setTargetSlidePos(extensionDistance);
+// skipScore = true;
+autoTimer.reset();
+return false;
+} else {
+extensionDistance = MathUtil.clip(extensionDistance + 4 * Math.max(.015, loopTime), -.5, 18.5);
+intake.setTargetSlidePos(extensionDistance);
+return true;
+}
+}
+}
 
     public class ScoreBlock implements Action {
         private boolean firstLoop = true;
@@ -1208,49 +1216,51 @@ public class BlueRRLeft0plus7Auto extends LinearOpMode {
                         autoTimer.reset();
 
                         // intake.setTargetSlidePos(extensionDistance);
-//                        grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.APPROACHING_HEADING;
-                    } else if (autoTimer.seconds()>.5) {
-                        if (holdAngle<Math.toRadians(182)) {
-                            holdAngle = Math.toRadians(190);
-                            drivetrain.holdPoint(holdPoint.toPose(holdAngle));
-                            grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.RESETTING;
-                            autoTimer.reset();
-                        } else {
-                            holdAngle = Math.toRadians(170);
-                            drivetrain.holdPoint(holdPoint.toPose(holdAngle));
-                            grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.RESETTING;
-                            autoTimer.reset();
-                        }
-                    }
-                    break;
-                case APPROACHING:
-                    if (intake.getTargetSlidePos()-intake.getActualSlidePos() < 3) {
-                        intake.toIntakeState(NewIntake.ToIntakeState.DROP_AND_INTAKE);
-                        intake.setIntakingState(NewIntake.IntakingState.START_INTAKING);
-                        autoTimer.reset();
-                        grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.INTAKING_2;
-                    }
-                    break;
-                case INTAKING_2:
+
+// grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.APPROACHING_HEADING;
+} else if (autoTimer.seconds()>.5) {
+if (holdAngle<Math.toRadians(182)) {
+holdAngle = Math.toRadians(190);
+drivetrain.holdPoint(holdPoint.toPose(holdAngle));
+grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.RESETTING;
+autoTimer.reset();
+} else {
+holdAngle = Math.toRadians(170);
+drivetrain.holdPoint(holdPoint.toPose(holdAngle));
+grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.RESETTING;
+autoTimer.reset();
+}
+}
+break;
+case APPROACHING:
+if (intake.getTargetSlidePos()-intake.getActualSlidePos() < 3) {
+intake.toIntakeState(NewIntake.ToIntakeState.DROP_AND_INTAKE);
+intake.setIntakingState(NewIntake.IntakingState.START_INTAKING);
+autoTimer.reset();
+grabFromSubmersibleState = BlueRRLeft0plus7Auto.GrabFromSubmersibleState.INTAKING_2;
+}
+break;
+case INTAKING_2:
 
                     if (autoTimer.seconds() > 1) {
-//                        double curHeading = drivetrain.getPoseEstimate().getHeading();
+
+// double curHeading = drivetrain.getPoseEstimate().getHeading();
 //
-//                        if (curHeading > Math.toRadians(183)) {
-//                            targetHeading = Math.toRadians(176);
-//                            drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(176)));
-//                        } else if (curHeading < Math.toRadians(177)) {
-//                            targetHeading = Math.toRadians(183);
-//                            drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(185)));
-//                        } else {
-//                            targetHeading = Math.toRadians(175);
-//                            drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(175)));
-//                        }
+// if (curHeading > Math.toRadians(183)) {
+// targetHeading = Math.toRadians(176);
+// drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(176)));
+// } else if (curHeading < Math.toRadians(177)) {
+// targetHeading = Math.toRadians(183);
+// drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(185)));
+// } else {
+// targetHeading = Math.toRadians(175);
+// drivetrain.holdPoint(holdPoint.toPose(Math.toRadians(175)));
+// }
 //
-                        grabFromSubmersibleState = GrabFromSubmersibleState.RETRACTING;
-//                        intake.toIntakeState(NewIntake.ToIntakeState.SEARCH_POSITION_KEEP_SPINNING);
-//                        extensionDistance = NewIntake.HorizontalSlide.SEARCH_POS.length;
-                        autoTimer.reset();
+grabFromSubmersibleState = GrabFromSubmersibleState.RETRACTING;
+// intake.toIntakeState(NewIntake.ToIntakeState.SEARCH_POSITION_KEEP_SPINNING);
+// extensionDistance = NewIntake.HorizontalSlide.SEARCH_POS.length;
+autoTimer.reset();
 
                     } else {
                         extensionDistance = MathUtil.clip(extensionDistance + 6 * loopTime, -.5, 18.5);

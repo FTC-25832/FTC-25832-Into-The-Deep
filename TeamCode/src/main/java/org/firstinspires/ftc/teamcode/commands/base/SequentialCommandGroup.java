@@ -1,18 +1,18 @@
 package org.firstinspires.ftc.teamcode.commands.base;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class SequentialCommandGroup extends CommandBase {
     private final List<Command> commands;
+    public long timeout = 0; // 整个组的超时时间
     private int currentCommandIndex = -1;
     private Command currentCommand = null;
     private long groupStartTime;
     private long currentCommandStartTime;
     private boolean isFinished = false;
-    public long timeout = 0; // 整个组的超时时间
 
     public SequentialCommandGroup(Command... commands) {
         this.commands = new ArrayList<>();

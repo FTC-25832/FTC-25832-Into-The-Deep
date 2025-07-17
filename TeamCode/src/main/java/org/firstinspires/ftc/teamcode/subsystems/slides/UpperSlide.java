@@ -1,43 +1,21 @@
 package org.firstinspires.ftc.teamcode.subsystems.slides;
 
+import static org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.UpperSlideVars;
+
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
-//import com.qualcomm.robotcore.hardware.CurrentUnit;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
-import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
-
-import static org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.UpperSlideVars;
 
 public class UpperSlide extends SubsystemBase {
-    // Hardware components
-    public ServoImplEx arm1;
-    public ServoImplEx arm2;
-    public ServoImplEx swing;
-    public ServoImplEx claw;
-    private DcMotorEx slide1, slide2;
-    public ServoImplEx extendo;
-
-    PwmControl.PwmRange v4range = new PwmControl.PwmRange(500, 2500);
-
-    // Control ranges
-    private final PwmControl.PwmRange swingRange = new PwmControl.PwmRange(500, 2500);
-    private final PwmControl.PwmRange armRange = new PwmControl.PwmRange(500, 2500);
-    private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1270);
-    private final PwmControl.PwmRange extendoRange = new PwmControl.PwmRange(500, 1270);
-
-    // Position control
-    public final PIDFController pidfController;
-    public int tickOffset = 0;
-
     // Constants for encoder calculations
     private static final double PI = 3.14;
     private static final double COUNTS_PER_MOTOR_REV = 28.0;
@@ -45,6 +23,23 @@ public class UpperSlide extends SubsystemBase {
     private static final double DRIVE_GEAR_REDUCTION = 5.23;
     private static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
     private static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
+    // Position control
+    public final PIDFController pidfController;
+    // Control ranges
+    private final PwmControl.PwmRange swingRange = new PwmControl.PwmRange(500, 2500);
+    private final PwmControl.PwmRange armRange = new PwmControl.PwmRange(500, 2500);
+    private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 1270);
+    private final PwmControl.PwmRange extendoRange = new PwmControl.PwmRange(500, 1270);
+    // Hardware components
+    public ServoImplEx arm1;
+    public ServoImplEx arm2;
+    public ServoImplEx swing;
+    public ServoImplEx claw;
+    public ServoImplEx extendo;
+    public int tickOffset = 0;
+    PwmControl.PwmRange v4range = new PwmControl.PwmRange(500, 2500);
+    private double cachedPosition = 0.1; // float if not updated
+    private DcMotorEx slide1, slide2;
 
     public UpperSlide() {
         super("upperslide");
@@ -97,6 +92,8 @@ public class UpperSlide extends SubsystemBase {
 
     @Override
     public void periodic(TelemetryPacket packet) {
+        cachedPosition = 0.1;
+
         // Add slide positions to telemetry
         packet.put("upperslide/position1", getCurrentPosition() + tickOffset);
         packet.put("upperslide/position2", slide2.getCurrentPosition() + tickOffset);
@@ -121,7 +118,10 @@ public class UpperSlide extends SubsystemBase {
     public void setPositionCM(double cm) {
         pidfController.setDestination(Math.round(COUNTS_PER_CM * cm));
     }
-    public void setTickOffset(int tickOffset) { this.tickOffset = tickOffset; }
+
+    public void setTickOffset(int tickOffset) {
+        this.tickOffset = tickOffset;
+    }
 
     // Preset positions
     public void pos0() {
@@ -258,7 +258,10 @@ public class UpperSlide extends SubsystemBase {
     /**
      * Get the current position of the slide (average of both encoders)
      */
-    public double getCurrentPosition() {
-        return slide1.getCurrentPosition() + tickOffset;
+    public int getCurrentPosition() {
+        if (Math.abs(cachedPosition - (int) cachedPosition) > 1e-6) {
+            cachedPosition = slide1.getCurrentPosition() + tickOffset;
+        }
+        return (int) cachedPosition;
     }
 }

@@ -1,27 +1,19 @@
 package org.firstinspires.ftc.teamcode.commands.vision;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
-import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
-import org.firstinspires.ftc.teamcode.utils.math.InterpLUT;
-import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
 import java.util.function.Supplier;
 
 public class DistanceAdjustCalculatedY extends CommandBase {
     private final LowerSlide lowSlide;
+    Supplier<Double> dySupplier;
     // private final Gamepad gamepad1;
     private boolean isAdjusted = false;
     private double dy;
-    Supplier<Double> dySupplier;
 
     public DistanceAdjustCalculatedY(LowerSlide lowSlide, Supplier<Double> dySupplier) {
         this.lowSlide = lowSlide;

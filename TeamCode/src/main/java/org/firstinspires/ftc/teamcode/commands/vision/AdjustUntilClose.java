@@ -11,8 +11,10 @@ import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 import java.util.function.Supplier;
 
 public class AdjustUntilClose extends CommandBase {
+    private static final double TOLERANCE = ConfigVariables.Camera.TOLERANCE; // ±0.25 degrees tolerance
+    private static final int MAX_ATTEMPTS = 4; // Maximum adjustment iterations
+    private static final double ADJUSTMENT_DELAY = ConfigVariables.Camera.ADJUSTMENT_DELAY; // 500ms between adjustments
     private final MecanumDrive drive;
-
     private final LowerSlide lowSlide;
     private final Runnable disableDriveControl;
     private final Runnable enableDriveControl;
@@ -21,19 +23,12 @@ public class AdjustUntilClose extends CommandBase {
     private final Supplier<Double> tySupplier;
     private final Supplier<Double> pxSupplier;
     private final Supplier<Double> pySupplier;
-
-
     private DistanceAdjustLUTX xAdjustCommand;
     private DistanceAdjustLUTY yAdjustCommand;
-
     private boolean isXAdjusting = false;
     private boolean isYAdjusting = false;
     private boolean isFinished = false;
-private  boolean firstTime = true;
-    private static final double TOLERANCE = ConfigVariables.Camera.TOLERANCE; // ±0.25 degrees tolerance
-    private static final int MAX_ATTEMPTS = 4; // Maximum adjustment iterations
-    private static final double ADJUSTMENT_DELAY = ConfigVariables.Camera.ADJUSTMENT_DELAY; // 500ms between adjustments
-
+    private boolean firstTime = true;
     private int attemptCount = 0;
     private ElapsedTime timeBetweenAdjustments;
 

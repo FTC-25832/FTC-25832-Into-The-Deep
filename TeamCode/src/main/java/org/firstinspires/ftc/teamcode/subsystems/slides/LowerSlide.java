@@ -1,34 +1,19 @@
 package org.firstinspires.ftc.teamcode.subsystems.slides;
 
+import static org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.LowerSlideVars;
+
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.utils.control.ControlHub;
 import org.firstinspires.ftc.teamcode.utils.control.ExpansionHub;
-import org.firstinspires.ftc.teamcode.subsystems.base.SubsystemBase;
-
-import static org.firstinspires.ftc.teamcode.utils.control.ConfigVariables.LowerSlideVars;
 
 public class LowerSlide extends SubsystemBase {
-    // Hardware components
-    private ServoImplEx part1, part2, spinclaw, claw;
-    public DcMotor slideMotor;
-
-    // Control ranges
-    private final PwmControl.PwmRange servoRange = new PwmControl.PwmRange(500, 2500);
-    private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 2500);
-
-    // Position control
-    public final PIDFController pidfController;
-    private boolean PIDEnabled = true;
-    public int tickOffset = 0;
-
     // Constants for encoder calculations
     private static final double PI = 3.14;
     private static final double COUNTS_PER_MOTOR_REV = 28.0;
@@ -36,6 +21,17 @@ public class LowerSlide extends SubsystemBase {
     private static final double DRIVE_GEAR_REDUCTION = 3.5;
     private static final double COUNTS_PER_WHEEL_REV = COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION;
     private static final double COUNTS_PER_CM = (COUNTS_PER_WHEEL_REV / WHEEL_CIRCUMFERENCE_MM) * 10;
+    // Position control
+    public final PIDFController pidfController;
+    // Control ranges
+    private final PwmControl.PwmRange servoRange = new PwmControl.PwmRange(500, 2500);
+    private final PwmControl.PwmRange clawRange = new PwmControl.PwmRange(500, 2500);
+    public DcMotor slideMotor;
+    public int tickOffset = 0;
+    // Hardware components
+    private ServoImplEx part1, part2, spinclaw, claw;
+    private boolean PIDEnabled = true;
+    private double cachedPosition = 0.1;
 
     public LowerSlide() {
         super("lowerslide");
@@ -85,6 +81,7 @@ public class LowerSlide extends SubsystemBase {
 
     @Override
     public void periodic(TelemetryPacket packet) {
+        cachedPosition = 0.1;
         // Add slide positions to telemetry
         packet.put("lowerslide/position", getCurrentPosition());
         packet.put("lowerslide/target", pidfController.destination);
@@ -168,7 +165,10 @@ public class LowerSlide extends SubsystemBase {
     public void setSlidePos2() {
         setPositionCM(LowerSlideVars.POS_2_CM);
     }
-    public void setTickOffset(int tickOffset) { this.tickOffset = tickOffset; }
+
+    public void setTickOffset(int tickOffset) {
+        this.tickOffset = tickOffset;
+    }
 
     // Claw controls
     public void closeClaw() {
@@ -183,15 +183,15 @@ public class LowerSlide extends SubsystemBase {
      * Update PID control and return the calculated power
      */
     public double updatePID() {
-        if(!PIDEnabled) return 0;
+        if (!PIDEnabled) return 0;
         double power = pidfController.calculate(getCurrentPosition());
         slideMotor.setPower(power);
         return power;
     }
 
-     public void setPIDEnabled(boolean enabled) {
-     this.PIDEnabled = enabled;
-     }
+    public void setPIDEnabled(boolean enabled) {
+        this.PIDEnabled = enabled;
+    }
 
     @Override
     public void stop() {
@@ -207,8 +207,11 @@ public class LowerSlide extends SubsystemBase {
     /**
      * Get the current position of the slide
      */
-    public double getCurrentPosition() {
-        return slideMotor.getCurrentPosition() + tickOffset;
+    public int getCurrentPosition() {
+        if (Math.abs(cachedPosition - (int) cachedPosition) > 1e-6) {
+            cachedPosition = slideMotor.getCurrentPosition() + tickOffset;
+        }
+        return (int) cachedPosition;
     }
 
     public double getCurrentPositionCM() {

@@ -3,31 +3,25 @@ package org.firstinspires.ftc.teamcode.commands.vision;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
-import org.firstinspires.ftc.teamcode.utils.math.InterpLUT;
-import org.firstinspires.ftc.teamcode.utils.timing.Timeout;
 
 import java.util.function.Supplier;
 
 public class DistanceAdjustCalculatedX extends CommandBase {
     private final MecanumDrive drive;
+    private final Runnable disableDriveControl;
+    private final Runnable enableDriveControl;
+    Supplier<Double> dxSupplier, dySupplier;
     private double dy, dx;
     private boolean isAdjusted = false;
     private Action moveAction = null;
-    Supplier<Double> dxSupplier, dySupplier;
-    private final Runnable disableDriveControl;
-    private final Runnable enableDriveControl;
 
     public DistanceAdjustCalculatedX(MecanumDrive drive, Supplier<Double> dxSupplier, Supplier<Double> dySupplier, Runnable disableDriveControl,
-                              Runnable enableDriveControl) {
+                                     Runnable enableDriveControl) {
         this.dySupplier = dySupplier;
         this.dxSupplier = dxSupplier;
         this.drive = drive;
@@ -77,7 +71,7 @@ public class DistanceAdjustCalculatedX extends CommandBase {
             // Δtx = 180/pi arctan(tan(ty*pi/180)*gradientpx))
 
             final double gradientpx = ConfigVariables.Camera.XYDISTANCERATIO;
-            final double ddx = dy*gradientpx;
+            final double ddx = dy * gradientpx;
             packet.put("vision/ddx", ddx);
             dx = dx + ddx;
             adjustx(dx, packet);

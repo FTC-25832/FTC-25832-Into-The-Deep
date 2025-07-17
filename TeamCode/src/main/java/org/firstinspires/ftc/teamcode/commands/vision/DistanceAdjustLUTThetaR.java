@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.commands.vision;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.teamcode.commands.base.CommandBase;
@@ -20,12 +19,12 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
     private final LowerSlide lowSlide;
     // private final InterpLUT lutratio = new InterpLUT();
     private final MecanumDrive drive;
+    private final Runnable disableDriveControl;
+    private final Runnable enableDriveControl;
+    Supplier<Double> txSupplier, pxSupplier, pySupplier, tySupplier;
     private double tx, py, ty, px;
     private boolean isAdjusted = false;
     private Action moveAction = null;
-    Supplier<Double> txSupplier, pxSupplier, pySupplier, tySupplier;
-    private final Runnable disableDriveControl;
-    private final Runnable enableDriveControl;
 
     public DistanceAdjustLUTThetaR(LowerSlide lowslide, MecanumDrive drive, Supplier<Double> txSupplier, Supplier<Double> tySuplier, Supplier<Double> pxSupplier, Supplier<Double> pySupplier, Runnable disableDriveControl,
                                    Runnable enableDriveControl) {
@@ -57,9 +56,11 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
         moveAction = null;
         disableDriveControl.run();
     }
+
     public double pixToAngle(double px) { // return rad
-        return Math.atan((px-ConfigVariables.Camera.CAMERA_MATRIX[0][2]) / ConfigVariables.Camera.CAMERA_MATRIX[0][0]);
+        return Math.atan((px - ConfigVariables.Camera.CAMERA_MATRIX[0][2]) / ConfigVariables.Camera.CAMERA_MATRIX[0][0]);
     }
+
     @Override
     public void execute(TelemetryPacket packet) {
         packet.put("DistanceAdjustLUTX/dx_input", tx);
@@ -107,7 +108,7 @@ public class DistanceAdjustLUTThetaR extends CommandBase {
             packet.put("vision/b", b);
             final double crosshairY = ConfigVariables.Camera.CROSSHAIR_Y_PX;
             // find x in px at crosshairY, x = my+b
-            final double newpx = m*crosshairY + b;
+            final double newpx = m * crosshairY + b;
             packet.put("vision/newpx", newpx);
             // tx = (px-cx)/fx
             final double fx1 = pixToAngle(newpx);

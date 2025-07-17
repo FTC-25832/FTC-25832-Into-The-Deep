@@ -17,7 +17,6 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.commands.base.SaveRobotStateCommand;
 import org.firstinspires.ftc.teamcode.commands.base.WaitCommand;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideCommands;
 import org.firstinspires.ftc.teamcode.commands.slide.LowerSlideGrabSequenceCommand;
@@ -34,6 +33,7 @@ import org.firstinspires.ftc.teamcode.sensors.limelight.LimeLightImageTools;
 import org.firstinspires.ftc.teamcode.sensors.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.slides.LowerSlide;
 import org.firstinspires.ftc.teamcode.subsystems.slides.UpperSlide;
+import org.firstinspires.ftc.teamcode.utils.RobotStateStore;
 import org.firstinspires.ftc.teamcode.utils.control.ConfigVariables;
 
 @Autonomous
@@ -126,7 +126,7 @@ public final class AutoSample05 extends LinearOpMode {
     }
 
     private SequentialAction pickupAndScoreSequence(RobotPosition startPOS, AutoPaths.RobotPosition pickupPos,
-                                                    double lowerslideExtendLength, boolean adjustMultipleTimes) {
+                                                    double lowerslideExtendLength) {
         return new SequentialAction(
                 // Drive to pickup
                 // new SetDriveSpeedCommand(40).toAction(),
@@ -150,6 +150,42 @@ public final class AutoSample05 extends LinearOpMode {
                 transferAndScoreSequence(pickupPos, pickupPos, lowerslideExtendLength));
     }
 
+    private SequentialAction tankPickupAndScoreSequence() {
+        return new SequentialAction(
+                new ParallelAction(
+                        drive.actionBuilder(SCORE.pose)
+                                .strafeTo(new Vector2d(
+                                        39, 28))
+                                .splineTo(new Vector2d(
+                                                30, 15),
+                                        Math.toRadians(205))
+                                .build(),
+                        lowerSlideCommands.slidePos1()
+                ),
+                new WaitCommand(ConfigVariables.AutoTesting.I_SUBDELAY_S)
+                        .toAction(),
+                adjustSequence(),
+                new WaitCommand(ConfigVariables.Camera.CAMERA_DELAY).toAction(),
+                new AngleAdjustCommand(lowSlide, camera)
+                        .toAction(),
+                pickupSequence(),
+                new ParallelAction(
+                        // Drive to score
+                        drive.actionBuilder(SCORE.pose, ConfigVariables.AutoTesting.TANK_SPEED_MUTIPLIER, ConfigVariables.AutoTesting.TANK_ANGULAR_MUTIPLIER)
+                                .setReversed(true)
+                                .splineTo(new Vector2d(
+                                                44, 28),
+                                        SCORE.heading - Math
+                                                .toRadians(170))
+                                .splineTo(SCORE.pos,
+                                        SCORE.heading - Math
+                                                .toRadians(170))
+                                .build(),
+                        transferWhileDriving()),
+                frontForDrop(),
+                dropAndResetUpperSlides());
+    }
+
     private Action transferSequence() {
         return new LowerUpperTransferSequenceCommand(lowerSlideCommands, upperSlideCommands).toAction();
     }
@@ -160,11 +196,13 @@ public final class AutoSample05 extends LinearOpMode {
 
     private Action adjustSequence() {
         return new SequentialAction(
-                new CameraUpdateDetectorResult(camera).toAction(), new DistanceAdjustLUTThetaR(lowSlide, drive,
-                camera::getTx, camera::getTy, camera::getPx, camera::getPy,
-                () -> {
-                }, () -> {
-        }).toAction());
+                new CameraUpdateDetectorResult(camera).toAction(),
+                new DistanceAdjustLUTThetaR(lowSlide, drive,
+                        camera::getTx, camera::getTy, camera::getPx, camera::getPy,
+                        () -> {
+                        }, () -> {
+                })
+                        .toAction());
     }
 
     @Override
@@ -219,100 +257,28 @@ public final class AutoSample05 extends LinearOpMode {
                                         ConfigVariables.AutoTesting.Z_LowerslideExtend_FIRST),
                                 new ParallelAction(
                                         pickupAndScoreSequence(SCORE, PICKUP1,
-                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_FIRST,
-                                                false),
+                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_FIRST
+                                        ),
                                         lowerSlideCommands.setSpinClawDeg(
                                                 ConfigVariables.LowerSlideVars.ZERO
                                                         + 45)),
                                 new ParallelAction(
                                         pickupAndScoreSequence(SCORE, PICKUP2,
-                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND,
-                                                false),
+                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_SECOND
+                                        ),
                                         lowerSlideCommands.setSpinClawDeg(
                                                 ConfigVariables.LowerSlideVars.ZERO
                                                         + 45)),
                                 new ParallelAction(
                                         pickupAndScoreSequence(SCORE, PICKUP3,
-                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD,
-                                                true),
+                                                ConfigVariables.AutoTesting.Z_LowerslideExtend_THIRD
+                                        ),
                                         lowerSlideCommands.setSpinClawDeg(
                                                 ConfigVariables.LowerSlideVars.ZERO
                                                         + 90)),
-                                new ParallelAction(
-                                        drive.actionBuilder(SCORE.pose)
-                                                .strafeTo(new Vector2d(
-                                                        39, 28))
-                                                .splineTo(new Vector2d(
-                                                                30, 15),
-                                                        Math.toRadians(205))
-                                                .build(),
-                                        lowerSlideCommands.slidePos1()
-                                ),
-                                new WaitCommand(ConfigVariables.AutoTesting.I_SUBDELAY_S)
-                                        .toAction(),
-                                adjustSequence(),
-                                new WaitCommand(ConfigVariables.Camera.CAMERA_DELAY).toAction(),
-                                new AngleAdjustCommand(lowSlide, camera)
-                                        .toAction(),
-                                new WaitCommand(ConfigVariables.AutoTesting.J_AFTERSUBDELAY_S)
-                                        .toAction(),
-                                pickupSequence(),
-                                new ParallelAction(
-                                        // Drive to score
-                                        drive.actionBuilder(SCORE.pose)
-                                                .setReversed(true)
-                                                .splineTo(new Vector2d(
-                                                                44, 28),
-                                                        SCORE.heading - Math
-                                                                .toRadians(170))
-                                                .splineTo(SCORE.pos,
-                                                        SCORE.heading - Math
-                                                                .toRadians(170))
-                                                .build(),
-                                        transferWhileDriving()),
-                                frontForDrop(),
-                                dropAndResetUpperSlides(),
-                                new SaveRobotStateCommand(drive, lowSlide, upSlide).toAction()
+                                tankPickupAndScoreSequence()
                         )
                 ));
-//                Actions.runBlocking(
-//                        new ParallelAction(
-//                                new UpperSlideUpdatePID(upSlide).toAction(),
-//                                new LowerSlideUpdatePID(lowSlide).toAction(),
-//                                new SequentialAction(
-//                                        new ParallelAction(
-//                                                drive.actionBuilder(SCORE.pose)
-//                                                        .strafeTo(new Vector2d(
-//                                                                39, 28))
-//                                                        .splineTo(new Vector2d(
-//                                                                        30, 15),
-//                                                                Math.toRadians(205))
-//                                                        .build(),
-//                                                lowerSlideCommands.slidePos1()
-//                                        ),
-//                                        new WaitCommand(ConfigVariables.AutoTesting.I_SUBDELAY_S)
-//                                                .toAction(),
-//                                        new ParallelAction(
-//                                                adjustMultipleSequence(),
-//                                                new AngleAdjustCommand(lowSlide, camera)
-//                                                        .toAction()),
-//                                        new WaitCommand(ConfigVariables.AutoTesting.J_AFTERSUBDELAY_S)
-//                                                .toAction(),
-//                                        pickupSequence(),
-//                                        new ParallelAction(
-//                                                // Drive to score
-//                                                drive.actionBuilder(SCORE.pose)
-//                                                        .setReversed(true)
-//                                                        .splineTo(new Vector2d(
-//                                                                        44, 28),
-//                                                                SCORE.heading - Math
-//                                                                        .toRadians(170))
-//                                                        .splineTo(SCORE.pos,
-//                                                                SCORE.heading - Math
-//                                                                        .toRadians(170))
-//                                                        .build(),
-//                                                transferWhileDriving()),
-//                                        frontForDrop(),
-//                                        dropAndResetUpperSlides())));
+        RobotStateStore.save(drive.localizer.getPose(), lowSlide.getCurrentPosition(), upSlide.getCurrentPosition());
     }
 }
